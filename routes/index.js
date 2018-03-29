@@ -22,5 +22,5 @@ async function search(room) {
     }
 }
 
-search("Ny228K")
+search("Ny208K")
 
