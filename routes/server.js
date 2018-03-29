@@ -6,6 +6,7 @@ const io = require("socket.io")(server);
 const exphbs = require("express-handlebars");
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
+const ngrok = require('ngrok');
 
 require('dotenv').load();
 
@@ -45,6 +46,11 @@ server.listen(process.env.PORT);
 console.log(`started on port ${process.env.PORT}`);
 
 app.use(express.static(__dirname + "/../public"));
+
+(async function() {
+	const url = await ngrok.connect(3000);
+    console.log("Public Link: " +  url);
+})();
 
 module.exports.a = app;
 module.exports.io = io;
