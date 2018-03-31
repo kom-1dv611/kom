@@ -12,6 +12,10 @@ app.get("/", function(req, res) {
     res.render("index");
 });
 
+app.get("/:id", function(req, res) {
+    res.render("room", {room: req.params.id});
+});
+
 async function search(room) {
     let exists = await timeEdit.search(room)
     if(exists) {

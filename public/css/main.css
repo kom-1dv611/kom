@@ -1,0 +1,35 @@
+body {
+    position: absolute;
+    background-image: url("/client/imgs/background.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    width: 100%;
+    height: 100%;
+}
+
+h1 {
+    font-size: 6em;
+}
+
+.breadcrumb-item.active {
+    color: #0275d8;
+}
+
+.dropdown-menu {
+    min-width: 25px !important;
+}
+
+#clock {
+    position: absolute;
+    top: 80%;
+    width: 100%;
+    color:white;
+}
+
+#book {
+    position: absolute;
+    width: 100%;
+    top: 45%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
