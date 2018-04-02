@@ -16,15 +16,23 @@ app.get("/:id", function(req, res) {
     res.render("room", {room: req.params.id});
 });
 
+async function exists(room) {
+    return await timeEdit.search(room);
+}
+
 async function search(room) {
-    let exists = await timeEdit.search(room)
-    if(exists) {
-        let schedule = await timeEdit.getSchedule(room);
-        console.log(schedule);
+    let toReturn = undefined;
+    if(exists(room)) {
+        toReturn = await timeEdit.getSchedule(room);
     } else {
         console.log("Room does not exist!");
     }
+    return toReturn;
 }
 
-search("Ny208K")
+async function demo() {
+    console.log(await search("Ny208K"));
+}
+
+demo();
 

@@ -2,43 +2,9 @@
 <html>
     {{>head}}
     <body>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{room}}</li>
-            </ol>
-        </nav>
-        <h1 class="text-center text-success animated fadeIn">Available</h1>
-        <div id="book" class="animated fadeIn">
-            <div class="row">
-                <div class="col">
-                    <div class="float-right">
-                        <label class="text-light">Hours</label>
-                        <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            ---
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-center" aria-labelledby="hours">
-                            <li>1</li>
-                            <li>2</li>
-                            <li>3</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col">
-                    <div>
-                        <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            ---
-                        </button>
-                        <label class="text-light">Minutes</label>
-                        <ul class="dropdown-menu dropdown-menu-center" aria-labelledby="hours">
-                            <li>10</li>
-                            <li>20</li>
-                            <li>30</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {{>nav}}
+        <h1 class="text-center animated fadeIn">Available</h1>
+        {{>booking}}
         <h1 id="clock" class="text-center animated slideInUp"></h1>
     </body>
     <script src="/client/showTime.js"></script>
