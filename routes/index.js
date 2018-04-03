@@ -9,7 +9,29 @@ const timeEdit = timeEditApi(
 );
 
 app.get("/", function(req, res) {
-    res.render("index");
+    let rooms = [
+        {name: "coolRoom", available: false},
+        {name: "coolRoom", available: false},
+        {name: "coolRoom", available: true},
+        {name: "coolRoom", available: false},
+        {name: "coolRoom", available: false},
+        {name: "coolRoom", available: false},
+        {name: "coolRoom", available: false}
+    ];
+
+    let size = Math.ceil(rooms.length / 3);
+    let rows = [];
+    for(let i = 0; i < size; i++) {
+        rows.push({})
+        rows[i].cols = [];
+        for(let j = i * 3; j < (i * 3) + 3; j++) {
+            if(rooms[j] != undefined) {
+                rows[i].cols.push(rooms[j]);
+            }
+        }
+    }
+
+    res.render("index", {rows: rows});
 });
 
 app.get("/:id", function(req, res) {
@@ -34,5 +56,5 @@ async function demo() {
     console.log(await search("Ny208K"));
 }
 
-demo();
+//demo();
 
