@@ -1,6 +1,7 @@
 'use strict';
 
 let express = require('express');
+
 let exphbs = require('express-handlebars');
 let bodyParser = require('body-parser');
 let path = require('path');
@@ -10,6 +11,12 @@ let port = 2000;
 let app = express();
 let http = require('http').Server(app);
 let io = require('socket.io')(http);
+
+const mongoose = require('mongoose')
+let Room = require('./models/Room')
+let RoomModel = mongoose.model('Room')
+
+require('./config/database').initialize();
 
 app.engine('.hbs', exphbs({
     defaultLayout: 'main',
@@ -35,7 +42,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 //Routes
-let routes = require('./routes/routes');  ////http://stackoverflow.com/questions/25700737/nodejs-access-socket-io-instance-in-express-routes-files
+let routes = require('./routes/routes')(RoomModel);  
 app.use('/', routes);
 
 

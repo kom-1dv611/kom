@@ -1,17 +1,46 @@
-'use strict';
+'use strict';     
 
 const timeEditApi = require('timeeditApi');
 const timeEdit = timeEditApi(
     'https://se.timeedit.net/web/lnu/db1/schema1/', 4                                              
 );
-const roomSchema = require('../model/Room.js')
 
-
-let request = require('request');
 let router = require("express").Router();
+    
+module.exports = function(RoomModel) {
+    
 
+router.route('/')
+        .get(function(req, res) {
+            res.render('bookroom')
+        })
+        .post(function(req, res) {
+            console.log('rot');
+
+            let data = {
+                username: req.body.username,
+                room: req.body.roomName,
+                bookingLength: req.body.length,
+                startTime: req.body.startTime,
+            }
+
+            let bookRoom = new RoomModel(data)
+
+            bookRoom.save((err) => {
+                console.log('saved')
+            })
+            
+        })
 
     router.route('/room/:roomID')
+        .get(function(req, res) {
+            res.render('bookroom');
+        })
+        .post(function(req, res) {
+           res.send({'message': 'saved'})
+        })
+
+    router.route('/room/:roomID/schedule/today')
         .get(function (req, res) {
             timeEdit.getTodaysSchedule(req.params.roomID)
             .then((roomSchedule) => {
@@ -28,7 +57,7 @@ let router = require("express").Router();
             });
     });
 
-    router.route('/room/schedule/:roomID')
+    router.route('/room/:roomID/schedule/')
         .get(function (req, res) {
             // full schedule 
             timeEdit.getSchedule(req.params.roomID)
@@ -49,4 +78,6 @@ let router = require("express").Router();
             });
         });
 
-module.exports = router;
+        return router;
+    }
+

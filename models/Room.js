@@ -1,10 +1,10 @@
 let mongoose = require('mongoose');
 
-let roomSchema = new mongoose.Schema({
+let roomSchema = mongoose.Schema({
     username: {type: String, required: true},
     room: {type: String, required: true},
     bookingLength: {type: Number, required: true},
-    startTime: {type: Date, default: Date.now(), required: true} 
+    startTime: {type: String, required: true} 
 });
 
 let Room = mongoose.model('Room', roomSchema);

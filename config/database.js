@@ -2,8 +2,24 @@
 
 let mongoose = require('mongoose');
 
-module.exports = function () {
-    let link = 'mongodb://sofiasuser:sofia@ds145380.mlab.com:45380/sofiasdatabas';
-    let db = mongoose.connect(link);
-    return db;
+module.exports =  {
+    initialize : function() {
+        let db = mongoose.connection;
+ 
+        db.on("error", console.error.bind(console, "connection error:"));
+ 
+        db.once("open", function() {
+            console.log("Succesfully connected to mongoDB \n----");
+        });
+ 
+        process.on("SIGINT", function() {
+            db.close(function() {
+                console.log("Mongoose connection disconnected through app termination.");
+                process.exit(0);
+            });
+        });
+ 
+        // Connect to the database.
+        mongoose.connect('mongodb://viatrophy:viatrophy@ds135089.mlab.com:35089/viatrophy');
+ }
 };
