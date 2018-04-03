@@ -1,0 +1,29 @@
+{
+  "name": "kom",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.3",
+    "express-handlebars": "^3.0.0",
+    "mongoose": "^5.0.12",
+    "path": "^0.12.7",
+    "socket.io": "^2.1.0",
+    "timeeditapi": "^4.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kom-1dv611/kom.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kom-1dv611/kom/issues"
+  },
+  "homepage": "https://github.com/kom-1dv611/kom#readme"
+}
