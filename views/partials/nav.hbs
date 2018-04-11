@@ -1,0 +1,10 @@
+<nav>
+    <ol class="breadcrumb">
+        {{#if room}}
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{room}}</li>
+        {{else}}
+            <li class="breadcrumb-item active"><a href="#">Home</a></li>
+        {{/if}}
+    </ol>
+</nav>
