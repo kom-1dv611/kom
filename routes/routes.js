@@ -12,29 +12,7 @@ module.exports = function(RoomModel) {
 
 router.route('/')
         .get(function(req, res) {
-            let rooms = [
-                {name: "coolRoom", available: false},
-                {name: "coolRoom", available: false},
-                {name: "coolRoom", available: true},
-                {name: "coolRoom", available: false},
-                {name: "coolRoom", available: false},
-                {name: "coolRoom", available: false},
-                {name: "coolRoom", available: false}
-            ];
-        
-            let size = Math.ceil(rooms.length / 3);
-            let rows = [];
-            for(let i = 0; i < size; i++) {
-                rows.push({})
-                rows[i].cols = [];
-                for(let j = i * 3; j < (i * 3) + 3; j++) {
-                    if(rooms[j] != undefined) {
-                        rows[i].cols.push(rooms[j]);
-                    }
-                }
-            }
-        
-            res.render("index", {rows: rows});
+            res.render('bookroom')
         })
         .post(function(req, res) {
             console.log('rot');
@@ -54,11 +32,15 @@ router.route('/')
             
         })
 
-    router.route('/:roomID')
+    router.route('/room/:roomID')
         .get(function(req, res) {
-            res.render("room", {room: req.params.id});
-        });
-    router.route('/:roomID/schedule/today')
+            res.render('bookroom');
+        })
+        .post(function(req, res) {
+           res.send({'message': 'saved'})
+        })
+
+    router.route('/room/:roomID/schedule/today')
         .get(function (req, res) {
             timeEdit.getTodaysSchedule(req.params.roomID)
             .then((roomSchedule) => {
