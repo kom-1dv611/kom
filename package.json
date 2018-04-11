@@ -1,29 +1,24 @@
 {
-  "name": "kom",
+  "name": "kom-1dv611",
   "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
-  "dependencies": {
-    "body-parser": "^1.18.2",
-    "express": "^4.16.3",
-    "express-handlebars": "^3.0.0",
-    "mongoose": "^5.0.12",
-    "path": "^0.12.7",
-    "socket.io": "^2.1.0",
-    "timeeditapi": "^4.1.0"
-  },
-  "devDependencies": {},
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index",
+    "stop": "node"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kom-1dv611/kom.git"
-  },
-  "author": "",
+  "author": "Lukas N, Sofia B, Alva F, Jonas E",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/kom-1dv611/kom/issues"
-  },
-  "homepage": "https://github.com/kom-1dv611/kom#readme"
+  "dependencies": {
+    "body-parser": "^1.17.0",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.15.0",
+    "express-handlebars": "^3.0.0",
+    "express-session": "^1.15.1",
+    "ngrok": "^3.0.1",
+    "request": "^2.80.0",
+    "socket.io": "^1.7.4",
+    "timeeditapi": "^4.1.0",
+    "mongoose": "^5.0.12",
+    "path": "^0.12.7"
+  }
 }

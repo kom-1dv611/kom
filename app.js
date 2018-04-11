@@ -19,7 +19,7 @@ let RoomModel = mongoose.model('Room')
 require('./config/database').initialize();
 
 app.engine('.hbs', exphbs({
-    defaultLayout: 'main',
+    //defaultLayout: 'main',
     extname: '.hbs'
 }));
 app.set('view engine', '.hbs');
