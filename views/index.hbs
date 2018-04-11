@@ -1,30 +1,26 @@
-<!doctype html>
-<html>
-    {{>head}}
-    <body>
-        {{>nav}}
-        <main class="container">
-            {{#each rows}}
-                <div class="row top-buffer">
-                    {{#each cols}}
-                        <div class="col">
-                            <div class="card">
-                                <div class="card-block text-center">
-                                    <h4 class="card-title"><a href="/{{name}}">{{name}}</a></h4>
-                                    {{#if available}}
-                                        <h6 class="card-subtitle mb-2 text-success">Available</h6>
-                                    {{else}}
-                                        <h6 class="card-subtitle mb-2 text-muted">In use</h6>
-                                    {{/if}} 
-                                </div>
-                            </div>
+<main class="container">
+    {{#each rows}}
+        <div class="row top-buffer">
+            {{#each cols}}
+                <div class="col">
+                    <a href="/{{name}}">
+                    <div class="card">
+                        <div class="card-block text-center">
+                            <h4 class="card-title">{{name}}</h4>
+                            {{#if available}}
+                                <h6 class="card-subtitle mb-2 text-success">Available</h6>
+                            {{else}}
+                                <h6 class="card-subtitle mb-2 text-muted">In use</h6>
+                            {{/if}} 
                         </div>
-                    {{/each}}
+                    </div>
+                    </a>
                 </div>
-            {{else}}
-                <h1>No rooms found, contact the website admin(s)</h1>
             {{/each}}
-        </main>
-    </body>
-    <script src="/client/showTime.js"></script>
-</html>
+        </div>
+    {{else}}
+        <h1>No rooms found, contact the website admin(s)</h1>
+    {{/each}}
+</main>
+</body>
+<script src="/client/showTime.js"></script>

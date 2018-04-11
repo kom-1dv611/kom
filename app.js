@@ -16,14 +16,24 @@ const mongoose = require('mongoose')
 let Room = require('./models/Room')
 let RoomModel = mongoose.model('Room')
 
+let Handlebars = require("handlebars");
+
 require('./config/database').initialize();
 
 app.engine('.hbs', exphbs({
-    //defaultLayout: 'main',
+    defaultLayout: 'main',
     extname: '.hbs'
 }));
 app.set('view engine', '.hbs');
  
+Handlebars.registerHelper( 'loop', function( from, to, inc = 1, block ) {
+    let toReturn = "";
+        for(let i = from; i <= to; i++) {
+            toReturn += block.fn(i * inc);
+        }
+    return toReturn;
+});
+
 
 //Static files
 app.use(express.static(path.join(__dirname, 'public')));

@@ -20,6 +20,9 @@ h4 a {
 .card:hover {
   background-color: rgba(0, 0, 0, 0.1) !important; }
 
+.card {
+  color: black; }
+
 .breadcrumb-item.active {
   color: #0275d8; }
 
@@ -31,6 +34,9 @@ h4 a {
 
 .top-buffer {
   margin-top: 20px !important; }
+
+.dropdown-item:hover {
+  background-color: rgba(0, 0, 0, 0.1); }
 
 #clock,
 #book {

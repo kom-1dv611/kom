@@ -5,9 +5,11 @@
         </button>
         <ul class="dropdown-menu text-center" aria-labelledby="hours">
             <li class="dropdown-header">Hours</li>
-            <li>1</li>
-            <li>2</li>
-            <li>3</li>
+            {{#loop 1 5 1}}
+                <li class="dropdown-item">
+                    {{this}}
+                </li>
+            {{/loop}}
         </ul>
     </div>
 </div>
