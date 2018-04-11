@@ -1,0 +1,76 @@
+$mainTextColor: white;
+$mainOverlayColor: rgba(0, 0, 0, 0.5);
+$mainOnHoverColor: rgba(0, 0, 0, 0.1);
+
+$background: url("/client/imgs/background.png");
+
+@mixin background($image) {
+    background-image: $image;
+    background-repeat: no-repeat;
+    background-size: cover;
+} 
+
+@mixin fullSize() {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    @include fullSize();
+    position: absolute;
+    @include background($background);
+    margin: 0 0;
+}
+
+h1 {
+    font-size: 6em;
+    color: $mainTextColor;
+}
+
+
+h4 {
+    a {
+        color: rgb(33, 37, 41) !important;
+
+    }
+}
+.row {
+    margin: 0 !important;
+}
+
+.card:hover {
+    background-color: $mainOnHoverColor !important;
+}
+
+.breadcrumb-item.active {
+    color: #0275d8;
+}
+
+.dropdown-menu {
+    min-width: 75px !important;
+}
+
+.breadcrumb {
+    background-color: $mainOverlayColor !important;
+}
+
+.top-buffer {
+     margin-top:20px !important; 
+}
+
+#clock,
+#book {
+    position: absolute;
+    width: 100%;
+}
+
+#clock {
+    top: 70%;
+    color: $mainTextColor;
+    margin-bottom: 0;
+}
+
+#book {
+    top: 45%;
+    background-color: $mainOverlayColor;
+}

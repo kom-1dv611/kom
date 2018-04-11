@@ -1,0 +1,47 @@
+body {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-image: url("/client/imgs/background.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  margin: 0 0; }
+
+h1 {
+  font-size: 6em;
+  color: white; }
+
+h4 a {
+  color: #212529 !important; }
+
+.row {
+  margin: 0 !important; }
+
+.card:hover {
+  background-color: rgba(0, 0, 0, 0.1) !important; }
+
+.breadcrumb-item.active {
+  color: #0275d8; }
+
+.dropdown-menu {
+  min-width: 75px !important; }
+
+.breadcrumb {
+  background-color: rgba(0, 0, 0, 0.5) !important; }
+
+.top-buffer {
+  margin-top: 20px !important; }
+
+#clock,
+#book {
+  position: absolute;
+  width: 100%; }
+
+#clock {
+  top: 70%;
+  color: white;
+  margin-bottom: 0; }
+
+#book {
+  top: 45%;
+  background-color: rgba(0, 0, 0, 0.5); }
