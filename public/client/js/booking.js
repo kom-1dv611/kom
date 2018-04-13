@@ -1,4 +1,4 @@
-function myFunction() {
+function saveUser() {
     var txt;
     var person = prompt("Please enter your username:");
 

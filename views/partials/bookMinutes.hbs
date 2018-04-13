@@ -1,11 +1,13 @@
 <div class="col-md-auto">
-    <button class="btn btn-outline-dark btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        10 minutes
-    </button>
-    <ul class="dropdown-menu text-center" aria-labelledby="hours">
-        <li class="dropdown-header">Minutes</li>
-        {{#loop 1 5 10}}
-            <li class="dropdown-item">{{this}}</li>
-        {{/loop}}
-    </ul>
+    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+        <label class="btn btn-secondary active">
+            <input type="radio" name="time" id="option1" value="30min" checked> 30 min
+        </label>
+        <label class="btn btn-secondary">
+            <input type="radio" name="time" id="option2" value="1hour"> 1 hour
+        </label>
+        <label class="btn btn-secondary">
+            <input type="radio" name="time" id="option3" value="other"> Other
+        </label>
+    </div>
 </div>

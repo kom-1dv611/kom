@@ -53,7 +53,7 @@ router.route('/')
             })
             res.redirect('/')
         });
-        
+
     router.route('/:roomID/schedule/today')
         .get(function (req, res) {
             timeEdit.getTodaysSchedule(req.params.roomID)
