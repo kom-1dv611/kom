@@ -17,8 +17,19 @@ h4 a {
 .row {
   margin: 0 !important; }
 
+.col-centered {
+  display: inline-block;
+  float: none;
+  /* reset the text-align */
+  text-align: left;
+  /* inline-block space fix */
+  margin-right: -4px; }
+
 .card:hover {
   background-color: rgba(0, 0, 0, 0.1) !important; }
+
+.card {
+  color: black; }
 
 .breadcrumb-item.active {
   color: #0275d8; }
@@ -31,6 +42,9 @@ h4 a {
 
 .top-buffer {
   margin-top: 20px !important; }
+
+.dropdown-item:hover {
+  background-color: rgba(0, 0, 0, 0.1); }
 
 #clock,
 #book {

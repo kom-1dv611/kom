@@ -30,7 +30,6 @@ function Clock(parent) {
 }
 
 Clock.prototype.displayTime = function() {
-    console.log(this);
     let time = this.getTime()
     let toDisplay = `${this.hours}:${this.minutes}:${this.seconds}`;
     let child;
