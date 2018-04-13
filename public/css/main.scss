@@ -1,6 +1,8 @@
-$mainTextColor: white;
+$mainTextColor: black;
 $mainOverlayColor: rgba(0, 0, 0, 0.5);
 $mainOnHoverColor: rgba(0, 0, 0, 0.1);
+$navColor: white;
+$buttonColor: white;
 
 $background: url("/client/imgs/background.png");
 
@@ -8,6 +10,9 @@ $background: url("/client/imgs/background.png");
     background-image: $image;
     background-repeat: no-repeat;
     background-size: cover;
+    background-blend-mode: overlay;
+    background-color: rgba(0, 0, 0, 0); //required
+    opacity: 0.9;
 } 
 
 @mixin fullSize() {
@@ -34,6 +39,12 @@ h4 {
 
     }
 }
+
+.btn-outline-dark {
+    color: $buttonColor !important;
+    border-color: $buttonColor !important;
+}
+
 .row {
     margin: 0 !important;
 }
@@ -42,8 +53,16 @@ h4 {
     background-color: $mainOnHoverColor !important;
 }
 
+.card {
+    color: black;
+}
+.breadcrumb-item {
+    a{
+        color: $navColor;
+    }
+}
 .breadcrumb-item.active {
-    color: #0275d8;
+    color: $navColor;
 }
 
 .dropdown-menu {
@@ -56,6 +75,10 @@ h4 {
 
 .top-buffer {
      margin-top:20px !important; 
+}
+
+.dropdown-item:hover {
+    background-color: $mainOnHoverColor;
 }
 
 #clock,
@@ -73,4 +96,13 @@ h4 {
 #book {
     top: 45%;
     background-color: $mainOverlayColor;
+}
+
+#available {
+    background-color: rgba(0, 255, 0, 0.2);
+}
+
+input[type=date]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    display: none;
 }

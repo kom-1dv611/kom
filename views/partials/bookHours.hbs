@@ -1,13 +1,11 @@
-<div class="col">
-    <div class="float-right">
-        <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            ---
-        </button>
-        <ul class="dropdown-menu text-center" aria-labelledby="hours">
-            <li class="dropdown-header">Hours</li>
-            <li>1</li>
-            <li>2</li>
-            <li>3</li>
-        </ul>
-    </div>
+<div class="col-md-auto">
+    <button class="btn btn-outline-dark btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        1 hour
+    </button>
+    <ul class="dropdown-menu text-center" aria-labelledby="hours">
+        <li class="dropdown-header">Hours</li>
+        {{#loop 1 5 1}}
+            <li class="dropdown-item">{{this}}</li>
+        {{/loop}}
+    </ul>
 </div>

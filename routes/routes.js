@@ -54,7 +54,7 @@ router.route('/')
             
         })
 
-    router.route('/:roomID')
+    router.route('/:id')
         .get(function(req, res) {
             res.render("room", {room: req.params.id});
         });

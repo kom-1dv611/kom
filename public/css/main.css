@@ -5,14 +5,21 @@ body {
   background-image: url("/client/imgs/background.png");
   background-repeat: no-repeat;
   background-size: cover;
+  background-blend-mode: overlay;
+  background-color: transparent;
+  opacity: 0.9;
   margin: 0 0; }
 
 h1 {
   font-size: 6em;
-  color: white; }
+  color: black; }
 
 h4 a {
   color: #212529 !important; }
+
+.btn-outline-dark {
+  color: white !important;
+  border-color: white !important; }
 
 .row {
   margin: 0 !important; }
@@ -20,8 +27,14 @@ h4 a {
 .card:hover {
   background-color: rgba(0, 0, 0, 0.1) !important; }
 
+.card {
+  color: black; }
+
+.breadcrumb-item a {
+  color: white; }
+
 .breadcrumb-item.active {
-  color: #0275d8; }
+  color: white; }
 
 .dropdown-menu {
   min-width: 75px !important; }
@@ -32,6 +45,9 @@ h4 a {
 .top-buffer {
   margin-top: 20px !important; }
 
+.dropdown-item:hover {
+  background-color: rgba(0, 0, 0, 0.1); }
+
 #clock,
 #book {
   position: absolute;
@@ -39,9 +55,16 @@ h4 a {
 
 #clock {
   top: 70%;
-  color: white;
+  color: black;
   margin-bottom: 0; }
 
 #book {
   top: 45%;
   background-color: rgba(0, 0, 0, 0.5); }
+
+#available {
+  background-color: rgba(0, 255, 0, 0.2); }
+
+input[type=date]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  display: none; }
