@@ -1,5 +1,7 @@
 'use strict';     
 
+const Scraper = require('../libs/scraper');
+
 const timeEditApi = require('timeeditApi');
 const timeEdit = timeEditApi(
     'https://se.timeedit.net/web/lnu/db1/schema1/', 4                                              
@@ -11,16 +13,9 @@ module.exports = function(RoomModel) {
     
 
 router.route('/')
-        .get(function(req, res) {
-            let rooms = [
-                {name: "coolRoom", available: false},
-                {name: "coolRoom", available: false},
-                {name: "coolRoom", available: true},
-                {name: "coolRoom", available: false},
-                {name: "coolRoom", available: false},
-                {name: "coolRoom", available: false},
-                {name: "coolRoom", available: false}
-            ];
+        .get(async function(req, res) {
+
+            let rooms = await Scraper();
         
             let size = Math.ceil(rooms.length / 3);
             let rows = [];
@@ -33,7 +28,7 @@ router.route('/')
                     }
                 }
             }
-        
+    
             res.render("index", {rows: rows});
         })
 
