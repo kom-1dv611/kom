@@ -17,6 +17,13 @@ let Room = require('./models/Room')
 let RoomModel = mongoose.model('Room')
 
 let Handlebars = require("handlebars");
+let ngrok = require('ngrok');
+
+async function getPublicUrl() {
+    console.log("Public url: " + await ngrok.connect(port));
+}
+
+getPublicUrl();
 
 require('./config/database').initialize();
 
