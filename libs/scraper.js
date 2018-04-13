@@ -30,6 +30,7 @@ module.exports = async () => {
     
                 return roomList;
             });
+
     
             
             for (let i = 0; i < finder.length; i++) {
@@ -39,6 +40,7 @@ module.exports = async () => {
     
                 let roomObject = {};
     
+                //Fula lösningar nedan
                 if (room[2] == 'Grupprum') {
                     roomObject.name = room[3];
                     roomObject.city = room[4];
@@ -54,6 +56,8 @@ module.exports = async () => {
                     roomObject.floor = room[8];
                     roomObject.location = room[9];
                 }
+
+                if (roomObject.location == 'Kalmar' || roomObject.location == 'Nyckel') { roomObject.location = 'Kalmar Nyckel'; }
                 
                 rooms.push(roomObject);
             }
@@ -66,7 +70,3 @@ module.exports = async () => {
 
     return rooms;
 };
-
-
-
-
