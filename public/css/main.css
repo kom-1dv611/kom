@@ -68,3 +68,7 @@ h4 a {
 input[type=date]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   display: none; }
+
+#username {
+  display: none;
+}

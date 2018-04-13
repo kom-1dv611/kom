@@ -36,28 +36,24 @@ router.route('/')
         
             res.render("index", {rows: rows});
         })
-        .post(function(req, res) {
-            console.log('rot');
-
-            let data = {
-                username: req.body.username,
-                room: req.body.roomName,
-                bookingLength: req.body.length,
-                startTime: req.body.startTime,
-            }
-
-            let bookRoom = new RoomModel(data)
-
-            bookRoom.save((err) => {
-                console.log('saved')
-            })
-            
-        })
 
     router.route('/:id')
         .get(function(req, res) {
             res.render("room", {room: req.params.id});
+        })
+        .post(function (req, res) {
+            let data = {
+                username: req.body.username,
+                time: req.body.time
+            }
+
+            let bookRoom = new RoomModel(data)
+            bookRoom.save((err) => {
+                console.log('saved')
+            })
+            res.redirect('/')
         });
+        
     router.route('/:roomID/schedule/today')
         .get(function (req, res) {
             timeEdit.getTodaysSchedule(req.params.roomID)

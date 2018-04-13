@@ -1,8 +1,11 @@
 <div id="book" class="animated fadeIn">
     <div class="row justify-content-center">
-        {{>bookDate}}
-        {{>bookHours}}
-        {{>bookMinutes}}
-        {{>confirm}}
+        <form id="bookingForm" action="/:id" method="post">
+        <input type="text" name="time">
+        <button onclick="myFunction()">Confirm</button>
+        </form>
     </div>
 </div>
+<p id="demo"></p>
+
+<script src="/client/js/booking.js"></script>
