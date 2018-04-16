@@ -36,11 +36,16 @@ router.route('/')
     router.route('/:id')
         .get(function(req, res) {
             roomID = req.params.id
+
             res.render("room", {room: req.params.id});
         })
         .post(function (req, res) {
             if (req.body.username === undefined) {
                 console.log('no username entered')
+                req.session.flash = {
+                    type: 'fail',
+                    message: 'You must write a username'
+                }; 
             } else {
                 let data = {
                     username: req.body.username,
@@ -74,7 +79,7 @@ router.route('/')
 
     router.route('/room/:roomID/schedule/')
         .get(function (req, res) {
-            // full schedule 
+            // full schedule     
             timeEdit.getSchedule(req.params.roomID)
             .then((schedule) => {
                 let array = [];
