@@ -17,6 +17,7 @@
     "express-handlebars": "^3.0.0",
     "express-session": "^1.15.6",
     "handlebars": "^4.0.11",
+    "moment": "^2.22.1",
     "mongoose": "^5.0.12",
     "ngrok": "^3.0.1",
     "path": "^0.12.7",
