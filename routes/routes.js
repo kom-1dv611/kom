@@ -19,7 +19,6 @@ module.exports = function (RoomModel) {
 
             let rooms = await Scraper();
 
-<<<<<<< HEAD
             
         
             //Hämta schemat för dagen med timeeditapi
@@ -58,26 +57,11 @@ module.exports = function (RoomModel) {
                         if(groupRooms[j] != undefined) {
                             rows[i].cols.push(groupRooms[j]);
                         }
-=======
-            let size = Math.ceil(rooms.length / 3);
-            let rows = [];
-            for (let i = 0; i < size; i++) {
-                rows.push({})
-                rows[i].cols = [];
-                for (let j = i * 3; j < (i * 3) + 3; j++) {
-                    if (rooms[j] != undefined) {
-                        rows[i].cols.push(rooms[j]);
->>>>>>> backend
                     }
                 }
         
                 res.render("index", {rows: rows});
             }
-<<<<<<< HEAD
-=======
-
-            res.render("index", { rows: rows });
->>>>>>> backend
         })
 
     router.route('/:id')
