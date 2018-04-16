@@ -6,6 +6,9 @@ let exphbs = require('express-handlebars');
 let bodyParser = require('body-parser');
 let path = require('path');
 let socket = require('socket.io');
+let session = require('express-session');
+let cookieParser = require('cookie-parser')
+
 
 let port = 2000;
 let app = express();
@@ -32,7 +35,28 @@ app.engine('.hbs', exphbs({
     extname: '.hbs'
 }));
 app.set('view engine', '.hbs');
- 
+
+app.use(session({
+    name:   "theserversession",
+    secret: "K7smsx9MsEasad89wEzVp5EeCep5s",
+    saveUninitialized: false,
+    resave: false,
+    cookie: {
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24
+    }
+}));
+
+app.use(function (req, res, next) {
+    res.locals.flash = req.session.flash;
+    delete req.session.flash;
+    next();
+});
+
+app.get('/favicon.ico', function (req, res) {
+    res.status(204);
+});
+
 Handlebars.registerHelper( 'loop', function( from, to, inc = 1, block ) {
     let toReturn = "";
         for(let i = from; i <= to; i++) {
