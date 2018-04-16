@@ -19,31 +19,53 @@ module.exports = function (RoomModel) {
 
             let rooms = await Scraper();
 
-            
-        
-            //Hämta schemat för dagen med timeeditapi
-            //Jämföra deras bokning med aktuell tid
             let groupRooms = [];
 
             for (let i = 0; i < rooms.length; i++) {
                 timeEdit.getTodaysSchedule(rooms[i].name)
                 .then((roomSchedule) => {
 
-                    let data = {
-                        name: rooms[i].name,
-                        startTime: roomSchedule[0].time.startTime,
-                        endTime: roomSchedule[0].time.endTime
+                    if (roomSchedule === null) {
+                        rooms[i].available = true;
+                        groupRooms.push(rooms[i])
+                    } else {
+
+                        //TODO:
+                        //Uppdatera regelbundet för att se om ett grupprum blir ledig. 
+                        //Jämföra tiden
+                        //Fixa "buggen"
+                        console.log(roomSchedule[0].time.endTime)
+                        rooms[i].available = false;
+                        groupRooms.push(rooms[i])
                     }
-                    groupRooms.push(rooms[i])
 
                     if (i == rooms.length - 1) {
                         sendToClient();
                     }
+                    
                 }).catch((er) => {
                     if (i == rooms.length - 1) {
                         sendToClient();
                     }
+                    
                 });
+            }
+            
+            
+            function sendToClient() {
+                let size = Math.ceil(groupRooms.length / 3);
+                let rows = [];
+                for(let i = 0; i < size; i++) {
+                    rows.push({})
+                    rows[i].cols = [];
+                    for(let j = i * 3; j < (i * 3) + 3; j++) {
+                        if(groupRooms[j] != undefined) {
+                            rows[i].cols.push(groupRooms[j]);
+                        }
+                    }
+                }
+        
+                res.render("index", {rows: rows});
             }
             
             
