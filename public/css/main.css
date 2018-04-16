@@ -6,7 +6,7 @@ body {
   background-repeat: no-repeat;
   background-size: cover;
   background-blend-mode: overlay;
-  background-color: rgba(0, 255, 0, 0.2);
+  background-color: transparent;
   opacity: 0.9;
   margin: 0 0; }
 
