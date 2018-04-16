@@ -45,13 +45,17 @@ Handlebars.registerHelper( 'loop', function( from, to, inc = 1, block ) {
 //Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// io.on('connection', function(socket){
-//     console.log('ws connected');
+io.on('connection', function(socket){
+     console.log('ws connected');
 
-//     socket.on('disconnect', function(){
-//         console.log('ws disconnected');
-//     });
-// });
+     socket.on('newBooking', function(sent){
+        console.log(sent);
+    });
+
+     socket.on('disconnect', function(){
+         console.log('ws disconnected');
+     });
+ });
 
 //the req.body
 app.use(bodyParser.json());

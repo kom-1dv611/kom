@@ -1,26 +1,22 @@
-let booking = $("#book").children().children();
+let lastClick;
+const socket = io();
 
-let hours = booking[1];
-let minutes = booking[2];
+$(".preset").click(function() {
+    let clicked = $(this);
+    let normal = "btn-dark";
+    let selected = "btn-primary";
 
-function setupButton(parent) {
-    parent = $(parent);
-    let obj =  {
-        parent: parent,
-        button: parent.children()[0],
-        dropdown: parent.children()[1]
-    };
-    return obj;
-}
+    $(clicked).removeClass(normal);
+    $(clicked).addClass(selected);
 
-$(".dropdown-item").click(function() {
-    let value = $(event.target).text();
-    let owner = $(event.target).parent().parent().children()[0];
-    let suffix = $(owner).parent()[0] === hours ? "Hour" : "Minutes";
-
-    if(suffix == "Hour" && value > 1) {
-        suffix = "Hours";
+    if(lastClick != undefined) {
+        $(lastClick).removeClass(selected);
+        $(lastClick).addClass(normal)
     }
 
-    $(owner).text(`${value} ${suffix}`);
+    lastClick = this;
+});
+
+$(".submit").click(function() {
+    socket.emit("newBooking", $("#username").val());
 });
