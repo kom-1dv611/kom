@@ -71,9 +71,12 @@ module.exports = function (RoomModel) {
             timeEdit.getTodaysSchedule(req.params.id)
                 .then((roomSchedule) => {
                     moment.locale('sv');
+                    let time = moment().format('LT')
+                    // TODO: håll schemat uppdaterat.
+                    // roomSchedule === null || time > roomSchedule[0].time.endTime || time < roomSchedule[0].time.startTime
                     if (roomSchedule === null) {
                         available = true
-                    } else if (moment().format('LT') > roomSchedule[0].time.startTime) {
+                    } else if (time > roomSchedule[0].time.startTime) {
                         available = false
                     }
                 }).then(() => {
