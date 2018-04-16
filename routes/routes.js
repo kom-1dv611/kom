@@ -8,6 +8,7 @@ const timeEdit = timeEditApi(
 );
 
 let router = require("express").Router();
+let roomID;
     
 module.exports = function(RoomModel) {
     
@@ -34,19 +35,24 @@ router.route('/')
 
     router.route('/:id')
         .get(function(req, res) {
+            roomID = req.params.id
             res.render("room", {room: req.params.id});
         })
         .post(function (req, res) {
-            let data = {
-                username: req.body.username,
-                time: req.body.time
+            if (req.body.username === undefined) {
+                console.log('no username entered')
+            } else {
+                let data = {
+                    username: req.body.username,
+                    time: req.body.time
+                }
+    
+                let bookRoom = new RoomModel(data)
+                bookRoom.save((err) => {
+                    console.log('saved')
+                })
             }
-
-            let bookRoom = new RoomModel(data)
-            bookRoom.save((err) => {
-                console.log('saved')
-            })
-            res.redirect('/')
+            res.redirect('/' + roomID)
         });
 
     router.route('/:roomID/schedule/today')

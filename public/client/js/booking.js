@@ -1,12 +1,9 @@
-function saveUser() {
-    var txt;
-    var person = prompt("Please enter your username:");
+function saveUser () {
+  var person = prompt('Please enter your username:')
 
-    if (person == null || person == "") {
-        txt = "User cancelled the prompt.";
-    } else {
-        txt = "Hello " + person + "! How are you today?";
-    }
+  if (person == null || person == '') {
+    console.log('spara ej')
+  } else {
     let x = document.createElement('input')
     x.setAttribute('type', 'text')
     x.setAttribute('value', person)
@@ -14,4 +11,5 @@ function saveUser() {
     x.setAttribute('id', 'username')
     let form = document.getElementById('bookingForm')
     form.appendChild(x)
+  }
 }

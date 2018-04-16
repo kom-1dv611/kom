@@ -32,6 +32,10 @@ app.engine('.hbs', exphbs({
     extname: '.hbs'
 }));
 app.set('view engine', '.hbs');
+
+app.get('/favicon.ico', function (req, res) {
+    res.status(204);
+});
  
 Handlebars.registerHelper( 'loop', function( from, to, inc = 1, block ) {
     let toReturn = "";
