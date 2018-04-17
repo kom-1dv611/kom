@@ -1,5 +1,6 @@
 <div id="book" class="animated fadeIn">
     <div class="row justify-content-center">
+        <form id="bookingForm" class="form-inline" action="/:id" method="post">
         {{>bookDate}}
         <div class="col-md-auto">
             <input class="form-control" id="time" type="time">
@@ -10,5 +11,8 @@
             {{/loop}}
         </div>
         {{>confirm}}
+        </form>
     </div>
 </div>
+
+<script src="/client/js/booking.js"></script>

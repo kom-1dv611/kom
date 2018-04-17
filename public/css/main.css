@@ -69,3 +69,18 @@ h4 a {
 input[type=date]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   display: none; }
+
+#username {
+  display: none;
+}
+
+.fail {
+  font-family: Helvetica;
+  color: black;
+  font-size: 21px;
+  font-weight: 600;
+  text-align: center;
+  width: 600px;
+  padding: 10px;
+  margin: auto;
+}
