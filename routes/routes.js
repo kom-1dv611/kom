@@ -10,8 +10,6 @@ const timeEdit = timeEditApi(
 let router = require("express").Router();
 let roomID;
 let moment = require('moment');
-moment.locale('sv');
-let time = moment().format('LT')
 
 module.exports = function (RoomModel) {
 
@@ -72,10 +70,13 @@ module.exports = function (RoomModel) {
 
     router.route('/:id')
         .get(function (req, res) {
+            // TODO: kolla om bokning finns i databas och schema
             roomID = req.params.id
             let available;
             timeEdit.getTodaysSchedule(req.params.id)
                 .then((roomSchedule) => {
+                    moment.locale('sv');
+                    let time = moment().format('LT')
                     if (roomSchedule === null) {
                         available = true
                     } else if (time > roomSchedule[0].time.startTime) {
@@ -88,6 +89,7 @@ module.exports = function (RoomModel) {
                 });
         })
         .post(function (req, res) {
+            // TODO: när man bokat till databasen ska rummet bli upptaget
             if (req.body.username === undefined) {
                 console.log('no username entered')
                 req.session.flash = {
@@ -95,16 +97,18 @@ module.exports = function (RoomModel) {
                     message: 'You must write a username'
                 };
             } else {
+                moment.locale('sv');
+                let time = moment().format('LT')
                 let data = {
                     username: req.body.username,
-                    startTime: Date.now(),
+                    roomID: roomID,
+                    startTime: time,
                     endTime: req.body.timeLength
                 }
-                console.log(data)
-                // let bookRoom = new RoomModel(data)
-                // bookRoom.save((err) => {
-                //     console.log('saved')
-                // })
+                let bookRoom = new RoomModel(data)
+                bookRoom.save((err) => {
+                    console.log('saved')
+                })
             }
             res.redirect('/' + roomID)
         });
