@@ -23,6 +23,25 @@ body {
     position: absolute;
     @include background($background);
     margin: 0 0;
+    img {
+        position: absolute;
+        bottom: 0;
+        left: 5px;
+        max-width: 300px;
+        max-height: 300px;
+    }
+}
+
+nav {
+    img {
+        position: absolute;
+        left: auto;
+        bottom: auto;
+        top: 7px;
+        right: 5px;
+        max-width: 200px;
+        max-height: 30px;
+    }
 }
 
 h1 {
