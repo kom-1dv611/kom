@@ -2,8 +2,6 @@
 
 const Scraper = require('../libs/scraper');
 
-const Scraper = require('../libs/scraper');
-
 const timeEditApi = require('timeeditApi');
 const timeEdit = timeEditApi(
     'https://se.timeedit.net/web/lnu/db1/schema1/', 4
