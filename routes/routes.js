@@ -15,53 +15,58 @@ module.exports = function (RoomModel) {
 
 
     router.route('/')
-    .get(async function (req, res) {
+        .get(async function (req, res) {
 
-        let rooms = await Scraper();
+            let rooms = await Scraper();
 
-        let groupRooms = [];
+            let groupRooms = [];
 
-        for (let i = 0; i < rooms.length; i++) {
-            timeEdit.getTodaysSchedule(rooms[i].name)
-            .then((roomSchedule) => {
-                if (roomSchedule === null) {
-                    rooms[i].available = true;
-                    groupRooms.push(rooms[i])
-                } else if (moment().format('LT') < roomSchedule[0].time.startTime || moment().format('LT') > roomSchedule[0].time.endTime) { 
-                    rooms[i].available = true;
-                    groupRooms.push(rooms[i])
-                } else {
-                    rooms[i].available = false;
-                    groupRooms.push(rooms[i])
-                }
-                
-                if (i == rooms.length - 1) {
-                    sendRoomsToClient();
-                }
-                
-            }).catch((er) => {
-                if (i == rooms.length - 1) {
-                    sendRoomsToClient();
-                }
-            });
-        }
-        
-        function sendRoomsToClient() {
-            let size = Math.ceil(groupRooms.length / 3);
-            let rows = [];
-            for(let i = 0; i < size; i++) {
-                rows.push({})
-                rows[i].cols = [];
-                for(let j = i * 3; j < (i * 3) + 3; j++) {
-                    if(groupRooms[j] != undefined) {
-                        rows[i].cols.push(groupRooms[j]);
+            for (let i = 0; i < rooms.length; i++) {
+                timeEdit.getTodaysSchedule(rooms[i].name)
+                    .then((roomSchedule) => {
+
+                        if (roomSchedule === null) {
+                            rooms[i].available = true;
+                            groupRooms.push(rooms[i])
+                        } else {
+
+                            //TODO:
+                            //Uppdatera regelbundet för att se om ett grupprum blir ledig. 
+                            //Jämföra tiden
+                            //Fixa "buggen"
+                            console.log(roomSchedule[0].time.endTime)
+                            rooms[i].available = false;
+                            groupRooms.push(rooms[i])
+                        }
+
+                        if (i == rooms.length - 1) {
+                            sendToClient();
+                        }
+
+                    }).catch((er) => {
+                        if (i == rooms.length - 1) {
+                            sendToClient();
+                        }
+
+                    });
+            }
+
+
+            function sendToClient() {
+                let size = Math.ceil(groupRooms.length / 3);
+                let rows = [];
+                for (let i = 0; i < size; i++) {
+                    rows.push({})
+                    rows[i].cols = [];
+                    for (let j = i * 3; j < (i * 3) + 3; j++) {
+                        if (groupRooms[j] != undefined) {
+                            rows[i].cols.push(groupRooms[j]);
+                        }
                     }
                 }
+                res.render("index", { rows: rows });
             }
-    
-            res.render("index", {rows: rows});
-        }
-    })
+        })
 
     router.route('/:id')
         .get(function (req, res) {

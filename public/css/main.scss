@@ -7,9 +7,7 @@ $buttonColor: white;
 $background: url("/client/imgs/background.png");
 
 @mixin background($image) {
-    background-image: $image;
-    background-repeat: no-repeat;
-    background-size: cover;
+    background: $image no-repeat center center fixed;
     background-blend-mode: overlay;
     background-color: rgba(0, 0, 0, 0); //required
     opacity: 0.9;
@@ -25,6 +23,25 @@ body {
     position: absolute;
     @include background($background);
     margin: 0 0;
+    img {
+        position: absolute;
+        bottom: 0;
+        left: 5px;
+        max-width: 300px;
+        max-height: 300px;
+    }
+}
+
+nav {
+    img {
+        position: absolute;
+        left: auto;
+        bottom: auto;
+        top: 7px;
+        right: 5px;
+        max-width: 200px;
+        max-height: 30px;
+    }
 }
 
 h1 {
@@ -38,6 +55,10 @@ h4 {
         color: rgb(33, 37, 41) !important;
 
     }
+}
+
+.modal-backdrop { 
+    display: none;    
 }
 
 .btn-outline-dark {
@@ -99,7 +120,11 @@ h4 {
 }
 
 #available {
-    background-color: rgba(0, 255, 0, 0.2);
+    background-color: rgba(0, 255, 0, 0.4);
+}
+
+#unavailable {
+    background-color: rgba(255, 0, 0, 0.5);
 }
 
 input[type=date]::-webkit-inner-spin-button {
