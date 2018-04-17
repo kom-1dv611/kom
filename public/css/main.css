@@ -64,23 +64,11 @@ h4 a {
   background-color: rgba(0, 0, 0, 0.5); }
 
 #available {
-  background-color: rgba(0, 255, 0, 0.2); }
+  background-color: rgba(0, 255, 0, 0.4); }
+
+#unavailable {
+  background-color: rgba(255, 0, 0, 0.5); }
 
 input[type=date]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   display: none; }
-
-#username {
-  display: none;
-}
-
-.fail {
-  font-family: Helvetica;
-  color: black;
-  font-size: 21px;
-  font-weight: 600;
-  text-align: center;
-  width: 600px;
-  padding: 10px;
-  margin: auto;
-}

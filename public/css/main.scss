@@ -101,7 +101,11 @@ h4 {
 }
 
 #available {
-    background-color: rgba(0, 255, 0, 0.2);
+    background-color: rgba(0, 255, 0, 0.4);
+}
+
+#unavailable {
+    background-color: rgba(255, 0, 0, 0.5);
 }
 
 input[type=date]::-webkit-inner-spin-button {

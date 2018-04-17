@@ -23,3 +23,9 @@ $(".submit").click(function() {
 
     socket.emit("newBooking", {username: username, time: time});
 });
+
+if($("#state").text() == "Available") {
+    $("body").attr('id', 'available');
+} else {
+    $("body").attr('id', 'unavailable');
+}
