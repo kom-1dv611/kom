@@ -1,19 +1,7 @@
 <div id="book" class="animated fadeIn">
     <div class="row justify-content-center">
         <form id="bookingForm" class="form-inline" action="/:id" method="post">
-        {{>bookDate}}
-        <div class="col-md-auto">
-            <input class="form-control" id="time" type="time">
-        </div>
-        <div class="col-md-auto">
-            <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                {{#loop 1 3 1}}
-                    <label class="btn btn-dark">
-                        <input type="radio" name="time"> {{this}} hour(s)
-                    </label>
-                {{/loop}}
-            </div>
-        </div>
+        {{>bookMinutes}}
         {{>confirm}}
         </form>
     </div>

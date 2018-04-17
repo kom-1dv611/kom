@@ -10,6 +10,8 @@ const timeEdit = timeEditApi(
 let router = require("express").Router();
 let roomID;
 let moment = require('moment');
+moment.locale('sv');
+let time = moment().format('LT')
 
 module.exports = function (RoomModel) {
 
@@ -74,10 +76,6 @@ module.exports = function (RoomModel) {
             let available;
             timeEdit.getTodaysSchedule(req.params.id)
                 .then((roomSchedule) => {
-                    moment.locale('sv');
-                    let time = moment().format('LT')
-                    // TODO: håll schemat uppdaterat.
-                    // roomSchedule === null || time > roomSchedule[0].time.endTime || time < roomSchedule[0].time.startTime
                     if (roomSchedule === null) {
                         available = true
                     } else if (time > roomSchedule[0].time.startTime) {
@@ -99,13 +97,14 @@ module.exports = function (RoomModel) {
             } else {
                 let data = {
                     username: req.body.username,
-                    time: req.body.time
+                    startTime: Date.now(),
+                    endTime: req.body.timeLength
                 }
-
-                let bookRoom = new RoomModel(data)
-                bookRoom.save((err) => {
-                    console.log('saved')
-                })
+                console.log(data)
+                // let bookRoom = new RoomModel(data)
+                // bookRoom.save((err) => {
+                //     console.log('saved')
+                // })
             }
             res.redirect('/' + roomID)
         });
