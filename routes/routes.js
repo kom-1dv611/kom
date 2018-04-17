@@ -66,16 +66,20 @@ module.exports = function (RoomModel) {
     router.route('/:id')
         .get(function (req, res) {
             roomID = req.params.id
-            let available;
+            let room = {};
+            room.id = req.params.id;
+
             timeEdit.getTodaysSchedule(req.params.id)
                 .then((roomSchedule) => {
                     if (roomSchedule === null) {
-                        available = true
-                    } else if (time > roomSchedule[0].time.startTime) {
-                        available = false
+                        room.available = true
+                    } else if (moment().format('LT') > roomSchedule[0].time.startTime) {
+                        room.available = false;
+                        room.willBeAvailable = roomSchedule[0].time.endTime;
                     }
                 }).then(() => {
-                    res.render("room", { room: req.params.id, available: available });
+                    console.log(room)
+                    res.render("room", { room: room });
                 }).catch((er) => {
                     console.log(er);
                 });

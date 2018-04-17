@@ -1,8 +1,8 @@
 <nav>
     <ol class="breadcrumb">
-        {{#if room}}
+        {{#if room.id}}
             <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{room}}</li>
+            <li class="breadcrumb-item active" aria-current="page">{{room.id}}</li>
         {{else}}
             <li class="breadcrumb-item active"><a href="/">Home</a></li>
         {{/if}}
