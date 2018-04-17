@@ -15,9 +15,9 @@ moment.locale('sv');
 module.exports = function (RoomModel) {
 
     router.route('/')
-        .get(async function (req, res) {
+    .get(async function (req, res) {
 
-            let rooms = await Scraper();
+        let rooms = await Scraper();
 
             let groupRooms = [];
 
@@ -58,8 +58,6 @@ module.exports = function (RoomModel) {
                         }
                     }
                 }
-        
-                res.render("index", {rows: rows});
             }
         })
 
@@ -71,7 +69,7 @@ module.exports = function (RoomModel) {
                 .then((roomSchedule) => {
                     if (roomSchedule === null) {
                         available = true
-                    } else if (moment().format('LT') > roomSchedule[0].time.startTime) {
+                    } else if (time > roomSchedule[0].time.startTime) {
                         available = false
                     }
                 }).then(() => {
