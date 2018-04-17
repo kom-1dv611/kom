@@ -58,7 +58,9 @@ module.exports = function (RoomModel) {
                         }
                     }
                 }
+                res.render('index', {rows: rows});
             }
+            
         })
 
     router.route('/:id')
