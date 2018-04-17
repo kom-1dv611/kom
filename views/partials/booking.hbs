@@ -2,6 +2,9 @@
     <div class="row justify-content-center">
         {{>bookDate}}
         <div class="col-md-auto">
+            <input class="form-control" id="time" type="time">
+        </div>
+        <div class="col-md-auto">
             {{#loop 1 3 1}}
                 <button class="btn btn-dark btn-sm preset" type="button">{{this}} Hours</button>
             {{/loop}}

@@ -18,5 +18,8 @@ $(".preset").click(function() {
 });
 
 $(".submit").click(function() {
-    socket.emit("newBooking", $("#username").val());
+    let username = $("#username").val()
+    let time = $(lastClick).text();
+
+    socket.emit("newBooking", {username: username, time: time});
 });

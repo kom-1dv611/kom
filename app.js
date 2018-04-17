@@ -35,9 +35,9 @@ app.set('view engine', '.hbs');
  
 Handlebars.registerHelper( 'loop', function( from, to, inc = 1, block ) {
     let toReturn = "";
-        for(let i = from; i <= to; i++) {
-            toReturn += block.fn(i * inc);
-        }
+    for(let i = from; i <= to; i++) {
+        toReturn += block.fn(i * inc);
+    }
     return toReturn;
 });
 
