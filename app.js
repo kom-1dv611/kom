@@ -16,6 +16,8 @@ let http = require('http').Server(app);
 let io = require('socket.io')(http);
 
 const mongoose = require('mongoose')
+let Booking = require('./models/Booking')
+let BookingModel = mongoose.model('Booking')
 let Room = require('./models/Room')
 let RoomModel = mongoose.model('Room')
 
@@ -69,25 +71,13 @@ Handlebars.registerHelper( 'loop', function( from, to, inc = 1, block ) {
 //Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-io.on('connection', function(socket){
-     console.log('ws connected');
-
-     socket.on('newBooking', function(sent){
-        console.log(sent);
-    });
-
-     socket.on('disconnect', function(){
-         console.log('ws disconnected');
-     });
- });
-
 //the req.body
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
 //Routes
-let routes = require('./routes/routes')(RoomModel);  
+let routes = require('./routes/routes')(BookingModel, RoomModel);  
 app.use('/', routes);
 
 
