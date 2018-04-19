@@ -37,6 +37,8 @@ Clock.prototype.displayTime = function() {
         child = $(this.parent.children()[i]);
         this.updateSpan(child, toDisplay[i])
     }
+
+    $("#currentTime").val(`${this.hours}:${this.minutes}`);
 }
 
 Clock.prototype.getTime = function() {

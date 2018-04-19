@@ -105,6 +105,7 @@ module.exports = function (RoomModel) {
                 });
         })
         .post(function (req, res) {
+            console.log(req.body);
             if (req.body.username === undefined) {
                 console.log('no username entered')
                 req.session.flash = {

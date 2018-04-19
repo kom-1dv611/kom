@@ -1,12 +1,4 @@
-let lastClick;
 const socket = io();
-
-$(".submit").click(function() {
-    let username = $("#username").val()
-    //let time = $(lastClick).text();
-
-    //socket.emit("newBooking", {username: username, time: time});
-});
 
 $("body").attr('id', $("#state").text() == "Available" ? 'available' : 'unavailable');
 
