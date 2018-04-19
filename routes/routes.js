@@ -70,8 +70,8 @@ module.exports = function (BookingModel) {
             let room = {};
             room.id = req.params.id;
 
-            BookingModel.find({}, function (err, result) {
-                if (req.params.id === result[0].roomID) {
+            BookingModel.find({ roomID: req.params.id }, function (err, result) {
+                if (result.length > 0) {
                     room.available = false
                     res.render("room", { room: room });
                 } else {
