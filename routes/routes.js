@@ -35,20 +35,25 @@ module.exports = function (BookingModel, RoomModel) {
                     groupRooms.push(rooms[i])
                 }
 
-                // let groupRoom = new RoomModel({
-                //     name: rooms[i].name,
-                //     city: rooms[i].city,
-                //     type: rooms[i].type,
-                //     floor_type: rooms[i].floor_type,
-                //     floor_level: rooms[i].floor_level,
-                //     location: rooms[i].location
-                // });
+                //Save room if it isn't stored in DB already
+                RoomModel.find({name: rooms[i].name}, (err, room) => {
+                    if (!err && !room || !err && !room.length) {
+                        let groupRoom = new RoomModel({
+                            name: rooms[i].name,
+                            city: rooms[i].city,
+                            type: rooms[i].type,
+                            floor_type: rooms[i].floor_type,
+                            floor_level: rooms[i].floor_level,
+                            location: rooms[i].location
+                        });
+        
+                        groupRoom.save((err, savedRoom) => {
+                            if (err) { console.log(err) }
+                        })
+                    }
+                })
 
-                // groupRoom.save((err, room) => {
-                //     if (err) { console.log(err) } else {
-                //         console.log(room)
-                //     }
-                // })
+                
                 
                 if (i == rooms.length - 1) {
                     sendRoomsToClient();
