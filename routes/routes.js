@@ -65,14 +65,28 @@ module.exports = function (BookingModel) {
 
     router.route('/:id')
         .get(function (req, res) {
-            // TODO: kolla om bokning finns i databas och schema
+            //TODO: aktuella tiden istället för moment? 
             roomID = req.params.id
             let room = {};
             room.id = req.params.id;
 
             BookingModel.find({ roomID: req.params.id }, function (err, result) {
                 if (result.length > 0) {
-                    room.available = false
+                    let time = result[0].startTime  
+                    let hour = time.substring(0, 2);
+                    let parsedHour = parseInt(hour);
+                    let test = parseInt(result[0].duration);
+                    let endTimeHour = parsedHour + test;
+                    let minutes = time.substring(3, 6);
+
+                    let endTime = endTimeHour + ':' + minutes;
+
+                    if(result[0].startTime > moment().format('LT')|| endTime < moment().format('LT')) {
+                        room.available = true;         
+                    } else {
+                        room.available = false;
+                        room.willBeAvailable = endTime
+                    }         
                     res.render("room", { room: room });
                 } else {
                     timeEdit.getTodaysSchedule(req.params.id).then((roomSchedule) => {
