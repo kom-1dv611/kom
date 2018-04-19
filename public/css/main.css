@@ -25,7 +25,8 @@ nav img {
 
 h1 {
   font-size: 6em;
-  color: black; }
+  color: black;
+  font-family: "Helvetica"; }
 
 h4 a {
   color: #212529 !important; }
