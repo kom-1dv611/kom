@@ -8,5 +8,18 @@
             <li class="breadcrumb-item active"><a href="/"><i class="fas fa-home fa-fw"></i>Home</a></li>
         {{/if}}
     </ol>
+    {{#unless room}}
+        <div id="filter" class="btn-group dropleft">
+            <button type="button" class="btn btn-dark btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Dropleft
+            </button>
+            <div class="dropdown-menu">
+                <h6 class="dropdown-header">Location</h6>
+                <button class="dropdown-item" type="button">Kalmar Nyckel</button>
+                <button class="dropdown-item" type="button">Sjöfartshögskolan</button>
+                <button class="dropdown-item" type="button">Kocken</button>
+            </div>
+        </div>
+    {{/unless}}
     <img src="/client/imgs/url.png">
 </nav>

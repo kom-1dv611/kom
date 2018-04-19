@@ -137,3 +137,9 @@ input[type=date]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     display: none;
 }
+
+#filter {
+    position: absolute;
+    right: 130px;
+    top: 8px;
+}
