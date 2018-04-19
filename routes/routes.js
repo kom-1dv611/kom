@@ -11,7 +11,7 @@ let router = require("express").Router();
 let roomID;
 let moment = require('moment');
 
-module.exports = function (RoomModel) {
+module.exports = function (BookingModel) {
 
 
     router.route('/')
@@ -34,7 +34,7 @@ module.exports = function (RoomModel) {
                             //Uppdatera regelbundet för att se om ett grupprum blir ledig. 
                             //Jämföra tiden
                             //Fixa "buggen"
-                            console.log(roomSchedule[0].time.endTime)
+                    
                             rooms[i].available = false;
                             groupRooms.push(rooms[i])
                         }
@@ -82,6 +82,13 @@ module.exports = function (RoomModel) {
                     } else if (time > roomSchedule[0].time.startTime) {
                         available = false
                     }
+                    BookingModel.find({roomID: req.params.id}, function(err, room) {
+                        if(err) {
+                            console.log(err);
+                        } else {
+                            console.log(room)
+                        }
+                    })
                 }).then(() => {
                     res.render("room", { room: req.params.id, available: available });
                 }).catch((er) => {
@@ -96,15 +103,14 @@ module.exports = function (RoomModel) {
                     message: 'You must write a username'
                 };
             } else {
-                moment.locale('sv');
-                let time = moment().format('LT')
                 let data = {
                     username: req.body.username,
                     roomID: roomID,
                     startTime: req.body.time,
                     duration: req.body.duration
                 }
-                let bookRoom = new RoomModel(data)
+                let bookRoom = new BookingModel(data)
+             
                 bookRoom.save((err) => {
                     console.log('saved')
                 })

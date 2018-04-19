@@ -16,8 +16,8 @@ let http = require('http').Server(app);
 let io = require('socket.io')(http);
 
 const mongoose = require('mongoose')
-let Room = require('./models/Room')
-let RoomModel = mongoose.model('Room')
+let Booking = require('./models/Booking')
+let BookingModel = mongoose.model('Booking')
 
 let Handlebars = require("handlebars");
 let ngrok = require('ngrok');
@@ -75,7 +75,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 //Routes
-let routes = require('./routes/routes')(RoomModel);  
+let routes = require('./routes/routes')(BookingModel);  
 app.use('/', routes);
 
 

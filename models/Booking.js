@@ -1,12 +1,12 @@
 let mongoose = require('mongoose');
 
-let roomSchema = mongoose.Schema({
+let bookingSchema = mongoose.Schema({
     username: {type: String, required: true},
     roomID: {type: String, required: true},
     startTime: {type: String, required: true},
     duration: {type: String, required: true}
 });
 
-let Room = mongoose.model('Room', roomSchema);
+let Booking = mongoose.model('Booking', bookingSchema);
 
-module.exports = Room;
+module.exports = Booking;
