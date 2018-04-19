@@ -17,6 +17,7 @@ module.exports = function (BookingModel, RoomModel) {
     router.route('/')
         .get(function (req, res) {
 
+            //Körs ej. Används bara för att skrapa grupprummen på lnu.se
             async function scrapeRoomsFromLNU() {
                 let rooms = await Scraper();
                 let groupRooms = [];
@@ -66,41 +67,45 @@ module.exports = function (BookingModel, RoomModel) {
                 }
             }
 
-            RoomModel.find({}, (err, rooms) => {
-                let groupRooms = [];
-                if (!err) {
-                    for (let i = 0; i < rooms.length; i++) {
-                        BookingModel.find({}, function (err, res) {
-                            for (let j = 0; j < res.length; j++) {
-                                if (res[j].roomID === rooms[i].name) {
-                                    rooms[i].available = false
-                                    groupRooms.push(rooms[i])
-                                } else {
-                                    timeEdit.getTodaysSchedule(rooms[i].name).then((roomSchedule) => {
-                                        if (roomSchedule === null) {
-                                            rooms[i].available = true;
-                                            groupRooms.push(rooms[i])
-                                        } else if (moment().format('LT') < roomSchedule[0].time.startTime || moment().format('LT') > roomSchedule[0].time.endTime) {
-                                            rooms[i].available = true;
-                                            groupRooms.push(rooms[i])
-                                        } else {
-                                            rooms[i].available = false;
-                                            groupRooms.push(rooms[i])
-                                        }
-                                    })
-                                }
-                                groupRooms.push(rooms[i])
+            RoomModel.find({}).exec()
+            .then((rooms) => {
+                return rooms;
+            })
+            .then((rooms) => {
+                BookingModel.find({}).exec()
+                .then((bookings) => {
+                    //Här i finns tillgång till alla grupprum samt alla bokningar från databasen (rooms & bookings)
+                    let groupRoomsWithAvailability = [];
 
-                                if (groupRooms.length === rooms.length) {
-                                    sendRoomsToClient(groupRooms)
+                    for (let i = 0; i < rooms.length; i++) {                            
+                        timeEdit.getTodaysSchedule(rooms[i].name)
+                        .then((roomSchedule) => {
+                            for (let j = 0; j < bookings.length; j++) {
+                                if (bookings[j].roomID === rooms[i].name) {
+                                    //Bokningsrummet finns i databasen
+                                    //Jämför tiden mellan bokningen och rumschemat(roomSchedule)
                                 }
                             }
+                            if (roomSchedule === null || moment().format('LT') < roomSchedule[0].time.startTime || moment().format('LT') > roomSchedule[0].time.endTime) {
+                                rooms[i].available = true;
+                            } else {
+                                rooms[i].available = false;
+                            }
+                            groupRoomsWithAvailability.push(rooms[i])
+
+                            if (groupRoomsWithAvailability.length === rooms.length) {
+                                sendRoomsToClient(groupRoomsWithAvailability)
+                            }
+                        })
+                        .catch((er) => {
+                            console.log(er)
                         })
                     }
-                }
+                })
             })
 
             function sendRoomsToClient(groupRooms) {
+                groupRooms.sort((a, b) => a.name.localeCompare(b.name))
                 let size = Math.ceil(groupRooms.length / 3);
                 let rows = [];
                 for (let i = 0; i < size; i++) {
