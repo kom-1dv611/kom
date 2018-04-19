@@ -46,18 +46,19 @@ module.exports = async () => {
                     roomObject.city = room[4];
                     roomObject.type = room[7];
                     roomObject.floor_type = room[8];
-                    roomObject.floor = room[9];
+                    roomObject.floor_level = room[9];
                     roomObject.location = room[10];
                 } else {
                     roomObject.name = room[2];
                     roomObject.city = room[3];
                     roomObject.type = room[6];
                     roomObject.floor_type = room[7];
-                    roomObject.floor = room[8];
+                    roomObject.floor_level = room[8];
                     roomObject.location = room[9];
                 }
 
                 if (roomObject.location == 'Kalmar' || roomObject.location == 'Nyckel') { roomObject.location = 'Kalmar Nyckel'; }
+                if (roomObject.location == 'Universitetsbiblioteket,') { roomObject.location = 'Universitetsbiblioteket' }
                 
                 rooms.push(roomObject);
             }
