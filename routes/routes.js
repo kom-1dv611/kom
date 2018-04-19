@@ -21,53 +21,6 @@ module.exports = function (BookingModel, RoomModel) {
 
         let groupRooms = [];
 
-<<<<<<< HEAD
-            for (let i = 0; i < rooms.length; i++) {
-                timeEdit.getTodaysSchedule(rooms[i].name)
-                    .then((roomSchedule) => {
-                        if (roomSchedule === null) {
-                            rooms[i].available = true;
-                            groupRooms.push(rooms[i])
-                        } else if (moment().format('LT') < roomSchedule[0].time.startTime || moment().format('LT') > roomSchedule[0].time.endTime) {
-                            rooms[i].available = true;
-                            groupRooms.push(rooms[i])
-                        } else {
-                            rooms[i].available = false;
-                            groupRooms.push(rooms[i])
-                        }
-
-                        if (i == rooms.length - 1) {
-                            sendRoomsToClient();
-                        }
-
-                    }).catch((er) => {
-                        if (i == rooms.length - 1) {
-                            sendRoomsToClient();
-                        }
-                    });
-            }
-
-            function sendRoomsToClient() {
-                let size = Math.ceil(groupRooms.length / 3);
-                let rows = [];
-                for (let i = 0; i < size; i++) {
-                    rows.push({})
-                    rows[i].cols = [];
-                    for (let j = i * 3; j < (i * 3) + 3; j++) {
-                        if (groupRooms[j] != undefined) {
-                            rows[i].cols.push(groupRooms[j]);
-                        }
-                    }
-                }
-                res.render('index', { rows: rows });
-            }
-
-        })
-
-    router.route('/:id')
-        .get(function (req, res) {
-            //TODO: aktuella tiden istället för moment? 
-=======
         for (let i = 0; i < rooms.length; i++) {
             timeEdit.getTodaysSchedule(rooms[i].name)
             .then((roomSchedule) => {
@@ -131,7 +84,6 @@ module.exports = function (BookingModel, RoomModel) {
 
     router.route('/:id')
         .get(function (req, res) {
->>>>>>> master
             roomID = req.params.id
             let room = {};
             room.id = req.params.id;
@@ -151,15 +103,8 @@ module.exports = function (BookingModel, RoomModel) {
                         room.available = true;         
                     } else {
                         room.available = false;
-<<<<<<< HEAD
-                        room.willBeAvailable = endTime
-                    }         
-=======
                         room.willBeAvailable = roomSchedule[0].time.endTime;
-                    }
-                }).then(() => {
-                    console.log(room)
->>>>>>> master
+                    }         
                     res.render("room", { room: room });
                 } else {
                     timeEdit.getTodaysSchedule(req.params.id).then((roomSchedule) => {
@@ -191,10 +136,6 @@ module.exports = function (BookingModel, RoomModel) {
                 }
 
                 let bookRoom = new BookingModel(data)
-<<<<<<< HEAD
-
-=======
->>>>>>> master
                 bookRoom.save((err) => {
                     console.log('saved')
                 })
