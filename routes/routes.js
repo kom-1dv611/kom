@@ -89,7 +89,7 @@ module.exports = function (RoomModel) {
                 });
         })
         .post(function (req, res) {
-            // TODO: när man bokat till databasen ska rummet bli upptaget
+            console.log(req.body);
             if (req.body.username === undefined) {
                 console.log('no username entered')
                 req.session.flash = {

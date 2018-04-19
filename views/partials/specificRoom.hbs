@@ -1,9 +1,10 @@
+{{>flash}}
+
 {{#if available}}
     <h1 id="state" class="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently available!">Available</h1>
+    {{>booking}}
 {{else}}
-    <h1 id="state" class="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently available!">Unavailable</h1>
+    <h1 id="state" class="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently not available!">Unavailable</h1>
 {{/if}}
 
-{{>flash}} 
-{{>booking}}
 <h1 id="clock" class="text-center animated slideInUp" data-toggle="tooltip" data-placement="top" title="Current time!"></h1>
