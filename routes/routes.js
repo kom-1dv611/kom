@@ -15,72 +15,67 @@ moment.locale('sv');
 module.exports = function (BookingModel, RoomModel) {
 
     router.route('/')
-    .get(async function (req, res) {
+        .get(async function (req, res) {
 
-        let rooms = await Scraper();
+            let rooms = await Scraper();
 
-        let groupRooms = [];
+            let groupRooms = [];
 
-        for (let i = 0; i < rooms.length; i++) {
-            timeEdit.getTodaysSchedule(rooms[i].name)
-            .then((roomSchedule) => {
-                if (roomSchedule === null) {
-                    rooms[i].available = true;
-                    groupRooms.push(rooms[i])
-                } else if (moment().format('LT') < roomSchedule[0].time.startTime || moment().format('LT') > roomSchedule[0].time.endTime) { 
-                    rooms[i].available = true;
-                    groupRooms.push(rooms[i])
-                } else {
-                    rooms[i].available = false;
-                    groupRooms.push(rooms[i])
-                }
+            for (let i = 0; i < rooms.length; i++) {
+                timeEdit.getTodaysSchedule(rooms[i].name)
+                    .then((roomSchedule) => {
+                        if (roomSchedule === null) {
+                            rooms[i].available = true;
+                            groupRooms.push(rooms[i])
+                        } else if (moment().format('LT') < roomSchedule[0].time.startTime || moment().format('LT') > roomSchedule[0].time.endTime) {
+                            rooms[i].available = true;
+                            groupRooms.push(rooms[i])
+                        } else {
+                            rooms[i].available = false;
+                            groupRooms.push(rooms[i])
+                        }
+                        //Save room if it isn't stored in DB already
+                        RoomModel.find({ name: rooms[i].name }, (err, room) => {
+                            if (!err && !room || !err && !room.length) {
+                                let groupRoom = new RoomModel({
+                                    name: rooms[i].name,
+                                    city: rooms[i].city,
+                                    type: rooms[i].type,
+                                    floor_type: rooms[i].floor_type,
+                                    floor_level: rooms[i].floor_level,
+                                    location: rooms[i].location
+                                });
 
-                //Save room if it isn't stored in DB already
-                RoomModel.find({name: rooms[i].name}, (err, room) => {
-                    if (!err && !room || !err && !room.length) {
-                        let groupRoom = new RoomModel({
-                            name: rooms[i].name,
-                            city: rooms[i].city,
-                            type: rooms[i].type,
-                            floor_type: rooms[i].floor_type,
-                            floor_level: rooms[i].floor_level,
-                            location: rooms[i].location
-                        });
-        
-                        groupRoom.save((err, savedRoom) => {
-                            if (err) { console.log(err) }
+                                groupRoom.save((err, savedRoom) => {
+                                    if (err) { console.log(err) }
+                                })
+                            }
                         })
-                    }
-                })
-
-                
-                
-                if (i == rooms.length - 1) {
-                    sendRoomsToClient();
-                }
-                
-            }).catch((er) => {
-                if (i == rooms.length - 1) {
-                    sendRoomsToClient();
-                }
-            });
-        }
-        
-        function sendRoomsToClient() {
-            let size = Math.ceil(groupRooms.length / 3);
-            let rows = [];
-            for(let i = 0; i < size; i++) {
-                rows.push({})
-                rows[i].cols = [];
-                for(let j = i * 3; j < (i * 3) + 3; j++) {
-                    if(groupRooms[j] != undefined) {
-                        rows[i].cols.push(groupRooms[j]);
-                    }
-                }
+                        if (i == rooms.length - 1) {
+                            sendRoomsToClient();
+                        }
+                    }).catch((er) => {
+                        if (i == rooms.length - 1) {
+                            sendRoomsToClient();
+                        }
+                    });
             }
-            res.render('index', {rows: rows});
-        }
-    })
+
+            function sendRoomsToClient() {
+                let size = Math.ceil(groupRooms.length / 3);
+                let rows = [];
+                for (let i = 0; i < size; i++) {
+                    rows.push({})
+                    rows[i].cols = [];
+                    for (let j = i * 3; j < (i * 3) + 3; j++) {
+                        if (groupRooms[j] != undefined) {
+                            rows[i].cols.push(groupRooms[j]);
+                        }
+                    }
+                }
+                res.render('index', { rows: rows });
+            }
+        })
 
     router.route('/:id')
         .get(function (req, res) {
@@ -89,8 +84,9 @@ module.exports = function (BookingModel, RoomModel) {
             room.id = req.params.id;
 
             BookingModel.find({ roomID: req.params.id }, function (err, result) {
+                // TODO: ta bort bokning från db om tiden gått ut.
                 if (result.length > 0) {
-                    let time = result[0].startTime  
+                    let time = result[0].startTime
                     let hour = time.substring(0, 2);
                     let parsedHour = parseInt(hour);
                     let test = parseInt(result[0].duration);
@@ -99,12 +95,12 @@ module.exports = function (BookingModel, RoomModel) {
 
                     let endTime = endTimeHour + ':' + minutes;
 
-                    if(result[0].startTime > moment().format('LT')|| endTime < moment().format('LT')) {
-                        room.available = true;         
+                    if (result[0].startTime > moment().format('LT') || endTime < moment().format('LT')) {
+                        room.available = true;
                     } else {
                         room.available = false;
-                        room.willBeAvailable = roomSchedule[0].time.endTime;
-                    }         
+                        room.willBeAvailable = endTime;
+                    }
                     res.render("room", { room: room });
                 } else {
                     timeEdit.getTodaysSchedule(req.params.id).then((roomSchedule) => {
@@ -132,7 +128,9 @@ module.exports = function (BookingModel, RoomModel) {
             } else {
                 let data = {
                     username: req.body.username,
-                    time: req.body.time
+                    roomID: roomID,
+                    startTime: req.body.time,
+                    duration: req.body.duration
                 }
 
                 let bookRoom = new BookingModel(data)
