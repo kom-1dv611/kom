@@ -89,7 +89,6 @@ module.exports = function (RoomModel) {
                 });
         })
         .post(function (req, res) {
-            console.log(req.body);
             if (req.body.username === undefined) {
                 console.log('no username entered')
                 req.session.flash = {
@@ -102,8 +101,8 @@ module.exports = function (RoomModel) {
                 let data = {
                     username: req.body.username,
                     roomID: roomID,
-                    startTime: time,
-                    endTime: req.body.timeLength
+                    startTime: req.body.time,
+                    duration: req.body.duration
                 }
                 let bookRoom = new RoomModel(data)
                 bookRoom.save((err) => {
