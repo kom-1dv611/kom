@@ -23,44 +23,44 @@ module.exports = function (BookingModel) {
 
             for (let i = 0; i < rooms.length; i++) {
                 timeEdit.getTodaysSchedule(rooms[i].name)
-                .then((roomSchedule) => {
-                    if (roomSchedule === null) {
-                        rooms[i].available = true;
-                        groupRooms.push(rooms[i])
-                    } else if (moment().format('LT') < roomSchedule[0].time.startTime || moment().format('LT') > roomSchedule[0].time.endTime) { 
-                        rooms[i].available = true;
-                        groupRooms.push(rooms[i])
-                    } else {
-                        rooms[i].available = false;
-                        groupRooms.push(rooms[i])
-                    }
-                    
-                    if (i == rooms.length - 1) {
-                        sendRoomsToClient();
-                    }
-                    
-                }).catch((er) => {
-                    if (i == rooms.length - 1) {
-                        sendRoomsToClient();
-                    }
-                });
+                    .then((roomSchedule) => {
+                        if (roomSchedule === null) {
+                            rooms[i].available = true;
+                            groupRooms.push(rooms[i])
+                        } else if (moment().format('LT') < roomSchedule[0].time.startTime || moment().format('LT') > roomSchedule[0].time.endTime) {
+                            rooms[i].available = true;
+                            groupRooms.push(rooms[i])
+                        } else {
+                            rooms[i].available = false;
+                            groupRooms.push(rooms[i])
+                        }
+
+                        if (i == rooms.length - 1) {
+                            sendRoomsToClient();
+                        }
+
+                    }).catch((er) => {
+                        if (i == rooms.length - 1) {
+                            sendRoomsToClient();
+                        }
+                    });
             }
-            
+
             function sendRoomsToClient() {
                 let size = Math.ceil(groupRooms.length / 3);
                 let rows = [];
-                for(let i = 0; i < size; i++) {
+                for (let i = 0; i < size; i++) {
                     rows.push({})
                     rows[i].cols = [];
-                    for(let j = i * 3; j < (i * 3) + 3; j++) {
-                        if(groupRooms[j] != undefined) {
+                    for (let j = i * 3; j < (i * 3) + 3; j++) {
+                        if (groupRooms[j] != undefined) {
                             rows[i].cols.push(groupRooms[j]);
                         }
                     }
                 }
-                res.render('index', {rows: rows});
+                res.render('index', { rows: rows });
             }
-            
+
         })
 
     router.route('/:id')
@@ -70,27 +70,25 @@ module.exports = function (BookingModel) {
             let room = {};
             room.id = req.params.id;
 
-            timeEdit.getTodaysSchedule(req.params.id)
-                .then((roomSchedule) => {
-                    if (roomSchedule === null) {
-                        room.available = true
-                    } else if (moment().format('LT') > roomSchedule[0].time.startTime) {
-                        room.available = false;
-                        room.willBeAvailable = roomSchedule[0].time.endTime;
-                    }
-                    BookingModel.find({roomID: req.params.id}, function(err, room) {
-                        if(err) {
-                            console.log(err);
-                        } else {
-                            console.log(room)
-                        }
-                    })
-                }).then(() => {
-                    console.log(room)
+            BookingModel.find({}, function (err, result) {
+                if (req.params.id === result[0].roomID) {
+                    room.available = false
                     res.render("room", { room: room });
-                }).catch((er) => {
-                    console.log(er);
-                });
+                } else {
+                    timeEdit.getTodaysSchedule(req.params.id).then((roomSchedule) => {
+                        if (roomSchedule === null) {
+                            room.available = true
+                        } else if (moment().format('LT') > roomSchedule[0].time.startTime) {
+                            room.available = false;
+                            room.willBeAvailable = roomSchedule[0].time.endTime;
+                        }
+                    }).then(() => {
+                        res.render("room", { room: room });
+                    }).catch((er) => {
+                        console.log(er);
+                    });
+                }
+            })
         })
         .post(function (req, res) {
             if (req.body.username === undefined) {
@@ -107,7 +105,7 @@ module.exports = function (BookingModel) {
                     duration: req.body.duration
                 }
                 let bookRoom = new BookingModel(data)
-             
+
                 bookRoom.save((err) => {
                     console.log('saved')
                 })
