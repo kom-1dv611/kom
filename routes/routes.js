@@ -70,27 +70,32 @@ module.exports = function (BookingModel, RoomModel) {
                 let groupRooms = [];
                 if (!err) {
                     for (let i = 0; i < rooms.length; i++) {
-                        timeEdit.getTodaysSchedule(rooms[i].name)
-                            .then((roomSchedule) => {
-                                if (roomSchedule === null) {
-                                    rooms[i].available = true;
-                                    groupRooms.push(rooms[i])
-                                } else if (moment().format('LT') < roomSchedule[0].time.startTime || moment().format('LT') > roomSchedule[0].time.endTime) {
-                                    rooms[i].available = true;
+                        BookingModel.find({}, function (err, res) {
+                            for (let j = 0; j < res.length; j++) {
+                                if (res[j].roomID === rooms[i].name) {
+                                    rooms[i].available = false
                                     groupRooms.push(rooms[i])
                                 } else {
-                                    rooms[i].available = false;
-                                    groupRooms.push(rooms[i])
+                                    timeEdit.getTodaysSchedule(rooms[i].name).then((roomSchedule) => {
+                                        if (roomSchedule === null) {
+                                            rooms[i].available = true;
+                                            groupRooms.push(rooms[i])
+                                        } else if (moment().format('LT') < roomSchedule[0].time.startTime || moment().format('LT') > roomSchedule[0].time.endTime) {
+                                            rooms[i].available = true;
+                                            groupRooms.push(rooms[i])
+                                        } else {
+                                            rooms[i].available = false;
+                                            groupRooms.push(rooms[i])
+                                        }
+                                    })
                                 }
                                 groupRooms.push(rooms[i])
 
                                 if (groupRooms.length === rooms.length) {
-                                    sendRoomsToClient(groupRooms);
+                                    sendRoomsToClient(groupRooms)
                                 }
-                            })
-                            .catch((er) => {
-                                console.log(er)
-                            })
+                            }
+                        })
                     }
                 }
             })
