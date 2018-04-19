@@ -12,12 +12,12 @@ let roomID;
 let moment = require('moment');
 moment.locale('sv');
 
-module.exports = function (RoomModel) {
+module.exports = function (BookingModel) {
 
     router.route('/')
-    .get(async function (req, res) {
+        .get(async function (req, res) {
 
-        let rooms = await Scraper();
+            let rooms = await Scraper();
 
             let groupRooms = [];
 
@@ -65,6 +65,7 @@ module.exports = function (RoomModel) {
 
     router.route('/:id')
         .get(function (req, res) {
+            // TODO: kolla om bokning finns i databas och schema
             roomID = req.params.id
             let room = {};
             room.id = req.params.id;
@@ -77,6 +78,13 @@ module.exports = function (RoomModel) {
                         room.available = false;
                         room.willBeAvailable = roomSchedule[0].time.endTime;
                     }
+                    BookingModel.find({roomID: req.params.id}, function(err, room) {
+                        if(err) {
+                            console.log(err);
+                        } else {
+                            console.log(room)
+                        }
+                    })
                 }).then(() => {
                     console.log(room)
                     res.render("room", { room: room });
@@ -94,10 +102,12 @@ module.exports = function (RoomModel) {
             } else {
                 let data = {
                     username: req.body.username,
-                    time: req.body.time
+                    roomID: roomID,
+                    startTime: req.body.time,
+                    duration: req.body.duration
                 }
-
-                let bookRoom = new RoomModel(data)
+                let bookRoom = new BookingModel(data)
+             
                 bookRoom.save((err) => {
                     console.log('saved')
                 })
