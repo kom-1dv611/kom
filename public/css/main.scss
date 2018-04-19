@@ -24,7 +24,7 @@ body {
     @include background($background);
     margin: 0 0;
     img {
-        position: absolute;
+        position: fixed;
         bottom: 0;
         left: 5px;
         max-width: 300px;
