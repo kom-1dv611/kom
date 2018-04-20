@@ -2,6 +2,7 @@
     <div class="row justify-content-center">
         <form id="bookingForm" class="form-inline" action="/:id" method="post">
         <input type="time" id="currentTime" name="time" hidden>
+        <input type="hidden" id="currentTime" name="roomID" value="{{room.id}}">
         <div class="col-md-auto">
             <button id="bookLater" class="btn btn-dark" type="button">Book later</button>
         </div>
