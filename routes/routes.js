@@ -130,6 +130,8 @@ module.exports = function (BookingModel, RoomModel) {
                         }
                     }
                 }
+
+                console.log('____________')
                 res.render('index', { rows: rows });
             }
         })
