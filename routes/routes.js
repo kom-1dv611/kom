@@ -14,6 +14,17 @@ moment.locale('sv');
 
 module.exports = function (BookingModel, RoomModel) {
 
+    function getEndTimeForBooking(booking) {
+        let startTime = booking.startTime;
+        let hour = startTime.substring(0, 2);
+        let parsedHour = parseInt(hour);
+        let parsedDuration = parseInt(booking.duration);
+        let endTimeHour = parsedHour + parsedDuration;
+        let minutes = startTime.substring(3, 6);
+        
+        return endTimeHour + ':' + minutes;
+    }
+
     router.route('/')
         .get(function (req, res) {
 
@@ -67,12 +78,12 @@ module.exports = function (BookingModel, RoomModel) {
                 }
             }
 
-            RoomModel.find({}).exec()
+            RoomModel.find({})
             .then((rooms) => {
                 return rooms;
             })
             .then((rooms) => {
-                BookingModel.find({}).exec()
+                BookingModel.find({})
                 .then((bookings) => {
                     //Här i finns tillgång till alla grupprum samt alla bokningar från databasen (rooms & bookings)
                     let groupRoomsWithAvailability = [];
@@ -82,17 +93,33 @@ module.exports = function (BookingModel, RoomModel) {
                         .then((roomSchedule) => {
                             for (let j = 0; j < bookings.length; j++) {
                                 if (bookings[j].roomID === rooms[i].name) {
-                                    //Bokningsrummet finns i databasen
-                                    //Jämför tiden mellan bokningen och rumschemat(roomSchedule)
+
+                                    let endTime = getEndTimeForBooking(bookings[j]);
+
+                                    //Rummet är bokat
+                                    if (bookings[j].startTime < endTime) {
+                                        rooms[i].available = false;
+                                        groupRoomsWithAvailability.push(rooms[i])
+                                        console.log(rooms[i].name + ' är bokat (' + bookings[j].startTime + '-' + endTime + ').')
+                                    }
+
+                                    //Rensa bort gamla bokningar
+                                    if (endTime < moment().format('LT')) {
+                                        console.log(bookings[j].roomID + ' (' + bookings[j].startTime + '-' + endTime + ') är en gammal bokning, ta bort den')
+                                    }
                                 }
                             }
-                            if (roomSchedule === null || moment().format('LT') < roomSchedule[0].time.startTime || moment().format('LT') > roomSchedule[0].time.endTime) {
-                                rooms[i].available = true;
-                            } else {
-                                rooms[i].available = false;
-                            }
-                            groupRoomsWithAvailability.push(rooms[i])
 
+                            if (!rooms[i].hasOwnProperty('available')) {
+                                if (roomSchedule === null || moment().format('LT') < roomSchedule[0].time.startTime || moment().format('LT') > roomSchedule[0].time.endTime) {
+                                    rooms[i].available = true
+                                    groupRoomsWithAvailability.push(rooms[i])
+                                } else {
+                                    rooms[i].available = false;
+                                    groupRoomsWithAvailability.push(rooms[i])
+                                }
+                            }
+                            
                             if (groupRoomsWithAvailability.length === rooms.length) {
                                 sendRoomsToClient(groupRoomsWithAvailability)
                             }
@@ -130,16 +157,10 @@ module.exports = function (BookingModel, RoomModel) {
             BookingModel.find({ roomID: req.params.id }, function (err, result) {
                 // TODO: ta bort bokning från db om tiden gått ut.
                 if (result.length > 0) {
-                    let time = result[0].startTime
-                    let hour = time.substring(0, 2);
-                    let parsedHour = parseInt(hour);
-                    let test = parseInt(result[0].duration);
-                    let endTimeHour = parsedHour + test;
-                    let minutes = time.substring(3, 6);
+                    let endTime = getEndTimeForBooking(result[0]);
+                    let startTime = result[0].startTime;
 
-                    let endTime = endTimeHour + ':' + minutes;
-
-                    if (result[0].startTime > moment().format('LT') || endTime < moment().format('LT')) {
+                    if (startTime > moment().format('LT') || endTime < moment().format('LT')) {
                         room.available = true;
                     } else {
                         room.available = false;
