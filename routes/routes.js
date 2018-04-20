@@ -1,6 +1,7 @@
 'use strict';
 
 const Scraper = require('../libs/scraper');
+const getEndTimeForBooking = require('../libs/endTimebooking');
 
 const timeEditApi = require('timeeditApi');
 const timeEdit = timeEditApi(
@@ -13,18 +14,6 @@ let moment = require('moment');
 moment.locale('sv');
 
 module.exports = function (BookingModel, RoomModel) {
-
-    function getEndTimeForBooking(booking) {
-        let startTime = booking.startTime;
-        let hour = startTime.substring(0, 2);
-        let parsedHour = parseInt(hour);
-        let parsedDuration = parseInt(booking.duration);
-        let endTimeHour = parsedHour + parsedDuration;
-        let minutes = startTime.substring(3, 6);
-        
-        return endTimeHour + ':' + minutes;
-    }
-
     router.route('/')
         .get(function (req, res) {
 
@@ -168,7 +157,8 @@ module.exports = function (BookingModel, RoomModel) {
                         room.available = false;
                         room.willBeAvailable = endTime;
                     }
-                    res.render("room", { room: room });
+
+                    return res.render("room", { room: room });
                 } else {
                     timeEdit.getTodaysSchedule(room.id)
                         .then((roomSchedule) => {
@@ -180,8 +170,8 @@ module.exports = function (BookingModel, RoomModel) {
                             } else if (currentTime < roomSchedule[0].time.startTime) {
                                 room.available = true;
                             }
-                        }).then(() => {
-                            res.render("room", { room: room });
+
+                            return res.render("room", { room: room });
                         }).catch((er) => {
                             console.log(er);
                         });
@@ -189,7 +179,6 @@ module.exports = function (BookingModel, RoomModel) {
             })
         })
         .post(function (req, res) {
-            console.log(req.params.id);
             if (req.body.username === undefined) {
                 console.log('no username entered')
                 req.session.flash = {
@@ -216,14 +205,6 @@ module.exports = function (BookingModel, RoomModel) {
         .get(function (req, res) {
             timeEdit.getTodaysSchedule(req.params.roomID)
                 .then((roomSchedule) => {
-                    // let data = {
-                    //     startTime: roomSchedule[0].time.startTime,
-                    //     endTime: roomSchedule[0].time.endTime,
-                    //     bookingID: roomSchedule[0].bookingId,
-                    //     info: roomSchedule[0].columns[2]
-                    // }
-                    // console.log(data);
-
                     res.send(JSON.stringify(roomSchedule, null, 2));
                 }).catch((er) => {
                     console.log(er);
