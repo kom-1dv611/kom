@@ -19,7 +19,7 @@ nav img {
   left: auto;
   bottom: auto;
   top: 7px;
-  right: 5px;
+  right: 20px;
   max-width: 200px;
   max-height: 30px; }
 
@@ -31,15 +31,15 @@ h1 {
 h4 a {
   color: #212529 !important; }
 
+.container {
+  margin-top: 75px; }
+
 .modal-backdrop {
   display: none; }
 
 .btn-outline-dark {
   color: white !important;
   border-color: white !important; }
-
-.row {
-  margin: 0 !important; }
 
 .card:hover {
   background-color: rgba(0, 0, 0, 0.1) !important; }
@@ -59,15 +59,17 @@ h4 a {
 .breadcrumb {
   background-color: rgba(0, 0, 0, 0.5) !important; }
 
-.top-buffer {
-  margin-top: 20px !important; }
-
 .dropdown-item:hover {
   background-color: rgba(0, 0, 0, 0.1); }
 
-.fa-2x {
-  vertical-align: middle;
-  margin-right: 5px; }
+.alert-danger {
+  background-color: rgba(255, 0, 0, 0.6);
+  color: white;
+  width: 50%;
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%); }
 
 #clock,
 #book {
@@ -95,5 +97,5 @@ input[type=date]::-webkit-inner-spin-button {
 
 #filter {
   position: absolute;
-  right: 130px;
+  right: 140px;
   top: 8px; }

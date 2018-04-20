@@ -1,8 +1,8 @@
 <div class="col-md-auto">
     <div class="btn-group btn-group-toggle" data-toggle="buttons">
         {{#loop 1 3 1}}
-            <label class="btn btn-dark">
-                <input type="radio" value="{{this}}"name="duration"> {{this}} hour(s)
+            <label class="btn btn-dark" title="Book this room for {{this}} hours(s) starting now">
+                <input type="radio"  value="{{this}}" name="duration"> {{this}} hour(s)
             </label>
         {{/loop}}
     </div>

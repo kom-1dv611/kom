@@ -2,7 +2,15 @@ let original = $(".container").children();
 
 
 $(".dropdown-item").click(function() {
-    startFilter($(this).text());
+    if($(this).text() != "All") {
+        startFilter($(this).text());
+    } else {
+        reset();
+        let filtered = filter();
+        let sorted = sort(filtered);
+        $(".container").children().remove();
+        addNew(sorted);
+    }
 });
 
 function startFilter(f) {
@@ -24,7 +32,7 @@ function addNew(rows) {
     let row, col;
     for(let i = 0; i < rows.length; i++) {
         row = $("<div>").appendTo($(".container"));
-        row.addClass("row top-buffer animated fadeInUp");
+        row.addClass("row top-buffer mb-4 animated fadeInUp");
         for(let j = 0; j < rows[i].cols.length; j++) {
             original.push(rows[i].cols[j]);
             row.append(rows[i].cols[j]);
@@ -50,9 +58,14 @@ function sort(rooms) {
 function filter(condition) {
     let filtered = [];
     $(".location").each(function(index, val) {
-        if($(this).text() == condition) {
+        if(condition) {
+            if($(this).text() == condition) {
+                filtered.push($(this).parent().parent().parent().parent());
+            }
+        } else {
             filtered.push($(this).parent().parent().parent().parent());
         }
+        
     });
     return filtered;
 }

@@ -3,7 +3,7 @@
         <form id="bookingForm" class="form-inline" action="/:id" method="post">
         <input type="time" id="currentTime" name="time" hidden>
         <div class="col-md-auto">
-            <button id="bookLater" class="btn btn-dark" type="button" data-toggle="modal" data-target="#bookAt">Book later</button>
+            <button title="Book this room at a later date" id="bookLater" class="btn btn-dark" type="button" data-toggle="modal" data-target="#bookAt">Book later</button>
             {{>bookLater}}
         </div>
         {{>durationSelection}}
@@ -13,3 +13,4 @@
 </div>
 
 <script src="/client/js/booking.js"></script>
+<script src="/client/js/fixInput.js"></script>
