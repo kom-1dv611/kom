@@ -1,4 +1,5 @@
 let bookLater = false;
+let bookingValid = false;
 let durationSelected = false;
 
 $(".btn-group-toggle").change(function() {
@@ -11,16 +12,45 @@ $(".btn-group-toggle").change(function() {
 });
 
 $("#confirmTime").click(function() {
-   bookLater = true;
-   // check if values are not equal to 0
+   let time = $("#time").val();
+   let date = $("#date").val();
+   if(time != "" || date != "") {
+        bookLater = true;
+        if(time == "" || date == "") {
+            newError("Day or time is invalid.");
+            bookingValid = false;
+        } else {
+            bookingValid = true;
+        }
+   }
 });
 
 $("#modalToggleUsername").click(function() {
+    let msg;
+    let errors = [];
     if(!durationSelected) {
-        let error = makeWarning();
-        error.append("<p>You need to select a duration</p>");
+        errors.push("You need to select a duration");
     }
+    if(!bookingValid && bookLater) {
+        errors.push("Day or time is invalid.");
+    }
+    newError(errors.join(". "));
 });
+
+function newError(text) {
+    if(!errorExists()) {
+        let error = makeWarning();
+        msg = $(`<p>${text}</p>`).appendTo(error);
+        msg.attr("id", "errorMsg");
+    } else {
+        msg = $("#errorMsg");
+        msg.text(text)
+    }
+}
+
+function errorExists() {
+    return $("#errorMsg").length > 0;
+}
 
 function makeWarning() {
     let div = $("<div></div>").appendTo("body");
