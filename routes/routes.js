@@ -87,46 +87,47 @@ module.exports = function (BookingModel, RoomModel) {
                 .then((bookings) => {
                     //Här i finns tillgång till alla grupprum samt alla bokningar från databasen (rooms & bookings)
                     let groupRoomsWithAvailability = [];
+                    let currentTime = moment().format('LT');
 
                     for (let i = 0; i < rooms.length; i++) {                            
                         timeEdit.getTodaysSchedule(rooms[i].name)
-                        .then((roomSchedule) => {
-                            for (let j = 0; j < bookings.length; j++) {
-                                if (bookings[j].roomID === rooms[i].name) {
+                            .then((roomSchedule) => {
+                                for (let j = 0; j < bookings.length; j++) {
+                                    if (bookings[j].roomID === rooms[i].name) {
 
-                                    let endTime = getEndTimeForBooking(bookings[j]);
+                                        let endTime = getEndTimeForBooking(bookings[j]);
+                                        let startTime = bookings[j].startTime;
+                                       
+                                        //Om bokningen är gammal så ta bort den, annars så är rummet bokat för tillfället. 
+                                        if (startTime > currentTime || endTime < currentTime) {
+                                            console.log(bookings[j].roomID + ' (' + bookings[j].startTime + '-' + endTime + ') är en gammal bokning, ta bort den')
+                                            BookingModel.remove({_id: bookings[j]._id}, (err, result) => {
+                                                console.log('Successfully removed expired booking from DB.')
+                                            })
+                                        } else {
+                                            rooms[i].available = false;
+                                            groupRoomsWithAvailability.push(rooms[i])
+                                            console.log(rooms[i].name + ' är bokat (' + bookings[j].startTime + '-' + endTime + ') i MongoDB.')
+                                        }
+                                    }
+                                }
 
-                                    //Rummet är bokat
-                                    if (bookings[j].startTime < endTime) {
+                                if (!rooms[i].hasOwnProperty('available')) {
+                                    if (roomSchedule === null || currentTime < roomSchedule[0].time.startTime || currentTime > roomSchedule[0].time.endTime) {
+                                        rooms[i].available = true
+                                        groupRoomsWithAvailability.push(rooms[i])
+                                    } else {
                                         rooms[i].available = false;
                                         groupRoomsWithAvailability.push(rooms[i])
-                                        console.log(rooms[i].name + ' är bokat (' + bookings[j].startTime + '-' + endTime + ').')
-                                    }
-
-                                    //Rensa bort gamla bokningar
-                                    if (endTime < moment().format('LT')) {
-                                        console.log(bookings[j].roomID + ' (' + bookings[j].startTime + '-' + endTime + ') är en gammal bokning, ta bort den')
                                     }
                                 }
-                            }
-
-                            if (!rooms[i].hasOwnProperty('available')) {
-                                if (roomSchedule === null || moment().format('LT') < roomSchedule[0].time.startTime || moment().format('LT') > roomSchedule[0].time.endTime) {
-                                    rooms[i].available = true
-                                    groupRoomsWithAvailability.push(rooms[i])
-                                } else {
-                                    rooms[i].available = false;
-                                    groupRoomsWithAvailability.push(rooms[i])
+                                
+                                if (groupRoomsWithAvailability.length === rooms.length) {
+                                    sendRoomsToClient(groupRoomsWithAvailability)
                                 }
-                            }
-                            
-                            if (groupRoomsWithAvailability.length === rooms.length) {
-                                sendRoomsToClient(groupRoomsWithAvailability)
-                            }
-                        })
-                        .catch((er) => {
-                            console.log(er)
-                        })
+                            }).catch((er) => {
+                                console.log(er)
+                            })
                     }
                 })
             })
@@ -153,14 +154,15 @@ module.exports = function (BookingModel, RoomModel) {
             roomID = req.params.id
             let room = {};
             room.id = req.params.id;
+            let currentTime = moment().format('LT');
 
             BookingModel.find({ roomID: req.params.id }, function (err, result) {
                 // TODO: ta bort bokning från db om tiden gått ut.
                 if (result.length > 0) {
                     let endTime = getEndTimeForBooking(result[0]);
                     let startTime = result[0].startTime;
-
-                    if (startTime > moment().format('LT') || endTime < moment().format('LT')) {
+                    
+                    if (startTime > currentTime || endTime < currentTime) {
                         room.available = true;
                     } else {
                         room.available = false;
@@ -168,22 +170,26 @@ module.exports = function (BookingModel, RoomModel) {
                     }
                     res.render("room", { room: room });
                 } else {
-                    timeEdit.getTodaysSchedule(req.params.id).then((roomSchedule) => {
-                        if (roomSchedule === null) {
-                            room.available = true
-                        } else if (moment().format('LT') > roomSchedule[0].time.startTime) {
-                            room.available = false;
-                            room.willBeAvailable = roomSchedule[0].time.endTime;
-                        }
-                    }).then(() => {
-                        res.render("room", { room: room });
-                    }).catch((er) => {
-                        console.log(er);
-                    });
+                    timeEdit.getTodaysSchedule(room.id)
+                        .then((roomSchedule) => {
+                            if (roomSchedule === null) {
+                                room.available = true
+                            } else if (currentTime > roomSchedule[0].time.startTime) {
+                                room.available = false;
+                                room.willBeAvailable = roomSchedule[0].time.endTime;
+                            } else if (currentTime < roomSchedule[0].time.startTime) {
+                                room.available = true;
+                            }
+                        }).then(() => {
+                            res.render("room", { room: room });
+                        }).catch((er) => {
+                            console.log(er);
+                        });
                 }
             })
         })
         .post(function (req, res) {
+            console.log(req.params.id);
             if (req.body.username === undefined) {
                 console.log('no username entered')
                 req.session.flash = {

@@ -102,3 +102,8 @@ input[type=date]::-webkit-inner-spin-button {
     padding: 10px;
     margin: auto;
 }
+
+/* h3-tag i specificRoom.hbs */
+#booking-end-time {
+  text-align: center;
+}
