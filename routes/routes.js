@@ -2,6 +2,7 @@
 
 const Scraper = require('../libs/scraper');
 const getEndTimeForBooking = require('../libs/endTimebooking');
+const getInformation = require('../libs/getInformation');
 
 const timeEditApi = require('timeeditApi');
 const timeEdit = timeEditApi(
@@ -15,7 +16,8 @@ moment.locale('sv');
 module.exports = function (BookingModel, RoomModel) {
     router.route('/')
         .get(function (req, res) {
-
+            //Testar att skrapa
+            getInformation();
             //Körs ej. Används bara för att skrapa grupprummen på lnu.se
             async function scrapeRoomsFromLNU() {
                 let rooms = await Scraper();
