@@ -21,6 +21,8 @@ module.exports = function() {
                 const $ = cheerio.load(html);
                 let roomName = 'Ny231';
                 let changeName = $('#ffsearchname').attr('value', roomName);
+                let test = $('.infoboxtitle').children();
+                console.log(test);
                 html = $.html()
           }
     }).then(function() {

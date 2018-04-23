@@ -8,7 +8,22 @@ function makeCol(parent) {
     return col;
 }
 
-$("#bookLater").click(function() {
+$(".close").click(function() {
+    let body = $(this).parent().parent().children()[1];
+    let children = $(body).children();
+
+    console.log(children);
+
+    
+    for(let i = 0; i < children.length; i++) {
+        let child = children[i];
+        if(child.nodeName == "INPUT") {
+            $(child).val("");
+        }
+    }
+});
+
+/*$("#bookLater").click(function() {
     let col, time, date, dateIcon, timeIcon;
     $(this).parent().remove();
 
@@ -30,5 +45,5 @@ $("#bookLater").click(function() {
     date.addClass("form-control");
     date.attr("type", "date");
 
-    $(".btn-group").children().addClass("animated fadeInLeft");
-});
+    //$(".btn-group").children().addClass("animated fadeInLeft");
+});*/
