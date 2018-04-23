@@ -66,13 +66,15 @@ module.exports = function (BookingModel, RoomModel) {
                 }
             }
 
-            RoomModel.find({})
-            .then((rooms) => {
+            let roomFinder = RoomModel.find({}).exec();
+            let bookingFinder = BookingModel.find({}).exec();
+
+            
+            roomFinder.then((rooms) => {
                 return rooms;
             })
             .then((DBrooms) => {
-                BookingModel.find({})
-                .then((bookings) => {
+                bookingFinder.then((bookings) => {
                     let rooms = DBrooms.slice(0);
 
                     //Här i finns tillgång till alla grupprum samt alla bokningar från databasen (rooms & bookings)
@@ -126,11 +128,12 @@ module.exports = function (BookingModel, RoomModel) {
                             })
                     }
                 })
+            }).catch((err) => {
+                console.log(err)
             })
 
             function sendRoomsToClient(groupRooms) {
-                //TODO: fixa sort metoden
-                //groupRooms.sort((a, b) => a.name.localeCompare(b.name))
+                groupRooms.sort((a, b) => a.room.name.localeCompare(b.room.name))
                 let size = Math.ceil(groupRooms.length / 3);
                 let rows = [];
                 for (let i = 0; i < size; i++) {
