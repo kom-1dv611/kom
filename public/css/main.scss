@@ -24,7 +24,7 @@ body {
     @include background($background);
     margin: 0 0;
     img {
-        position: absolute;
+        position: fixed;
         bottom: 0;
         left: 5px;
         max-width: 300px;
@@ -38,7 +38,7 @@ nav {
         left: auto;
         bottom: auto;
         top: 7px;
-        right: 5px;
+        right: 20px;
         max-width: 200px;
         max-height: 30px;
     }
@@ -47,6 +47,7 @@ nav {
 h1 {
     font-size: 6em;
     color: $mainTextColor;
+    font-family: "Helvetica";
 }
 
 
@@ -57,6 +58,10 @@ h4 {
     }
 }
 
+.container {
+    margin-top: 75px;
+}
+
 .modal-backdrop { 
     display: none;    
 }
@@ -64,10 +69,6 @@ h4 {
 .btn-outline-dark {
     color: $buttonColor !important;
     border-color: $buttonColor !important;
-}
-
-.row {
-    margin: 0 !important;
 }
 
 .card:hover {
@@ -94,18 +95,20 @@ h4 {
     background-color: $mainOverlayColor !important;
 }
 
-.top-buffer {
-     margin-top:20px !important; 
-}
-
 .dropdown-item:hover {
     background-color: $mainOnHoverColor;
 }
 
-.fa-2x {
-    vertical-align: middle;
-    margin-right: 5px;
-  }
+.alert-danger {
+    background-color: rgba(255, 0, 0, 0.6);
+    color: white;
+    width: 50%;
+    position: absolute;
+    top: 35%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+}
 
 #clock,
 #book {
@@ -135,4 +138,10 @@ h4 {
 input[type=date]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     display: none;
+}
+
+#filter {
+    position: absolute;
+    right: 140px;
+    top: 8px;
 }

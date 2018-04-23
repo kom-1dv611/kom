@@ -1,12 +1,31 @@
-<nav>
-    <ol class="breadcrumb">
-        {{#if room.id}}
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{room.id}}</li>
-        {{else}}
-            
-            <li class="breadcrumb-item active"><a href="/"><i class="fas fa-home fa-fw"></i>Home</a></li>
-        {{/if}}
-    </ol>
-    <img src="/client/imgs/url.png">
+<nav class="navbar-fixed-top">
+    <div class="container-fluid">
+        <ol class="breadcrumb">
+            {{#if room.id}}
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{room.id}}</li>
+            {{else}}
+                
+                <li class="breadcrumb-item active"><a href="/"><i class="fas fa-home fa-fw"></i>Home</a></li>
+            {{/if}}
+        </ol>
+        {{#unless room}}
+            <div id="filter" class="btn-group dropleft">
+                <button type="button" class="btn btn-dark btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Location
+                </button>
+                <div class="dropdown-menu">
+                    <h6 class="dropdown-header">Location</h6>
+                    <button class="dropdown-item" type="button">All</button>
+                    <button class="dropdown-item" type="button">Kalmar Nyckel</button>
+                    <button class="dropdown-item" type="button">Sjöfartshögskolan</button>
+                    <button class="dropdown-item" type="button">Kocken</button>
+                    <button class="dropdown-item" type="button">Universitetsbiblioteket</button>
+                    <button class="dropdown-item" type="button">Storken</button>
+                    <button class="dropdown-item" type="button">Norrgård</button>
+                </div>
+            </div>
+        {{/unless}}
+        <img src="/client/imgs/url.png">
+    </div>
 </nav>
