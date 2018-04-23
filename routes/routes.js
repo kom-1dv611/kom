@@ -1,6 +1,7 @@
 'use strict';
 
 const Scraper = require('../libs/scraper');
+const getEndTimeForBooking = require('../libs/endTimebooking');
 
 const timeEditApi = require('timeeditApi');
 const timeEdit = timeEditApi(
@@ -8,129 +9,182 @@ const timeEdit = timeEditApi(
 );
 
 let router = require("express").Router();
-let roomID;
 let moment = require('moment');
 moment.locale('sv');
 
 module.exports = function (BookingModel, RoomModel) {
-
     router.route('/')
-    .get(function (req, res) {
+        .get(function (req, res) {
 
-        async function scrapeRoomsFromLNU() {
-            let rooms = await Scraper();
-            let groupRooms = [];
-    
-            for (let i = 0; i < rooms.length; i++) {
-                timeEdit.getTodaysSchedule(rooms[i].name)
-                .then((roomSchedule) => {
-                    if (roomSchedule === null) {
-                        rooms[i].available = true;
-                        groupRooms.push(rooms[i])
-                    } else if (moment().format('LT') < roomSchedule[0].time.startTime || moment().format('LT') > roomSchedule[0].time.endTime) { 
-                        rooms[i].available = true;
-                        groupRooms.push(rooms[i])
-                    } else {
-                        rooms[i].available = false;
-                        groupRooms.push(rooms[i])
-                    }
-    
-                    // Save room if it isn't stored in DB already
-                    RoomModel.find({name: rooms[i].name}, (err, room) => {
-                        if (!err && !room || !err && !room.length) {
-                            let groupRoom = new RoomModel({
-                                name: rooms[i].name,
-                                city: rooms[i].city,
-                                type: rooms[i].type,
-                                floor_type: rooms[i].floor_type,
-                                floor_level: rooms[i].floor_level,
-                                location: rooms[i].location
-                            });
-            
-                            groupRoom.save((err, savedRoom) => {
-                                if (err) { console.log(err) }
-                                if (savedRoom) { console.log('saved room in db')}
-                            })
-                        }
-                    })
-                    
-                    if (i === (rooms.length - 1)) {
-                        sendRoomsToClient(groupRooms);
-                    }
-                    
-                }).catch((er) => {
-                    if (i === (rooms.length - 1)) {
-                        sendRoomsToClient(groupRooms);
-                    }
-                });
-            }
-        }
+            //Körs ej. Används bara för att skrapa grupprummen på lnu.se
+            async function scrapeRoomsFromLNU() {
+                let rooms = await Scraper();
+                let groupRooms = [];
 
-        RoomModel.find({}, (err, rooms) => {
-            let groupRooms = [];
-            if (!err) {
-                for(let i = 0; i < rooms.length; i++) {
+                for (let i = 0; i < rooms.length; i++) {
                     timeEdit.getTodaysSchedule(rooms[i].name)
-                    .then((roomSchedule) => {
-                        if (roomSchedule === null) {
-                            rooms[i].available = true;
-                            groupRooms.push(rooms[i])
-                        } else if (moment().format('LT') < roomSchedule[0].time.startTime || moment().format('LT') > roomSchedule[0].time.endTime) { 
-                            rooms[i].available = true;
-                            groupRooms.push(rooms[i])
-                        } else {
-                            rooms[i].available = false;
-                            groupRooms.push(rooms[i])
-                        }
-                        groupRooms.push(rooms[i])
+                        .then((roomSchedule) => {
+                            if (roomSchedule === null) {
+                                rooms[i].available = true;
+                                groupRooms.push(rooms[i])
+                            } else if (moment().format('LT') < roomSchedule[0].time.startTime || moment().format('LT') > roomSchedule[0].time.endTime) {
+                                rooms[i].available = true;
+                                groupRooms.push(rooms[i])
+                            } else {
+                                rooms[i].available = false;
+                                groupRooms.push(rooms[i])
+                            }
 
-                        if (groupRooms.length === rooms.length) {
-                            sendRoomsToClient(groupRooms);
-                        }
-                    })
-                    .catch((er) => {
-                        console.log(er)
-                    })
+                            // Save room if it isn't stored in DB already
+                            RoomModel.find({ name: rooms[i].name }, (err, room) => {
+                                if (!err && !room || !err && !room.length) {
+                                    let groupRoom = new RoomModel({
+                                        name: rooms[i].name,
+                                        city: rooms[i].city,
+                                        type: rooms[i].type,
+                                        floor_type: rooms[i].floor_type,
+                                        floor_level: rooms[i].floor_level,
+                                        location: rooms[i].location
+                                    });
+
+                                    groupRoom.save((err, savedRoom) => {
+                                        if (err) { console.log(err) }
+                                        if (savedRoom) { console.log('saved room in db') }
+                                    })
+                                }
+                            })
+
+                            if (i === (rooms.length - 1)) {
+                                sendRoomsToClient(groupRooms);
+                            }
+
+                        }).catch((er) => {
+                            if (i === (rooms.length - 1)) {
+                                sendRoomsToClient(groupRooms);
+                            }
+                        });
                 }
+            }
+
+            RoomModel.find({})
+            .then((rooms) => {
+                return rooms;
+            })
+            .then((DBrooms) => {
+                BookingModel.find({})
+                .then((bookings) => {
+                    let rooms = DBrooms.slice(0);
+
+                    //Här i finns tillgång till alla grupprum samt alla bokningar från databasen (rooms & bookings)
+                    let groupRoomsWithAvailability = [];
+                    let currentTime = moment().format('LT');
+
+                    for (let i = 0; i < rooms.length; i++) { 
+
+                        let isRoomAvailable;          
+
+                        timeEdit.getTodaysSchedule(rooms[i].name)
+                            .then((roomSchedule) => {
+                                for (let j = 0; j < bookings.length; j++) {
+                                    if (bookings[j].roomID === rooms[i].name) {
+
+                                        let endTime = getEndTimeForBooking(bookings[j]);
+                                        let startTime = bookings[j].startTime;
+                                       
+                                        //Om bokningen är gammal så ta bort den, annars så är rummet bokat för tillfället. 
+                                        if (startTime > currentTime || endTime < currentTime) {
+                                            BookingModel.remove({_id: bookings[j]._id}, (err, result) => {
+                                                console.log('Successfully removed expired booking ' +  bookings[j].roomID + ' (' + bookings[j].startTime + '-' + endTime + ') from DB.')
+                                            })
+                                        } else {
+                                            isRoomAvailable = false;
+                                            console.log(rooms[i].name + ' är bokat (' + bookings[j].startTime + '-' + endTime + ') i MongoDB.')
+                                        }
+                                    }
+                                }
+
+                                if (!rooms[i].hasOwnProperty('available')) {
+                                    if (roomSchedule === null || currentTime < roomSchedule[0].time.startTime || currentTime > roomSchedule[0].time.endTime) {
+                                        isRoomAvailable = true;
+                                    } else {
+                                        isRoomAvailable = false;
+                                    }
+                                }
+
+                                let room = {
+                                    room: rooms[i],
+                                    available: isRoomAvailable
+                                }
+
+                                groupRoomsWithAvailability.push(room);
+                                                                
+                                if (groupRoomsWithAvailability.length === rooms.length) {
+                                    sendRoomsToClient(groupRoomsWithAvailability)
+                                }
+                            }).catch((er) => {
+                                console.log(er)
+                            })
+                    }
+                })
+            })
+
+            function sendRoomsToClient(groupRooms) {
+                //TODO: fixa sort metoden
+                //groupRooms.sort((a, b) => a.name.localeCompare(b.name))
+                let size = Math.ceil(groupRooms.length / 3);
+                let rows = [];
+                for (let i = 0; i < size; i++) {
+                    rows.push({})
+                    rows[i].cols = [];
+                    for (let j = i * 3; j < (i * 3) + 3; j++) {
+                        if (groupRooms[j] != undefined) {
+                            rows[i].cols.push(groupRooms[j]);
+                        }
+                    }
+                }
+                console.log('____________')
+                res.json({ rows: rows });
             }
         })
-        
-        function sendRoomsToClient(groupRooms) {
-            let size = Math.ceil(groupRooms.length / 3);
-            let rows = [];
-            for(let i = 0; i < size; i++) {
-                rows.push({})
-                rows[i].cols = [];
-                for(let j = i * 3; j < (i * 3) + 3; j++) {
-                    if(groupRooms[j] != undefined) {
-                        rows[i].cols.push(groupRooms[j]);
-                    }
-                }
-            }
-            res.render('index', {rows: rows});
-        }
-    })
 
     router.route('/:id')
         .get(function (req, res) {
-            roomID = req.params.id
             let room = {};
             room.id = req.params.id;
+            let currentTime = moment().format('LT');
 
-            timeEdit.getTodaysSchedule(req.params.id)
-                .then((roomSchedule) => {
-                    if (roomSchedule === null) {
-                        room.available = true
-                    } else if (moment().format('LT') > roomSchedule[0].time.startTime) {
+            BookingModel.find({ roomID: req.params.id }, function (err, result) {
+                // TODO: ta bort bokning från db om tiden gått ut.
+                if (result.length > 0) {
+                    let endTime = getEndTimeForBooking(result[0]);
+                    let startTime = result[0].startTime;
+                    
+                    if (startTime > currentTime || endTime < currentTime) {
+                        room.available = true;
+                    } else {
                         room.available = false;
-                        room.willBeAvailable = roomSchedule[0].time.endTime;
+                        room.willBeAvailable = endTime;
                     }
-                }).then(() => {
-                    console.log(room)
-                    res.render("room", { room: room });
-                }).catch((er) => {
-                    console.log(er);
-                });
+
+                    return res.render("room", { room: room });
+                } else {
+                    timeEdit.getTodaysSchedule(room.id)
+                        .then((roomSchedule) => {
+                            if (roomSchedule === null) {
+                                room.available = true
+                            } else if (currentTime > roomSchedule[0].time.startTime) {
+                                room.available = false;
+                                room.willBeAvailable = roomSchedule[0].time.endTime;
+                            } else if (currentTime < roomSchedule[0].time.startTime) {
+                                room.available = true;
+                            }
+
+                            return res.render("room", { room: room });
+                        }).catch((er) => {
+                            console.log(er);
+                        });
+                }
+            })
         })
         .post(function (req, res) {
             if (req.body.username === undefined) {
@@ -142,29 +196,23 @@ module.exports = function (BookingModel, RoomModel) {
             } else {
                 let data = {
                     username: req.body.username,
-                    time: req.body.time
+                    roomID: req.body.roomID,
+                    startTime: req.body.time,
+                    duration: req.body.duration
                 }
 
                 let bookRoom = new BookingModel(data)
                 bookRoom.save((err) => {
-                    console.log('saved')
+                    console.log('Booking saved in DB.')
                 })
             }
-            res.redirect('/' + roomID)
+            res.redirect('/' + req.body.roomID)
         });
 
     router.route('/:roomID/schedule/today')
         .get(function (req, res) {
             timeEdit.getTodaysSchedule(req.params.roomID)
                 .then((roomSchedule) => {
-                    // let data = {
-                    //     startTime: roomSchedule[0].time.startTime,
-                    //     endTime: roomSchedule[0].time.endTime,
-                    //     bookingID: roomSchedule[0].bookingId,
-                    //     info: roomSchedule[0].columns[2]
-                    // }
-                    // console.log(data);
-                    
                     res.send(JSON.stringify(roomSchedule, null, 2));
                 }).catch((er) => {
                     console.log(er);

@@ -1,4 +1,4 @@
 # kom
 
 ## Sass compile command
-node-sass --include-path scss public/css/main.scss public/css/main.css -w
+node-sass --include-path scss client/public//main.scss client/public//main.css -w

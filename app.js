@@ -49,6 +49,12 @@ app.use(session({
     }
 }));
 
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
+
 app.use(function (req, res, next) {
     res.locals.flash = req.session.flash;
     delete req.session.flash;
