@@ -12,7 +12,7 @@ class roomCollection extends Component {
             return <div key={"r" + i} className="row top-buffer mb-4">{cols}</div>
         });
         return (
-            <div>
+            <div className="roomContainer">
                 {rows}
             </div>
         );
