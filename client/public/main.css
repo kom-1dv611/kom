@@ -62,6 +62,9 @@ h4 a {
 .dropdown-item:hover {
   background-color: rgba(0, 0, 0, 0.1); }
 
+.row {
+  margin: 0 !important; }
+
 .alert-danger {
   background-color: rgba(255, 0, 0, 0.6);
   color: white;
@@ -70,6 +73,11 @@ h4 a {
   top: 35%;
   left: 50%;
   transform: translate(-50%, -50%); }
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear !important;
+  height: 80px;
+  position: static; }
 
 #clock,
 #book {
@@ -83,6 +91,7 @@ h4 a {
 
 #book {
   top: 45%;
+  left: 0;
   background-color: rgba(0, 0, 0, 0.5); }
 
 #available {
@@ -99,3 +108,9 @@ input[type=date]::-webkit-inner-spin-button {
   position: absolute;
   right: 140px;
   top: 8px; }
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg); }
+  to {
+    transform: rotate(360deg); } }
