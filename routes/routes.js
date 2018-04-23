@@ -70,14 +70,19 @@ module.exports = function (BookingModel, RoomModel) {
             .then((rooms) => {
                 return rooms;
             })
-            .then((rooms) => {
+            .then((DBrooms) => {
                 BookingModel.find({})
                 .then((bookings) => {
+                    let rooms = DBrooms.slice(0);
+
                     //Här i finns tillgång till alla grupprum samt alla bokningar från databasen (rooms & bookings)
                     let groupRoomsWithAvailability = [];
                     let currentTime = moment().format('LT');
 
-                    for (let i = 0; i < rooms.length; i++) {                            
+                    for (let i = 0; i < rooms.length; i++) { 
+
+                        let isRoomAvailable;          
+
                         timeEdit.getTodaysSchedule(rooms[i].name)
                             .then((roomSchedule) => {
                                 for (let j = 0; j < bookings.length; j++) {
@@ -92,7 +97,7 @@ module.exports = function (BookingModel, RoomModel) {
                                                 console.log('Successfully removed expired booking ' +  bookings[j].roomID + ' (' + bookings[j].startTime + '-' + endTime + ') from DB.')
                                             })
                                         } else {
-                                            rooms[i].available = false;
+                                            isRoomAvailable = false;
                                             console.log(rooms[i].name + ' är bokat (' + bookings[j].startTime + '-' + endTime + ') i MongoDB.')
                                         }
                                     }
@@ -100,13 +105,19 @@ module.exports = function (BookingModel, RoomModel) {
 
                                 if (!rooms[i].hasOwnProperty('available')) {
                                     if (roomSchedule === null || currentTime < roomSchedule[0].time.startTime || currentTime > roomSchedule[0].time.endTime) {
-                                        rooms[i].available = true;
+                                        isRoomAvailable = true;
                                     } else {
-                                        rooms[i].available = false;
+                                        isRoomAvailable = false;
                                     }
                                 }
-                                groupRoomsWithAvailability.push(rooms[i])
-                                
+
+                                let room = {
+                                    room: rooms[i],
+                                    available: isRoomAvailable
+                                }
+
+                                groupRoomsWithAvailability.push(room);
+                                                                
                                 if (groupRoomsWithAvailability.length === rooms.length) {
                                     sendRoomsToClient(groupRoomsWithAvailability)
                                 }
@@ -118,7 +129,8 @@ module.exports = function (BookingModel, RoomModel) {
             })
 
             function sendRoomsToClient(groupRooms) {
-                groupRooms.sort((a, b) => a.name.localeCompare(b.name))
+                //TODO: fixa sort metoden
+                //groupRooms.sort((a, b) => a.name.localeCompare(b.name))
                 let size = Math.ceil(groupRooms.length / 3);
                 let rows = [];
                 for (let i = 0; i < size; i++) {
@@ -130,7 +142,6 @@ module.exports = function (BookingModel, RoomModel) {
                         }
                     }
                 }
-
                 console.log('____________')
                 res.render('index', { rows: rows });
             }
