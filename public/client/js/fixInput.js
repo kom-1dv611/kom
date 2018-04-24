@@ -34,7 +34,11 @@ $("#modalToggleUsername").click(function() {
     if(!bookingValid && bookLater) {
         errors.push("Day or time is invalid.");
     }
-    newError(errors.join(". "));
+    if(errors.length > 0) {
+        newError(errors.join(". "));
+    } else {
+        $("#confirmBooking").attr("type", "submit");
+    }
 });
 
 function newError(text) {
