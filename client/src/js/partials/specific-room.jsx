@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import {connect} from "react-redux"; //read
 import {bindActionCreators} from "redux"; //write
-import event from "../actions/busy-state"
+import event from "../actions/busy-state";
+
+import Duration from "./durationSelector";
+import Confirm from "./confirm";
+import Book from "./book";
 
 class room extends Component {
     constructor(props) {
@@ -29,6 +33,22 @@ class room extends Component {
         return (
         <div>
             {this.stateHeader(this.props.room.available)}
+            <div id="book" className="animated fadeIn">
+                <div className="row justify-content-center">
+                    <form id="bookingForm" className="form-inline" action="/:id" method="post">
+                        <input type="time" id="currentTime" name="time" hidden/>
+                        <Book/>
+                        <div className="col-md-auto">
+                            <div className="btn-group btn-group-toggle" data-toggle="buttons">
+                                <Duration duration="1"/>
+                                <Duration duration="2"/>
+                                <Duration duration="3"/>
+                            </div>
+                        </div>
+                        <Confirm/>
+                    </form>
+                </div>
+            </div>
             {this.clock()}
         </div>
         );
