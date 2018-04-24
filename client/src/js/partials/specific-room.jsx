@@ -14,7 +14,8 @@ class room extends Component {
         this.props.busy(this.props.room.available);
     }
 
-    stateHeader(available) {
+    stateHeader() {
+        let available = this.props.room.available;
         let toReturn;
         if(available === true) {
             toReturn = (<h1 id="state" className="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently available!">Available</h1>);
@@ -28,27 +29,35 @@ class room extends Component {
         return(<h1 id="clock" className="text-center animated slideInUp" data-toggle="tooltip" data-placement="top" title="Current time!"></h1>);
     }
 
+    booking() {
+        let available = this.props.room.available;
+        if(available === true) {
+            return (
+                <div id="book" className="animated fadeIn">
+                    <div className="row justify-content-center">
+                        <form id="bookingForm" className="form-inline" action={"www.localhost:2000/" + room.name} method="post">
+                            <input type="time" id="currentTime" name="time" hidden/>
+                            <Book/>
+                            <div className="col-md-auto">
+                                <div className="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <Duration duration="1"/>
+                                    <Duration duration="2"/>
+                                    <Duration duration="3"/>
+                                </div>
+                            </div>
+                            <Confirm/>
+                        </form>
+                    </div>
+                </div>);
+        }
+    }
+
     render() {
         let room = this.props.room.room;
         return (
         <div>
-            {this.stateHeader(this.props.room.available)}
-            <div id="book" className="animated fadeIn">
-                <div className="row justify-content-center">
-                    <form id="bookingForm" className="form-inline" action="/:id" method="post">
-                        <input type="time" id="currentTime" name="time" hidden/>
-                        <Book/>
-                        <div className="col-md-auto">
-                            <div className="btn-group btn-group-toggle" data-toggle="buttons">
-                                <Duration duration="1"/>
-                                <Duration duration="2"/>
-                                <Duration duration="3"/>
-                            </div>
-                        </div>
-                        <Confirm/>
-                    </form>
-                </div>
-            </div>
+            {this.stateHeader()}
+            {this.booking()}
             {this.clock()}
         </div>
         );

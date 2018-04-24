@@ -18,9 +18,13 @@ $background: url("/imgs/background.png");
     height: 100%;
 }
 
+html, body {
+    margin: 0;
+    height: 100%;
+}
+
 body {
     @include fullSize();
-    position: absolute;
     @include background($background);
     margin: 0 0;
     img {
@@ -33,6 +37,10 @@ body {
 }
 
 nav {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
     img {
         position: absolute;
         left: auto;
@@ -59,7 +67,7 @@ h4 {
 }
 
 .container {
-    margin-top: 75px;
+    width: 100%;
 }
 
 .modal-backdrop { 
@@ -78,6 +86,7 @@ h4 {
 .card {
     color: black;
 }
+
 .breadcrumb-item {
     a{
         color: $navColor;
@@ -101,6 +110,11 @@ h4 {
 
 .row {
     margin: 0 !important;
+    padding-bottom: 15px;
+}
+
+.roomContainer, .loading {
+    margin-top: 75px;
 }
 .alert-danger {
     background-color: rgba(255, 0, 0, 0.6);
@@ -120,10 +134,13 @@ h4 {
 }
 
 #clock {
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
     top: 70%;
     color: $mainTextColor;
-    margin-bottom: 0;
-    margin-top: 40%;
 }
 
 #book {
@@ -132,6 +149,11 @@ h4 {
     top: 45%;
     left: 0;
     background-color: $mainOverlayColor;
+    vertical-align: middle;
+}
+
+#available, #unavailable {
+    margin-top: 50px;
 }
 
 #available {

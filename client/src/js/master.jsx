@@ -4,7 +4,7 @@ import {connect} from "react-redux"; //read
 import Room from "./partials/specific-room"
 import Rooms from "./partials/room-wrapper"
 import Setup from "./partials/setup"
-
+import Nav from "./partials/nav"
 class master extends Component {
   state = {mode: "pending"}
 
@@ -13,7 +13,7 @@ class master extends Component {
   }
 
   allRooms() {
-    return (<div><Rooms clickable={true}/></div>);
+    return (<div className="text-center"><Rooms clickable={true}/></div>);
   }
 
   render() {
@@ -22,7 +22,7 @@ class master extends Component {
     }
     switch(this.state.mode) {
       case "overall":
-        return (<div className="container"><Rooms clickable={false}/></div>);
+        return (<div className="container"><Nav/><Rooms clickable={false}/></div>);
       case "specific":
         if(this.props.available) {
           document.getElementsByTagName("body")[0].setAttribute("id", "available")
@@ -30,12 +30,17 @@ class master extends Component {
           document.getElementsByTagName("body")[0].setAttribute("id", "unavailable")
         }
         if(this.props.selectedRoom != null) {
-          return(this.selectedRoom());
+          return(<div><Nav location={this.props.selectedRoom.room.name}/>{this.selectedRoom()}</div>);
         } else {
-          return (this.allRooms());
+          return (<div><Nav location="Selection"/>{this.allRooms()}</div>);
         }
       default:
-        return (<Setup/>)
+        return (
+          <div>
+            <Nav location="Setup"/>
+            <Setup/>
+          </div>
+      )
     }
   }
 }

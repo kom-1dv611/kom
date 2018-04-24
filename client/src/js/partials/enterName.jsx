@@ -18,7 +18,7 @@ class enterName extends Component {
                 </div>
                 <div className="modal-footer">
                     <button type="button" className="btn btn-dark" data-dismiss="modal">Close</button>
-                    <button type="button" className="btn btn-dark submit">Book room!</button>
+                    <button type="submit" className="btn btn-dark submit">Book room!</button>
                 </div>
             </div>
         </div>

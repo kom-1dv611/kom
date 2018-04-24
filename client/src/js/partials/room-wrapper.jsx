@@ -29,7 +29,7 @@ class roomWrapper extends Component {
       return (<Rooms rows={this.state.rows} clickable={this.props.clickable}/>);
     } else {
       return (
-        <div className="text-center">
+        <div className="loading text-center">
           <img src={logo} alt="loading icon" className="App-logo"/>
           <h1>Loading..</h1>
         </div>
