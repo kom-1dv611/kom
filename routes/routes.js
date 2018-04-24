@@ -208,6 +208,7 @@ module.exports = function (RoomModel, BookingModel) {
                     console.log('Booking saved in DB.')
                 })
             }
+            console.log(req.body.roomID)
             res.redirect('/' + req.body.roomID)
         });
 
@@ -241,6 +242,15 @@ module.exports = function (RoomModel, BookingModel) {
                     console.log(er);
                 });
         });
+
+
+    //Test-route för hooks från schema servern
+    router.route('/hook/schedule')
+        .post(function (req, res) {
+            console.log(req.body)
+
+            res.sendStatus(200);
+        })
 
     return router;
 }
