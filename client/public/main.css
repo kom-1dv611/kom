@@ -79,17 +79,15 @@ h4 a {
   height: 80px;
   position: static; }
 
-#clock,
-#book {
-  position: absolute;
-  width: 100%; }
-
 #clock {
   top: 70%;
   color: black;
-  margin-bottom: 0; }
+  margin-bottom: 0;
+  margin-top: 40%; }
 
 #book {
+  position: absolute;
+  width: 100%;
   top: 45%;
   left: 0;
   background-color: rgba(0, 0, 0, 0.5); }

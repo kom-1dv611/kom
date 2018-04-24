@@ -60,4 +60,12 @@ Clock.prototype.removeAnimation = function(child) {
     $(child).removeClass(animation);
 }
 
-clock = new Clock($("#clock"));
+let timer = setInterval(onTick, 1000);
+
+function onTick() {
+    if($("#clock").length > 0) {
+        console.log("CLICK!");
+        clock = new Clock($("#clock"));
+        clearInterval(timer);
+    }
+}
