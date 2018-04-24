@@ -64,7 +64,6 @@ let timer = setInterval(onTick, 1000);
 
 function onTick() {
     if($("#clock").length > 0) {
-        console.log("CLICK!");
         clock = new Clock($("#clock"));
         clearInterval(timer);
     }

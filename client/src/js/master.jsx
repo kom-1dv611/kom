@@ -22,7 +22,7 @@ class master extends Component {
     }
     switch(this.state.mode) {
       case "overall":
-        return (<div className="container"><Nav/><Rooms clickable={false}/></div>);
+        return (<div className="container"><Nav filter="true" location="Overview"/><Rooms clickable={false}/></div>);
       case "specific":
         if(this.props.available) {
           document.getElementsByTagName("body")[0].setAttribute("id", "available")
@@ -30,14 +30,14 @@ class master extends Component {
           document.getElementsByTagName("body")[0].setAttribute("id", "unavailable")
         }
         if(this.props.selectedRoom != null) {
-          return(<div><Nav location={this.props.selectedRoom.room.name}/>{this.selectedRoom()}</div>);
+          return(<div><Nav filter="false" location={this.props.selectedRoom.room.name}/>{this.selectedRoom()}</div>);
         } else {
-          return (<div><Nav location="Selection"/>{this.allRooms()}</div>);
+          return (<div><Nav filter="true" location="Selection"/>{this.allRooms()}</div>);
         }
       default:
         return (
           <div>
-            <Nav location="Setup"/>
+            <Nav location="Setup" filter="false"/>
             <Setup/>
           </div>
       )

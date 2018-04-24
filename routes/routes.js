@@ -206,7 +206,7 @@ module.exports = function (BookingModel, RoomModel) {
                     console.log('Booking saved in DB.')
                 })
             }
-            res.redirect('/' + req.body.roomID)
+            res.redirect(req.get('host'));
         });
 
     router.route('/:roomID/schedule/today')

@@ -35,7 +35,7 @@ class room extends Component {
             return (
                 <div id="book" className="animated fadeIn">
                     <div className="row justify-content-center">
-                        <form id="bookingForm" className="form-inline" action={"www.localhost:2000/" + room.name} method="post">
+                        <form id="bookingForm" className="form-inline" action="http://www.localhost:2000/:id" method="post">
                             <input type="time" id="currentTime" name="time" hidden/>
                             <Book/>
                             <div className="col-md-auto">

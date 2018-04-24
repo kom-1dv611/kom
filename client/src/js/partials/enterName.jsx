@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 class enterName extends Component {
   render() {
     return (
-      <div className="modal fade" id="exampleModal" tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div className="modal fade" id="usernameModal" tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div className="modal-dialog" role="document">
             <div className="modal-content text-center">
                 <div className="modal-header">
@@ -18,7 +18,7 @@ class enterName extends Component {
                 </div>
                 <div className="modal-footer">
                     <button type="button" className="btn btn-dark" data-dismiss="modal">Close</button>
-                    <button type="submit" className="btn btn-dark submit">Book room!</button>
+                    <button id="confirmBooking" type="button" className="btn btn-dark submit">Book room!</button>
                 </div>
             </div>
         </div>
