@@ -3,6 +3,8 @@ import {connect} from "react-redux"; //read
 import {bindActionCreators} from "redux"; //write
 import event from "../actions/busy-state";
 
+import $ from "jquery"
+
 import Duration from "./durationSelector";
 import Confirm from "./confirm";
 import Book from "./book";
@@ -11,6 +13,38 @@ class room extends Component {
     constructor(props) {
         super(props)
         this.props.busy(this.props.room.available);
+        $( document ).ready(function() {
+            $("#book").submit((e) => {
+                e.preventDefault()
+
+                let data = {};
+                let buttons = $(".btn-group").children();
+                let active
+                $.each(buttons, function(key, value) {
+                    console.log(value);
+                    if($(value).hasClass("active") === true) {
+                        console.log("OKZZZZ");
+                        active = value;
+                    }
+                });
+
+                //username, time, duration
+                data.username = $("#username").val();
+                data.time = $("#currentTime").val();
+                data.duration = $($(active).children()[0]).val();
+
+                console.log(data);
+
+                fetch($(e.target).attr("action"), {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                    });
+            })
+        });
     }
 
     stateHeader() {
@@ -34,7 +68,7 @@ class room extends Component {
             return (
                 <div id="book" className="animated fadeIn">
                     <div className="row justify-content-center">
-                        <form id="bookingForm" className="form-inline" action="http://www.localhost:2000/:id" method="post">
+                        <form id="bookingForm" className="form-inline" action={"http://www.localhost:2000/" + this.props.room.room.name} method="post">
                             <input type="time" id="currentTime" name="time" hidden/>
                             <Book/>
                             <div className="col-md-auto">

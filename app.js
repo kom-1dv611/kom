@@ -16,10 +16,8 @@ let http = require('http').Server(app);
 let io = require('socket.io')(http);
 
 const mongoose = require('mongoose')
-let Booking = require('./models/Booking')
-let BookingModel = mongoose.model('Booking')
-let Room = require('./models/Room')
-let RoomModel = mongoose.model('Room')
+let Booking = require('./models/Booking').model('Booking')
+let Room = require('./models/Room').model('Room');
 
 let Handlebars = require("handlebars");
 let ngrok = require('ngrok');
@@ -39,7 +37,7 @@ app.engine('.hbs', exphbs({
 app.set('view engine', '.hbs');
 
 app.use(session({
-    name:   "theserversession",
+    name: "theserversession",
     secret: "K7smsx9MsEasad89wEzVp5EeCep5s",
     saveUninitialized: false,
     resave: false,
@@ -53,21 +51,21 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
-  });
+});
 
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
     res.locals.flash = req.session.flash;
     delete req.session.flash;
     next();
 });
 
-app.get('/favicon.ico', function (req, res) {
+app.get('/favicon.ico', function(req, res) {
     res.status(204);
 });
 
-Handlebars.registerHelper( 'loop', function( from, to, inc = 1, block ) {
+Handlebars.registerHelper('loop', function(from, to, inc = 1, block) {
     let toReturn = "";
-    for(let i = from; i <= to; i++) {
+    for (let i = from; i <= to; i++) {
         toReturn += block.fn(i * inc);
     }
     return toReturn;
@@ -83,12 +81,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 //Routes
-let routes = require('./routes/routes')(BookingModel, RoomModel);  
+let routes = require('./routes/routes')(Room, Booking);
 app.use('/', routes);
 
 
 //Web server
-http.listen(port, function(){
+http.listen(port, function() {
     console.log("Express started on http://localhost:" + port);
     console.log("Press Ctrl-C to terminate...");
 });
