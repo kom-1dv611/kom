@@ -23,7 +23,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
 
             for (let i = 0; i < rooms.length; i++) { 
                 timeEdit.getTodaysSchedule(rooms[i].name)
-                    .then(async(roomSchedule) => {
+                    .then((roomSchedule) => {
                         let room = {
                             room: rooms[i]
                         }
@@ -42,7 +42,8 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                             }
                         }
                         groupRooms.push(room);
-                                                        
+                               
+                        //Annan lösning än denna?
                         if (groupRooms.length === rooms.length) {
                             sendRoomsToClient(groupRooms)
                         }
@@ -77,7 +78,6 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
             let currentTime = moment().format('LT');
 
             BookingModel.find({ roomID: req.params.id }, function (err, result) {
-                // TODO: ta bort bokning från db om tiden gått ut.
                 if (result.length > 0) {
                     let endTime = getEndTimeForBooking(result[0]);
                     let startTime = result[0].startTime;
@@ -89,20 +89,19 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                         room.willBeAvailable = endTime;
                     }
 
-                    return res.render("room", { room: room });
+                    res.render("room", { room: room });
                 } else {
                     timeEdit.getTodaysSchedule(room.id)
                         .then((roomSchedule) => {
-                            if (roomSchedule === null) {
-                                room.available = true
-                            } else if (currentTime > roomSchedule[0].time.startTime) {
-                                room.available = false;
-                                room.willBeAvailable = roomSchedule[0].time.endTime;
-                            } else if (currentTime < roomSchedule[0].time.startTime) {
-                                room.available = true;
-                            }
+                            if (roomSchedule === null || currentTime < roomSchedule[0].time.startTime) { 
+                                room.available = true 
+                            }  
+                            if (currentTime > roomSchedule[0].time.startTime) { 
+                                room.available = false; 
+                                room.willBeAvailable = roomSchedule[0].time.endTime; 
+                            } 
 
-                            return res.render("room", { room: room });
+                            res.render("room", { room: room });
                         }).catch((er) => {
                             console.log(er);
                         });
@@ -110,27 +109,18 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
             })
         })
         .post(function (req, res) {
-            if (req.body.username === undefined) {
-                console.log('no username entered')
-                req.session.flash = {
-                    type: 'fail',
-                    message: 'You must write a username'
-                };
-            } else {
-                let data = {
-                    username: req.body.username,
-                    roomID: req.body.roomID,
-                    startTime: req.body.time,
-                    duration: req.body.duration
-                }
-
-                let bookRoom = new BookingModel(data)
-                bookRoom.save((err) => {
-                    console.log('Booking saved in DB.')
-
-                    res.redirect('/' + req.body.roomID)
-                })
+            let data = {
+                username: req.body.username,
+                roomID: req.body.roomID,
+                startTime: req.body.time,
+                duration: req.body.duration
             }
+
+            let bookRoom = new BookingModel(data)
+            bookRoom.save((err) => {
+                console.log('Booking saved in DB.')
+                res.redirect('/' + req.body.roomID)
+            })
         });
 
     router.route('/:roomID/schedule/today')
@@ -167,8 +157,6 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
 
     router.route('/overview/room/updater')
         .get(async function (req, res) {
-            console.log('room-handler')
-
             let rooms = await getRoomsFromDB();
             let bookings = await getBookingsFromDB();
 
