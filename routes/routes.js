@@ -23,8 +23,8 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
 
             let schedules = await getScheduleFromTimeEdit(rooms).then((allSchedules) => allSchedules.sort((a, b) => a.room.localeCompare(b.room)));
             let scheduleTimeEdit = schedules.slice(0);
+            
             let index = 0;
-
             let promises = rooms.map((room) => {
                 return new Promise((resolve, reject) => {
                     let validatedRoom = {
@@ -53,26 +53,11 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
             return Promise.all(promises)
                 .then((schedules) => {
                     getRoomStatus(bookings, schedules); //TODO: implementera allting i metoden
-                    return sendRoomsToClient(schedules);
+                    let table = buildTable(schedules);
+                    return res.status(200).render('index', { rows: table });
                 }).catch((error) => {
                     console.log(error)
                 })
-
-            function sendRoomsToClient(groupRooms) {
-                groupRooms.sort((a, b) => a.room.name.localeCompare(b.room.name))
-                let size = Math.ceil(groupRooms.length / 3);
-                let rows = [];
-                for (let i = 0; i < size; i++) {
-                    rows.push({})
-                    rows[i].cols = [];
-                    for (let j = i * 3; j < (i * 3) + 3; j++) {
-                        if (groupRooms[j] != undefined) {
-                            rows[i].cols.push(groupRooms[j]);
-                        }
-                    }
-                }
-                res.status(200).render('index', { rows: rows });
-            }
         })
 
     router.route('/:id')
@@ -266,6 +251,22 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
         }).catch((err) => {
             console.log(err)
         })
+    }
+
+    function buildTable(groupRooms) {
+        groupRooms.sort((a, b) => a.room.name.localeCompare(b.room.name))
+        let size = Math.ceil(groupRooms.length / 3);
+        let rows = [];
+        for (let i = 0; i < size; i++) {
+            rows.push({})
+            rows[i].cols = [];
+            for (let j = i * 3; j < (i * 3) + 3; j++) {
+                if (groupRooms[j] != undefined) {
+                    rows[i].cols.push(groupRooms[j]);
+                }
+            }
+        }
+        return rows;
     }
 
     return router;
