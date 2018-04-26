@@ -239,7 +239,7 @@ module.exports = function (RoomModel, BookingModel) {
                     }
                 }
             })
-            //TODO: använd schemat från timeEdit som är sparat i databasen istället
+            //TODO: schemamodellen från databasen istället när den är klar
             timeEdit.getTodaysSchedule(req.params.roomID)
                 .then((roomSchedule) => {
                     if(roomSchedule === null && bookingsDB.length === 0) {
@@ -250,8 +250,7 @@ module.exports = function (RoomModel, BookingModel) {
                         res.send(JSON.stringify({bookingsDB}, null, 2));
                     } else {
                         res.send(JSON.stringify({roomSchedule, bookingsDB}, null, 2));
-                    }
-                    
+                    }          
                 }).catch((er) => {
                     console.log(er);
                 });
@@ -283,7 +282,6 @@ module.exports = function (RoomModel, BookingModel) {
     router.route('/hook/schedule')
         .post(function (req, res) {
             console.log(req.body)
-
             res.sendStatus(200);
         })
 
