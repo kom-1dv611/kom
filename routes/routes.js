@@ -18,35 +18,22 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
             let rooms = await getRoomsFromDB();
             let bookings = await getBookingsFromDB();
 
-            let groupRoomsWithAvailability = [];
             let currentTime = moment().format('LT');
+            let groupRooms = [];
 
             for (let i = 0; i < rooms.length; i++) { 
                 timeEdit.getTodaysSchedule(rooms[i].name)
-                    .then((roomSchedule) => {
+                    .then(async(roomSchedule) => {
                         let room = {
                             room: rooms[i]
                         }
-
-                        //Kollar först om det finns en bokning i databasen för rummet, annars så är det timeEdit schemat som gäller
+                        
+                        //Kollar om det finns några bokningar i databasen. (Prioritet: Databasbokningar > TimeEdit schema)
                         for (let j = 0; j < bookings.length; j++) {
-                            if (bookings[j].roomID === rooms[i].name) {
-
-                                let endTime = getEndTimeForBooking(bookings[j]);
-                                let startTime = bookings[j].startTime;
-                                
-                                //Om bokningen är gammal så ta bort den, annars så är rummet bokat för tillfället. 
-                                if (startTime > currentTime || endTime < currentTime) {
-                                    BookingModel.remove({_id: bookings[j]._id}, (err, result) => {
-                                        console.log('Successfully removed expired booking ' +  bookings[j].roomID + ' (' + bookings[j].startTime + '-' + endTime + ') from DB.')
-                                    })
-                                } else {
-                                    room.available = false;
-                                    console.log(rooms[i].name + ' är bokat (' + bookings[j].startTime + '-' + endTime + ') i MongoDB.')
-                                }
-                            }
+                            if (isRoomBookedInDB(bookings[j], rooms[i], currentTime)) { room.available = false; }
                         }
 
+                        //Om rummet inte är bokat i databasen
                         if (!room.hasOwnProperty('available')) {
                             if (roomSchedule === null || currentTime < roomSchedule[0].time.startTime || currentTime > roomSchedule[0].time.endTime) {
                                 room.available = true;
@@ -54,10 +41,10 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                                 room.available = false;
                             }
                         }
-                        groupRoomsWithAvailability.push(room);
+                        groupRooms.push(room);
                                                         
-                        if (groupRoomsWithAvailability.length === rooms.length) {
-                            sendRoomsToClient(groupRoomsWithAvailability)
+                        if (groupRooms.length === rooms.length) {
+                            sendRoomsToClient(groupRooms)
                         }
                     }).catch((er) => {
                         console.log(er)
@@ -178,7 +165,6 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
         });
 
 
-    //Test-route för hooks från schema servern
     router.route('/overview/room/updater')
         .get(async function (req, res) {
             console.log('room-handler')
@@ -212,6 +198,22 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
 
             return timeEditschedule
         })
+    }
+
+    function isRoomBookedInDB(booking, room, currentTime) {
+        if (booking.roomID === room.name) {
+            let endTime = getEndTimeForBooking(booking);
+            let startTime = booking.startTime;
+            
+            if (startTime > currentTime || endTime < currentTime) {
+                //Gammal, expirad bokning
+                return false;
+            } else {
+                console.log(room.name + ' är bokat (' + booking.startTime + '-' + endTime + ') i MongoDB.')
+                return true;
+            }
+        }
+        return false;
     }
 
     function getRoomsFromDB() {
