@@ -2,7 +2,7 @@
 
 ### Setup instructions
 
-1. clone repository
+1. Clone repository
 2. cd into repository
-3. run ´´´npm install´´´
-4. run ´´´node app´´´
+3. Run ```npm install```
+4. Start application with ```node app```
