@@ -219,11 +219,39 @@ module.exports = function (RoomModel, BookingModel) {
             }            
         });
 
-    router.route('/:roomID/schedule/today')
+    router.route('/:roomID/schedule/today')  
         .get(function (req, res) {
+            let bookingsDB = [];
+            BookingModel.find({roomID: req.params.roomID}, function(err, rooms) {
+                if(err) {
+                    console.log(err);
+                } else {
+                    if(rooms.length > 0) {
+                        for(let i = 0; i < rooms.length; i++) {
+                            let booking = {
+                                username: rooms[i].username,
+                                room: rooms[i].roomID,
+                                startTime: rooms[i].startTime,
+                                duration: rooms[i].duration
+                            }
+                            bookingsDB.push(booking);
+                        }
+                    }
+                }
+            })
+            //TODO: använd schemat från timeEdit som är sparat i databasen istället
             timeEdit.getTodaysSchedule(req.params.roomID)
                 .then((roomSchedule) => {
-                    res.send(JSON.stringify(roomSchedule, null, 2));
+                    if(roomSchedule === null && bookingsDB.length === 0) {
+                        res.send(JSON.stringify({result: "inga bokningar idag"}, null, 2));
+                    }else if(bookingsDB.length === 0) {
+                        res.send(JSON.stringify({roomSchedule}, null, 2));
+                    } else if(roomSchedule === null) {
+                        res.send(JSON.stringify({bookingsDB}, null, 2));
+                    } else {
+                        res.send(JSON.stringify({roomSchedule, bookingsDB}, null, 2));
+                    }
+                    
                 }).catch((er) => {
                     console.log(er);
                 });
