@@ -13,6 +13,7 @@ class room extends Component {
     constructor(props) {
         super(props)
         this.props.busy(this.props.room.available);
+        this.state = {updated: false}
         $( document ).ready(function() {
             $("#book").submit((e) => {
                 e.preventDefault()
@@ -21,9 +22,7 @@ class room extends Component {
                 let buttons = $(".btn-group").children();
                 let active
                 $.each(buttons, function(key, value) {
-                    console.log(value);
                     if($(value).hasClass("active") === true) {
-                        console.log("OKZZZZ");
                         active = value;
                     }
                 });
@@ -32,8 +31,6 @@ class room extends Component {
                 data.username = $("#username").val();
                 data.time = $("#currentTime").val();
                 data.duration = $($(active).children()[0]).val();
-
-                console.log(data);
 
                 fetch($(e.target).attr("action"), {
                     method: 'POST',
@@ -88,16 +85,28 @@ class room extends Component {
         }
     }
 
-    async getUpdatedInfo() {
-        let room = this.props.submit;
-        let info = await fetch("http://localhost:2000/" + room);
-        info = await info.json();
-        console.log(info);
+    getUpdatedInfo() {
+        if(this.state.updated === false) {
+            this.setState(function() {
+                return {updated: true};
+            });
+            let timer = setTimeout(async () => {
+                clearTimeout(timer);
+                let room = this.props.submit;
+                let info = await fetch("http://localhost:2000/" + room);
+                info = await info.json();
+                
+                // add timer, timer is in info
+
+                this.props.room.available = false;
+                document.getElementsByTagName("body")[0].setAttribute("id", "unavailable")
+                this.forceUpdate();
+            }, 1000);
+        }
     }
 
     render() {
         let room = this.props.room.room;
-        console.log(this.props.submit);
         if(this.props.submit != null) {
             this.getUpdatedInfo();
         }

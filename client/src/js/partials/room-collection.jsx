@@ -21,7 +21,7 @@ class roomCollection extends Component {
             rows.push({})
             rows[i].cols = [];
             for(let j = i * 3; j < (i * 3) + 3; j++) {
-                if(rooms[j] != undefined) {
+                if(rooms[j] !== undefined) {
                     rows[i].cols.push(rooms[j]);
                 }
             }
@@ -32,22 +32,18 @@ class roomCollection extends Component {
     render() {
         let rows;
 
-        if(this.props.filter == undefined) {
+        if(this.props.filter === null) {
             rows = this.structure(this.props.rows.rows)
-            console.log(rows);
         } else {
-            console.log(this.props.rows.rows)
-            console.log("try to filter" + this.props.filter);
             let total = [];
             let filter = this.props.filter;
             this.props.rows.rows.map(function (row, i) {
-                let temp = row.cols.filter(col => col.room.location == filter);
+                let temp = row.cols.filter(col => col.room.location === filter);
                 total = total.concat(temp);
+                return true;
             });
-            console.log(total);
             rows = this.sort(total);
             rows = this.structure(rows)
-            console.log(rows);
         }
 
         return (
