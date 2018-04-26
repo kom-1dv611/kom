@@ -28,6 +28,21 @@
 </main>
 </body>
 <script src="/client/js/index.js"></script>
+
 <script>
-    //fetcha lite
+    let url = 'http://localhost:2000/overview/room/updater';
+
+    function Updater() {
+    let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(xhttp.responseText);
+            }
+        };
+    xhttp.open("GET", url, true);
+    xhttp.send();
+    }
+
+    //Updater();
+    //setInterval(Updater, 10000);
 </script>
