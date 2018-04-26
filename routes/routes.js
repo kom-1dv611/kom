@@ -95,11 +95,10 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                         .then((roomSchedule) => {
                             if (roomSchedule === null || currentTime < roomSchedule[0].time.startTime) { 
                                 room.available = true 
-                            }  
-                            if (currentTime > roomSchedule[0].time.startTime) { 
+                            }  else if (currentTime > roomSchedule[0].time.startTime) { 
                                 room.available = false; 
                                 room.willBeAvailable = roomSchedule[0].time.endTime; 
-                            } 
+                            }
 
                             res.render("room", { room: room });
                         }).catch((er) => {
