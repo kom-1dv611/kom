@@ -13,7 +13,7 @@ let router = require("express").Router();
 let moment = require('moment');
 moment.locale('sv');
 
-module.exports = function (BookingModel, RoomModel) {
+module.exports = function (RoomModel, BookingModel) {
     router.route('/')
         .get(function (req, res) {
             //Testar att skrapa
@@ -68,20 +68,31 @@ module.exports = function (BookingModel, RoomModel) {
                 }
             }
 
-            RoomModel.find({})
-            .then((rooms) => {
+            let roomFinder = RoomModel.find({}).exec();
+            let bookingFinder = BookingModel.find({}).exec();
+
+            roomFinder.then((rooms) => {
                 return rooms;
             })
-            .then((rooms) => {
-                BookingModel.find({})
-                .then((bookings) => {
-                    //Här i finns tillgång till alla grupprum samt alla bokningar från databasen (rooms & bookings)
+            .then((DBrooms) => {
+                bookingFinder.then((DBbookings) => {
+
+                    let rooms = DBrooms.slice(0);
+                    let bookings = DBbookings.slice(0);
+
                     let groupRoomsWithAvailability = [];
                     let currentTime = moment().format('LT');
 
-                    for (let i = 0; i < rooms.length; i++) {                            
+                    for (let i = 0; i < rooms.length; i++) { 
+
+                        let isRoomAvailable;          
+
                         timeEdit.getTodaysSchedule(rooms[i].name)
                             .then((roomSchedule) => {
+                                let room = {
+                                    room: rooms[i]
+                                }
+
                                 for (let j = 0; j < bookings.length; j++) {
                                     if (bookings[j].roomID === rooms[i].name) {
 
@@ -94,21 +105,21 @@ module.exports = function (BookingModel, RoomModel) {
                                                 console.log('Successfully removed expired booking ' +  bookings[j].roomID + ' (' + bookings[j].startTime + '-' + endTime + ') from DB.')
                                             })
                                         } else {
-                                            rooms[i].available = false;
+                                            room.available = false;
                                             console.log(rooms[i].name + ' är bokat (' + bookings[j].startTime + '-' + endTime + ') i MongoDB.')
                                         }
                                     }
                                 }
 
-                                if (!rooms[i].hasOwnProperty('available')) {
+                                if (!room.hasOwnProperty('available')) {
                                     if (roomSchedule === null || currentTime < roomSchedule[0].time.startTime || currentTime > roomSchedule[0].time.endTime) {
-                                        rooms[i].available = true;
+                                        room.available = true;
                                     } else {
-                                        rooms[i].available = false;
+                                        room.available = false;
                                     }
                                 }
-                                groupRoomsWithAvailability.push(rooms[i])
-                                
+                                groupRoomsWithAvailability.push(room);
+                                                                
                                 if (groupRoomsWithAvailability.length === rooms.length) {
                                     sendRoomsToClient(groupRoomsWithAvailability)
                                 }
@@ -117,13 +128,16 @@ module.exports = function (BookingModel, RoomModel) {
                             })
                     }
                 })
+            }).catch((err) => {
+                console.log(err)
             })
 
             function sendRoomsToClient(groupRooms) {
-                groupRooms.sort((a, b) => a.name.localeCompare(b.name))
+                groupRooms.sort((a, b) => a.room.name.localeCompare(b.room.name))
                 let size = Math.ceil(groupRooms.length / 3);
                 let rows = [];
                 for (let i = 0; i < size; i++) {
+                    
                     rows.push({})
                     rows[i].cols = [];
                     for (let j = i * 3; j < (i * 3) + 3; j++) {
@@ -132,7 +146,6 @@ module.exports = function (BookingModel, RoomModel) {
                         }
                     }
                 }
-
                 console.log('____________')
                 res.render('index', { rows: rows });
             }
@@ -197,6 +210,7 @@ module.exports = function (BookingModel, RoomModel) {
                     console.log('Booking saved in DB.')
                 })
             }
+            console.log(req.body.roomID)
             res.redirect('/' + req.body.roomID)
         });
 
@@ -230,6 +244,15 @@ module.exports = function (BookingModel, RoomModel) {
                     console.log(er);
                 });
         });
+
+
+    //Test-route för hooks från schema servern
+    router.route('/hook/schedule')
+        .post(function (req, res) {
+            console.log(req.body)
+
+            res.sendStatus(200);
+        })
 
     return router;
 }

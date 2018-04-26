@@ -2,6 +2,15 @@ let bookLater = false;
 let bookingValid = false;
 let durationSelected = false;
 
+$("#username").on("input",function() {
+    let text = $(this).val();
+    if(text.length > 3) {
+        $("#confirmBooking").attr("type", "submit");
+    } else {
+        $("#confirmBooking").attr("type", "button");
+    }
+});
+
 $(".btn-group-toggle").change(function() {
     if($(this).children().children().is(':checked')) {
         durationSelected = true;
@@ -34,7 +43,9 @@ $("#modalToggleUsername").click(function() {
     if(!bookingValid && bookLater) {
         errors.push("Day or time is invalid.");
     }
-    newError(errors.join(". "));
+    if(errors.length > 0) {
+        newError(errors.join(". "));
+    }
 });
 
 function newError(text) {

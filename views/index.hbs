@@ -3,13 +3,13 @@
         <div class="row top-buffer mb-4 animated fadeInUp">
             {{#each cols}}
                 <div class="col">
-                    <a href="/{{name}}">
+                    <a href="/{{room.name}}">
                     <div class="card">
                         <div class="card-block text-center">
-                            <h4 class="card-title">{{name}}</h4>
+                            <h4 class="card-title">{{room.name}}</h4>
 
                             {{!-- Temporär grej --}}
-                            <p class="location">{{location}}</p> 
+                            <p class="location">{{room.location}}</p> 
 
                             {{#if available}}
                                 <h6 class="card-subtitle mb-2 text-success">Available</h6>
