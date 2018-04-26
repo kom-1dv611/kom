@@ -150,10 +150,12 @@ module.exports = function (RoomModel, BookingModel) {
                 res.render('index', { rows: rows });
             }
         })
+        let test;
 
     router.route('/:id')
         .get(function (req, res) {
             let room = {};
+            test = req.params.id;
             room.id = req.params.id;
             let currentTime = moment().format('LT');
 
@@ -191,12 +193,16 @@ module.exports = function (RoomModel, BookingModel) {
             })
         })
         .post(function (req, res) {
-            if (req.body.username === undefined) {
-                console.log('no username entered')
-                req.session.flash = {
-                    type: 'fail',
-                    message: 'You must write a username'
-                };
+            if(req.body.cancelBooking) {
+                console.log('ska tas bort');
+                BookingModel.findOneAndRemove({roomID: req.body.roomID}, function(err, booking) {
+                    if(err) {
+                        console.log(err);
+                    } else {
+                        console.log('Booking deleted');
+                        res.redirect('/' + req.body.roomID);
+                    }
+                })
             } else {
                 let data = {
                     username: req.body.username,
@@ -208,10 +214,9 @@ module.exports = function (RoomModel, BookingModel) {
                 let bookRoom = new BookingModel(data)
                 bookRoom.save((err) => {
                     console.log('Booking saved in DB.')
+                    res.redirect('/' + req.body.roomID)
                 })
-            }
-            console.log(req.body.roomID)
-            res.redirect('/' + req.body.roomID)
+            }            
         });
 
     router.route('/:roomID/schedule/today')

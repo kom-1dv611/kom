@@ -36,23 +36,6 @@ app.engine('.hbs', exphbs({
 }));
 app.set('view engine', '.hbs');
 
-app.use(session({
-    name:   "theserversession",
-    secret: "K7smsx9MsEasad89wEzVp5EeCep5s",
-    saveUninitialized: false,
-    resave: false,
-    cookie: {
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24
-    }
-}));
-
-app.use(function (req, res, next) {
-    res.locals.flash = req.session.flash;
-    delete req.session.flash;
-    next();
-});
-
 app.get('/favicon.ico', function (req, res) {
     res.status(204);
 });
