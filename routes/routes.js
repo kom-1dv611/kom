@@ -43,7 +43,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                         }
                         groupRooms.push(room);
                                
-                        //Annan lösning än denna?
+                        //Annan lösning än denna? (Gör likadant som i getTimeEditSchedule metoden med promise all etc.)
                         if (groupRooms.length === rooms.length) {
                             sendRoomsToClient(groupRooms)
                         }
@@ -159,31 +159,69 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
             let rooms = await getRoomsFromDB();
             let bookings = await getBookingsFromDB();
 
-            let timeEditSchedules = [];
+            let currentTime = moment().format('LT');
             
-            for (let i = 0; i < rooms.length; i++) {
-                timeEditSchedules.push(await getScheduleFromTimeEdit(rooms[i]));
+            //Schema för samtliga rum i TimeEdit
+            let schedules = await getScheduleFromTimeEdit(rooms).then((allSchedules) => allSchedules.sort((a, b) => a.room.localeCompare(b.room)));
+
+            let lastUpdatedSchedule = await getScheduleFromDB();
+            let correctSchedule = schedules.slice(0);
+
+            if (bookings.length) {
+                for (let i = 0; i < bookings.length; i++) {
+                    for (let j = 0; j < correctSchedule.length; j++) {
+                        let endTime = getEndTimeForBooking(bookings[i]);
+                        let startTime = bookings[i].startTime;
+                    
+                        //Kolla ifall rummet är bokat i databasen eller inte
+                        if (bookings[i].roomID.includes(correctSchedule[j].room)) {
+                            
+                            //Om bokningen är gammal så ta bort den, annars så är rummet bokat för tillfället. 
+                            if (startTime > currentTime || endTime < currentTime) {
+                                BookingModel.remove({_id: bookings[i]._id}, (err, result) => {
+                                    console.log('Successfully removed expired booking ' +  bookings[i].roomID + ' (' + bookings[i].startTime + '-' + endTime + ') from DB.')
+                                })
+                            } else {
+                                console.log(correctSchedule[j].room + ' är bokat (' + bookings[i].startTime + '-' + endTime + ') i MongoDB.')
+                                correctSchedule[j].available = false;
+                            }
+                        } 
+                    }
+                }
+
+                // for (let i = 0; i < lastUpdatedSchedule.length; i++) {
+                //     updateScheduleDB(lastUpdatedSchedule[i], correctSchedule[i].available);
+                // }
+                
             }
         })
 
-
-    function getScheduleFromTimeEdit(room) {        
-        return timeEdit.getTodaysSchedule(room.name)
-        .then((roomSchedule) => {
-            let timeEditschedule = {}; 
-
-            //TimeEdit
-            if (roomSchedule) {
-                timeEditschedule.room = roomSchedule[0].searchId;
-                timeEditschedule.available = false;
-                timeEditschedule.startTime = roomSchedule[0].time.startTime;
-                timeEditschedule.endTime = roomSchedule[0].time.endTime;
-            } else {
-                timeEditschedule.room = room.name;
-                timeEditschedule.available = true;
-            }
-
-            return timeEditschedule
+    async function getScheduleFromTimeEdit(rooms) {
+        let promises = rooms.map((room) => {
+            return new Promise((resolve, reject) => {
+                timeEdit.getTodaysSchedule(room.name)
+                .then((roomSchedule) => {
+                    let timeEditschedule = {}; 
+        
+                    if (roomSchedule) {
+                        timeEditschedule.room = roomSchedule[0].searchId;
+                        timeEditschedule.available = false;
+                        timeEditschedule.startTime = roomSchedule[0].time.startTime;
+                        timeEditschedule.endTime = roomSchedule[0].time.endTime;
+                    } else {
+                        timeEditschedule.room = room.name;
+                        timeEditschedule.available = true;
+                    }
+                    resolve(timeEditschedule);
+                })
+            })
+        })
+    
+        return await Promise.all(promises)
+        .then((schedules) => {
+            return schedules;
+        }).catch((error) => {
+            console.log(error)
         })
     }
 
@@ -221,10 +259,24 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
         })
     }
 
-    function getLastUpdatedScheduleFromDB() {
+    function removeBookingFromDB() {
+
+    }
+
+    function updateScheduleDB(schedule, available) {
+        schedule.set({ available });
+        schedule.save((err, updatedSchedule) => {
+            if (!err) {
+                console.log('Updated ' + updatedSchedule.room)
+                console.log('------------')
+            }
+        })
+    }
+
+    function getScheduleFromDB() {
         return ScheduleModel.find({}).exec()
         .then((schedules) => {
-            return schedules;
+            return schedules.sort((a, b) => a.room.localeCompare(b.room));
         }).catch((err) => {
             console.log(err)
         })
@@ -268,14 +320,14 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                         }
                     })
 
-                    if (i === (rooms.length - 1)) {
-                        sendRoomsToClient(groupRooms);
-                    }
+                    // if (i === (rooms.length - 1)) {
+                    //     sendRoomsToClient(groupRooms);
+                    // }
 
                 }).catch((er) => {
-                    if (i === (rooms.length - 1)) {
-                        sendRoomsToClient(groupRooms);
-                    }
+                    // if (i === (rooms.length - 1)) {
+                    //     sendRoomsToClient(groupRooms);
+                    // }
                 });
         }
     }
