@@ -206,10 +206,10 @@ module.exports = function (RoomModel, BookingModel) {
                 let bookRoom = new BookingModel(data)
                 bookRoom.save((err) => {
                     console.log('Booking saved in DB.')
+
+                    res.redirect('/' + req.body.roomID)
                 })
             }
-            console.log(req.body.roomID)
-            res.redirect('/' + req.body.roomID)
         });
 
     router.route('/:roomID/schedule/today')
