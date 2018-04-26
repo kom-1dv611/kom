@@ -37,6 +37,9 @@ class room extends Component {
                     <div className="row justify-content-center">
                         <form id="bookingForm" className="form-inline" action="http://www.localhost:2000/:id" method="post">
                             <input type="time" id="currentTime" name="time" hidden/>
+                            <div className="col-md-auto">
+                                <i class="fas fa-calendar-alt fa-2x"></i>
+                            </div>
                             <Book/>
                             <div className="col-md-auto">
                                 <div className="btn-group btn-group-toggle" data-toggle="buttons">
