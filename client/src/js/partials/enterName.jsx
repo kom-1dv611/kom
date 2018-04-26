@@ -1,4 +1,8 @@
 import React, { Component } from 'react';
+import {connect} from "react-redux"; //read
+import {bindActionCreators} from "redux"; //write
+import event from "../actions/submit";
+import $ from "jquery"
 
 class enterName extends Component {
   render() {
@@ -18,7 +22,11 @@ class enterName extends Component {
                 </div>
                 <div className="modal-footer">
                     <button type="button" className="btn btn-dark" data-dismiss="modal">Close</button>
-                    <button id="confirmBooking" type="button" className="btn btn-dark submit">Book room!</button>
+                    <button onClick={() => {
+                        if($("#confirmBooking").attr("type") === "submit") {
+                            this.props.submit(this.props.room);
+                        }
+                    } } id="confirmBooking" type="button" className="btn btn-dark submit">Book room!</button>
                 </div>
             </div>
         </div>
@@ -27,5 +35,15 @@ class enterName extends Component {
   }
 }
 
-export default enterName;
+function read(db) {
+    return{};
+}
+  
+function write(dispatch) {
+    return bindActionCreators({
+        submit: event
+    }, dispatch);
+}
+
+export default connect(read, write)(enterName);
 
