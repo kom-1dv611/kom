@@ -9,7 +9,6 @@ let socket = require('socket.io');
 let session = require('express-session');
 let cookieParser = require('cookie-parser')
 
-
 let port = 2000;
 let app = express();
 let http = require('http').Server(app);
@@ -47,6 +46,13 @@ Handlebars.registerHelper( 'loop', function( from, to, inc = 1, block ) {
     }
     return toReturn;
 });
+
+let scrape = require('./libs/infoScraper.js')
+app.get('/scrape', function (req, res) {
+    scrape().then((value) => {
+        res.send(value)
+    })
+})
 
 
 //Static files
