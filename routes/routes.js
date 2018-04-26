@@ -44,7 +44,6 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                             validatedRoom.available = false;
                         }
                     }
-                    console.log(validatedRoom);
                     groupRooms.push(validatedRoom);
                     index++;
                     resolve(validatedRoom);
@@ -53,6 +52,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
 
             return Promise.all(promises)
                 .then((schedules) => {
+                    getRoomStatus(bookings, schedules); //TODO: implementera allting i metoden
                     return sendRoomsToClient(schedules);
                 }).catch((error) => {
                     console.log(error)
@@ -63,7 +63,6 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                 let size = Math.ceil(groupRooms.length / 3);
                 let rows = [];
                 for (let i = 0; i < size; i++) {
-                    
                     rows.push({})
                     rows[i].cols = [];
                     for (let j = i * 3; j < (i * 3) + 3; j++) {
@@ -72,8 +71,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                         }
                     }
                 }
-                console.log('____________')
-                res.render('index', { rows: rows });
+                res.status(200).render('index', { rows: rows });
             }
         })
 
@@ -160,49 +158,32 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
         });
 
 
-    router.route('/overview/room/updater')
-        .get(async function (req, res) {
-            let rooms = await getRoomsFromDB();
-            let bookings = await getBookingsFromDB();
-
-            let currentTime = moment().format('LT');
-            
-            //Schema för samtliga rum i TimeEdit
-            let schedules = await getScheduleFromTimeEdit(rooms).then((allSchedules) => allSchedules.sort((a, b) => a.room.localeCompare(b.room)));
-
-            let lastUpdatedSchedule = await getScheduleFromDB();
-            let correctSchedule = schedules.slice(0);
-
-            if (bookings.length) {
-                for (let i = 0; i < bookings.length; i++) {
-                    for (let j = 0; j < correctSchedule.length; j++) {
-                        let endTime = getEndTimeForBooking(bookings[i]);
-                        let startTime = bookings[i].startTime;
-                    
-                        //Kolla ifall rummet är bokat i databasen eller inte
-                        if (bookings[i].roomID.includes(correctSchedule[j].room)) {
-                            
-                            //Om bokningen är gammal så ta bort den, annars så är rummet bokat för tillfället. 
-                            if (startTime > currentTime || endTime < currentTime) {
-                                BookingModel.remove({_id: bookings[i]._id}, (err, result) => {
-                                    console.log('Successfully removed expired booking ' +  bookings[i].roomID + ' (' + bookings[i].startTime + '-' + endTime + ') from DB.')
-                                })
-                            } else {
-                                console.log(correctSchedule[j].room + ' är bokat (' + bookings[i].startTime + '-' + endTime + ') i MongoDB.')
-                                correctSchedule[j].available = false;
-                            }
-                        } 
-                    }
-                }
-
-                // for (let i = 0; i < lastUpdatedSchedule.length; i++) {
-                //     updateScheduleDB(lastUpdatedSchedule[i], correctSchedule[i].available);
-                // }
+    //Sätter ett rums tillgänglighet baserat på: Bokning i DB > TimeEdit
+    function getRoomStatus(bookings, correctSchedule) {
+        let currentTime = moment().format('LT');
+        if (bookings.length) {
+            for (let i = 0; i < bookings.length; i++) {
+                for (let j = 0; j < correctSchedule.length; j++) {
+                    let endTime = getEndTimeForBooking(bookings[i]);
+                    let startTime = bookings[i].startTime;
                 
+                    //Kolla ifall rummet är bokat i databasen eller inte
+                    if (bookings[i].roomID.includes(correctSchedule[j].room)) {
+                        
+                        //Om bokningen är gammal så ta bort den, annars så är rummet bokat för tillfället. 
+                        if (startTime > currentTime || endTime < currentTime) {
+                            BookingModel.remove({_id: bookings[i]._id}, (err, result) => {
+                                console.log('Successfully removed expired booking ' +  bookings[i].roomID + ' (' + bookings[i].startTime + '-' + endTime + ') from DB.')
+                            })
+                        } else {
+                            console.log(correctSchedule[j].room + ' är bokat (' + bookings[i].startTime + '-' + endTime + ') i MongoDB.')
+                            correctSchedule[j].available = false;
+                        }
+                    } 
+                }
             }
-            console.log('______________')
-            res.status(200).json({message: 'update was executed'})
-        })
+        }
+    }
 
     async function getScheduleFromTimeEdit(rooms) {
         let promises = rooms.map((room) => {
@@ -269,16 +250,11 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
         })
     }
 
-    function removeBookingFromDB() {
-
-    }
-
-    function updateScheduleDB(schedule, available) {
-        schedule.set({ available });
+    function updateScheduleDB(schedule, availability) {
+        schedule.set({ available: availability });
         schedule.save((err, updatedSchedule) => {
             if (!err) {
-                console.log('Updated ' + updatedSchedule.room)
-                console.log('------------')
+                console.log('Updated ' + updatedSchedule.room + ' in DB.')
             }
         })
     }
