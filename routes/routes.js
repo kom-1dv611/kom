@@ -17,33 +17,16 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
         .get(async function (req, res) {
             let rooms = await getRoomsFromDB();
             let bookings = await getBookingsFromDB();
+            let timeEditSchedule = await getScheduleFromTimeEdit(rooms).then((allSchedules) => allSchedules.sort((a, b) => a.room.localeCompare(b.room)));
+            let scheduleTimeEdit = timeEditSchedule.slice(0);
 
             let currentTime = moment().format('LT');
             let groupRooms = [];
-
-            let schedules = await getScheduleFromTimeEdit(rooms).then((allSchedules) => allSchedules.sort((a, b) => a.room.localeCompare(b.room)));
-            let scheduleTimeEdit = schedules.slice(0);
-            
             let index = 0;
+
             let promises = rooms.map((room) => {
                 return new Promise((resolve, reject) => {
-                    let validatedRoom = {
-                        room
-                    }
-                    
-                    //Kollar om det finns några bokningar i databasen. (Prioritet: Databasbokningar > TimeEdit schema)
-                    for (let j = 0; j < bookings.length; j++) {
-                        if (isRoomBookedInDB(bookings[j], room, currentTime)) { validatedRoom.available = false; }
-                    }
-    
-                    //Om rummet inte är bokat i databasen så går det efter TimeEdit schemat
-                    if (!validatedRoom.hasOwnProperty('available')) {
-                        if (scheduleTimeEdit[index].isNull || currentTime < scheduleTimeEdit[index].startTime || currentTime > scheduleTimeEdit[index].endTime) {
-                            validatedRoom.available = true;
-                        } else {
-                            validatedRoom.available = false;
-                        }
-                    }
+                    let validatedRoom = validateGroupRoom(bookings, scheduleTimeEdit[index], room, currentTime);
                     groupRooms.push(validatedRoom);
                     index++;
                     resolve(validatedRoom);
@@ -52,13 +35,15 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
 
             return Promise.all(promises)
                 .then((schedules) => {
-                    getRoomStatus(bookings, schedules); //TODO: implementera allting i metoden
+                    getRoomStatus(bookings, schedules); //TODO: implementera allting i metoden och dubbelkolla "buggen"
                     let table = buildTable(schedules);
                     return res.status(200).render('index', { rows: table });
                 }).catch((error) => {
                     console.log(error)
                 })
         })
+
+    
 
     router.route('/:id')
         .get(function (req, res) {
@@ -157,6 +142,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                         
                         //Om bokningen är gammal så ta bort den, annars så är rummet bokat för tillfället. 
                         if (startTime > currentTime || endTime < currentTime) {
+                            //Bugg med tiden vid tolvslaget pga. kan visa 24:44 t.ex. istället för 00:44 och då kaosar det för MomentJS 
                             BookingModel.remove({_id: bookings[i]._id}, (err, result) => {
                                 console.log('Successfully removed expired booking ' +  bookings[i].roomID + ' (' + bookings[i].startTime + '-' + endTime + ') from DB.')
                             })
@@ -267,6 +253,28 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
             }
         }
         return rows;
+    }
+
+    function validateGroupRoom(bookings, scheduleTimeEdit, room, currentTime) {
+        let validatedRoom = {
+            room
+        }
+        
+        //Kollar om det finns några bokningar i databasen. (Prioritet: Databasbokningar > TimeEdit schema)
+        for (let j = 0; j < bookings.length; j++) {
+            if (isRoomBookedInDB(bookings[j], room, currentTime)) { validatedRoom.available = false; }
+        }
+
+        //Om rummet inte är bokat i databasen så går det efter TimeEdit schemat
+        if (!validatedRoom.hasOwnProperty('available')) {
+            if (scheduleTimeEdit.isNull || currentTime < scheduleTimeEdit.startTime || currentTime > scheduleTimeEdit.endTime) {
+                validatedRoom.available = true;
+            } else {
+                validatedRoom.available = false;
+            }
+        }
+
+        return validatedRoom;
     }
 
     return router;
