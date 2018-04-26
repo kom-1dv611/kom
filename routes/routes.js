@@ -12,10 +12,9 @@ let router = require("express").Router();
 let moment = require('moment');
 moment.locale('sv');
 
-module.exports = function (BookingModel, RoomModel) {
+module.exports = function (RoomModel, BookingModel) {
     router.route('/')
         .get(function (req, res) {
-
             //Körs ej. Används bara för att skrapa grupprummen på lnu.se
             async function scrapeRoomsFromLNU() {
                 let rooms = await Scraper();
@@ -66,25 +65,31 @@ module.exports = function (BookingModel, RoomModel) {
                 }
             }
 
-            RoomModel.find({})
-            .then((rooms) => {
+            let roomFinder = RoomModel.find({}).exec();
+            let bookingFinder = BookingModel.find({}).exec();
+
+            roomFinder.then((rooms) => {
                 return rooms;
             })
             .then((DBrooms) => {
-                BookingModel.find({})
-                .then((bookings) => {
-                    let rooms = DBrooms.slice(0);
+                bookingFinder.then((DBbookings) => {
 
-                    //Här i finns tillgång till alla grupprum samt alla bokningar från databasen (rooms & bookings)
+                    let rooms = DBrooms.slice(0);
+                    let bookings = DBbookings.slice(0);
+
                     let groupRoomsWithAvailability = [];
                     let currentTime = moment().format('LT');
 
                     for (let i = 0; i < rooms.length; i++) { 
 
                         let isRoomAvailable;          
-
+                        console.log(rooms[i])
                         timeEdit.getTodaysSchedule(rooms[i].name)
                             .then((roomSchedule) => {
+                                let room = {
+                                    room: rooms[i]
+                                }
+
                                 for (let j = 0; j < bookings.length; j++) {
                                     if (bookings[j].roomID === rooms[i].name) {
 
@@ -97,25 +102,19 @@ module.exports = function (BookingModel, RoomModel) {
                                                 console.log('Successfully removed expired booking ' +  bookings[j].roomID + ' (' + bookings[j].startTime + '-' + endTime + ') from DB.')
                                             })
                                         } else {
-                                            isRoomAvailable = false;
+                                            room.available = false;
                                             console.log(rooms[i].name + ' är bokat (' + bookings[j].startTime + '-' + endTime + ') i MongoDB.')
                                         }
                                     }
                                 }
 
-                                if (!rooms[i].hasOwnProperty('available')) {
+                                if (!room.hasOwnProperty('available')) {
                                     if (roomSchedule === null || currentTime < roomSchedule[0].time.startTime || currentTime > roomSchedule[0].time.endTime) {
-                                        isRoomAvailable = true;
+                                        room.available = true;
                                     } else {
-                                        isRoomAvailable = false;
+                                        room.available = false;
                                     }
                                 }
-
-                                let room = {
-                                    room: rooms[i],
-                                    available: isRoomAvailable
-                                }
-
                                 groupRoomsWithAvailability.push(room);
                                                                 
                                 if (groupRoomsWithAvailability.length === rooms.length) {
@@ -126,14 +125,16 @@ module.exports = function (BookingModel, RoomModel) {
                             })
                     }
                 })
+            }).catch((err) => {
+                console.log(err)
             })
 
             function sendRoomsToClient(groupRooms) {
-                //TODO: fixa sort metoden
-                //groupRooms.sort((a, b) => a.name.localeCompare(b.name))
+                groupRooms.sort((a, b) => a.room.name.localeCompare(b.room.name))
                 let size = Math.ceil(groupRooms.length / 3);
                 let rows = [];
                 for (let i = 0; i < size; i++) {
+                    
                     rows.push({})
                     rows[i].cols = [];
                     for (let j = i * 3; j < (i * 3) + 3; j++) {
@@ -143,7 +144,7 @@ module.exports = function (BookingModel, RoomModel) {
                     }
                 }
                 console.log('____________')
-                res.json({ rows: rows });
+                res.json({rows: rows });
             }
         })
 
@@ -166,7 +167,7 @@ module.exports = function (BookingModel, RoomModel) {
                         room.willBeAvailable = endTime;
                     }
 
-                    return res.render("room", { room: room });
+                    return res.json({ room: room });
                 } else {
                     timeEdit.getTodaysSchedule(room.id)
                         .then((roomSchedule) => {
@@ -179,7 +180,7 @@ module.exports = function (BookingModel, RoomModel) {
                                 room.available = true;
                             }
 
-                            return res.render("room", { room: room });
+                            return res.json({ room: room });
                         }).catch((er) => {
                             console.log(er);
                         });
@@ -204,9 +205,10 @@ module.exports = function (BookingModel, RoomModel) {
                 let bookRoom = new BookingModel(data)
                 bookRoom.save((err) => {
                     console.log('Booking saved in DB.')
+
+                    res.redirect(req.hostname)
                 })
             }
-            res.redirect(req.get('host'));
         });
 
     router.route('/:roomID/schedule/today')
@@ -239,6 +241,15 @@ module.exports = function (BookingModel, RoomModel) {
                     console.log(er);
                 });
         });
+
+
+    //Test-route för hooks från schema servern
+    router.route('/hook/schedule')
+        .post(function (req, res) {
+            console.log(req.body)
+
+            res.sendStatus(200);
+        })
 
     return router;
 }
