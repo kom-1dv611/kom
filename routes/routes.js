@@ -19,15 +19,11 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
             let bookings = await getBookingsFromDB();
             let timeEditSchedule = await getScheduleFromTimeEdit(rooms).then((allSchedules) => allSchedules.sort((a, b) => a.room.localeCompare(b.room)));
             let scheduleTimeEdit = timeEditSchedule.slice(0);
-
-            let currentTime = moment().format('LT');
-            let groupRooms = [];
             let index = 0;
 
             let promises = rooms.map((room) => {
                 return new Promise((resolve, reject) => {
-                    let validatedRoom = validateGroupRoom(bookings, scheduleTimeEdit[index], room, currentTime);
-                    groupRooms.push(validatedRoom);
+                    let validatedRoom = validateGroupRoom(bookings, scheduleTimeEdit[index], room);
                     index++;
                     resolve(validatedRoom);
                 })
@@ -35,7 +31,6 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
 
             return Promise.all(promises)
                 .then((schedules) => {
-                    getRoomStatus(bookings, schedules); //TODO: implementera allting i metoden och dubbelkolla "buggen"
                     let table = buildTable(schedules);
                     return res.status(200).render('index', { rows: table });
                 }).catch((error) => {
@@ -58,6 +53,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                     
                     if (startTime > currentTime || endTime < currentTime) {
                         room.available = true;
+                        console.log(result)
                     } else {
                         room.available = false;
                         room.willBeAvailable = endTime;
@@ -148,6 +144,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                             })
                         } else {
                             console.log(correctSchedule[j].room + ' är bokat (' + bookings[i].startTime + '-' + endTime + ') i MongoDB.')
+                            console.log('getRoomStatus()')
                             correctSchedule[j].available = false;
                         }
                     } 
@@ -156,6 +153,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
         }
     }
 
+    //TimeEdit schedule for an array of grouprooms
     async function getScheduleFromTimeEdit(rooms) {
         let promises = rooms.map((room) => {
             return new Promise((resolve, reject) => {
@@ -187,31 +185,19 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
             })
     }
 
-    function isRoomBookedInDB(booking, room, currentTime) {
-        if (booking.roomID === room.name) {
-            let endTime = getEndTimeForBooking(booking);
-            let startTime = booking.startTime;
-            
-            if (startTime > currentTime || endTime < currentTime) {
-                //Gammal, expirad bokning
-                return false;
-            } else {
-                console.log(room.name + ' är bokat (' + booking.startTime + '-' + endTime + ') i MongoDB.')
-                return true;
-            }
-        }
-        return false;
-    }
+    
 
+    //Returns array of grouprooms from DB
     function getRoomsFromDB() {
         return RoomModel.find({}).exec()
         .then((rooms) => {
-            return rooms;
+            return rooms.sort((a, b) => a.name.localeCompare(b.name));
         }).catch((err) => {
             console.log(err)
         })
     }
 
+    //Returns array of bookings from DB
     function getBookingsFromDB() {
         return BookingModel.find({}).exec()
         .then((bookings) => {
@@ -221,6 +207,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
         })
     }
 
+    //Updates an existing schedule's available property in DB
     function updateScheduleDB(schedule, availability) {
         schedule.set({ available: availability });
         schedule.save((err, updatedSchedule) => {
@@ -230,6 +217,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
         })
     }
 
+    //Returns array of schedules from DB
     function getScheduleFromDB() {
         return ScheduleModel.find({}).exec()
         .then((schedules) => {
@@ -239,6 +227,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
         })
     }
 
+    //Builds table of grouprooms 
     function buildTable(groupRooms) {
         groupRooms.sort((a, b) => a.room.name.localeCompare(b.room.name))
         let size = Math.ceil(groupRooms.length / 3);
@@ -255,27 +244,53 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
         return rows;
     }
 
-    function validateGroupRoom(bookings, scheduleTimeEdit, room, currentTime) {
-        let validatedRoom = {
-            room
-        }
-        
-        //Kollar om det finns några bokningar i databasen. (Prioritet: Databasbokningar > TimeEdit schema)
-        for (let j = 0; j < bookings.length; j++) {
-            if (isRoomBookedInDB(bookings[j], room, currentTime)) { validatedRoom.available = false; }
-        }
+    //Determines if a room is truly available or not (based on db bookings and timeedit bookings)
+    function validateGroupRoom(bookings, scheduleTimeEdit, room) {
+        let currentTime = moment().format('LT');
+        let roomToBeValidated = { room }
 
-        //Om rummet inte är bokat i databasen så går det efter TimeEdit schemat
-        if (!validatedRoom.hasOwnProperty('available')) {
-            if (scheduleTimeEdit.isNull || currentTime < scheduleTimeEdit.startTime || currentTime > scheduleTimeEdit.endTime) {
-                validatedRoom.available = true;
-            } else {
-                validatedRoom.available = false;
+        if (!isRoomBookedInTimeEdit(scheduleTimeEdit, currentTime, roomToBeValidated))  { roomToBeValidated.available = true; }
+        else { roomToBeValidated.available = false; }
+
+        //Kollar om det finns några bokningar i databasen. (Prioritet: Databasbokningar > TimeEdit schema)
+        if (bookings.length) {
+            for (let j = 0; j < bookings.length; j++) {
+                if (isRoomBookedInDB(bookings[j], room, currentTime)) { roomToBeValidated.available = false; }
             }
         }
-
-        return validatedRoom;
+        return roomToBeValidated;
     }
 
+    //checks if a room has a booking in the DB.
+    function isRoomBookedInDB(booking, room, currentTime) {
+        if (booking.roomID === room.name) {
+            let endTime = getEndTimeForBooking(booking);
+            let startTime = booking.startTime;
+            
+            if (startTime > currentTime || endTime < currentTime) {
+                //Gammal, expirad bokning
+                console.log(booking.roomID + ' är en gammal bokning.')
+
+                booking.remove((err, result) => {
+                    console.log('Deleted expired booking from DB.')
+                })
+                
+                return false;
+            } else {
+                console.log(room.name + ' är bokat (' + booking.startTime + '-' + endTime + ') i MongoDB.')
+                return true;
+            }
+        } 
+        return false;
+    }
+
+    //Checks if a room is booked in timeedit. Takes the TimeEdit schedule, current time and the room that is getting validated.
+    function isRoomBookedInTimeEdit(scheduleTimeEdit, currentTime, roomToBeValidated) {
+        if (!roomToBeValidated.hasOwnProperty('available')) {
+            if (scheduleTimeEdit.isNull || currentTime < scheduleTimeEdit.startTime || currentTime > scheduleTimeEdit.endTime) { return false; }
+            return true;
+        } 
+        return false;
+    }
     return router;
 }
