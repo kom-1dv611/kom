@@ -53,7 +53,6 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                     
                     if (startTime > currentTime || endTime < currentTime) {
                         room.available = true;
-                        console.log(result)
                     } else {
                         room.available = false;
                         room.willBeAvailable = endTime;
