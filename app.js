@@ -16,9 +16,9 @@ let http = require('http').Server(app);
 let io = require('socket.io')(http);
 
 const mongoose = require('mongoose')
-let Booking = require('./models/Booking').model('Booking')
-let Room = require('./models/Room').model('Room');
-let Schedule = require('./models/Schedule').model('Schedule');
+let BookingModel = require('./src/models/Booking').model('Booking')
+let RoomModel = require('./src/models/Room').model('Room');
+let ScheduleModel = require('./src/models/Schedule').model('Schedule');
 
 
 let Handlebars = require("handlebars");
@@ -30,7 +30,7 @@ async function getPublicUrl() {
 
 getPublicUrl();
 
-require('./config/database').initialize();
+require('./src/config/database').initialize();
 
 app.engine('.hbs', exphbs({
     defaultLayout: 'main',
@@ -76,8 +76,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
+
 //Routes
-let routes = require('./routes/routes')(Room, Booking, Schedule);  
+let routes = require('./src/routes/routes')(RoomModel, BookingModel, ScheduleModel);  
 app.use('/', routes);
 
 
