@@ -124,34 +124,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
         });
 
 
-    //Sätter ett rums tillgänglighet baserat på: Bokning i DB > TimeEdit
-    function getRoomStatus(bookings, correctSchedule) {
-        let currentTime = moment().format('LT');
-        if (bookings.length) {
-            for (let i = 0; i < bookings.length; i++) {
-                for (let j = 0; j < correctSchedule.length; j++) {
-                    let endTime = getEndTimeForBooking(bookings[i]);
-                    let startTime = bookings[i].startTime;
-                
-                    //Kolla ifall rummet är bokat i databasen eller inte
-                    if (bookings[i].roomID.includes(correctSchedule[j].room)) {
-                        
-                        //Om bokningen är gammal så ta bort den, annars så är rummet bokat för tillfället. 
-                        if (startTime > currentTime || endTime < currentTime) {
-                            //Bugg med tiden vid tolvslaget pga. kan visa 24:44 t.ex. istället för 00:44 och då kaosar det för MomentJS 
-                            BookingModel.remove({_id: bookings[i]._id}, (err, result) => {
-                                console.log('Successfully removed expired booking ' +  bookings[i].roomID + ' (' + bookings[i].startTime + '-' + endTime + ') from DB.')
-                            })
-                        } else {
-                            console.log(correctSchedule[j].room + ' är bokat (' + bookings[i].startTime + '-' + endTime + ') i MongoDB.')
-                            console.log('getRoomStatus()')
-                            correctSchedule[j].available = false;
-                        }
-                    } 
-                }
-            }
-        }
-    }
+    
 
     //TimeEdit schedule for an array of grouprooms
     async function getScheduleFromTimeEdit(rooms) {
@@ -184,8 +157,6 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                 console.log(error)
             })
     }
-
-    
 
     //Returns array of grouprooms from DB
     function getRoomsFromDB() {
