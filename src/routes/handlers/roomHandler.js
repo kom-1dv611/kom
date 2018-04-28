@@ -12,19 +12,46 @@ module.exports = class Room {
         this.RoomModel = RoomModel;
     }
 
-    //Determines if a room is truly available or not (based on db bookings and timeedit bookings)
+    //Determines if a room is CURRENTLY truly available or not (based on db bookings and timeedit bookings)
+    /**
+     * {bookings} - Array of bookings from DB
+     * {scheduleTimeEdit} - Object representing a rooms timeedit schedule
+     * {room} - Object representing the room to be validated
+     * {currentTime} - momentJS current localtime
+     */
     validateGroupRoom(bookings, scheduleTimeEdit, room, currentTime) {
-        let roomToBeValidated = { room }
+        let roomToBeValidated = { room, bookings: [] }
 
-        if (!this.isRoomBookedInTimeEdit(scheduleTimeEdit, currentTime, roomToBeValidated))  { roomToBeValidated.available = true; }
-        else { roomToBeValidated.available = false; }
+        if (this.isRoomBookedInTimeEdit(scheduleTimeEdit, currentTime, roomToBeValidated))  { 
+            roomToBeValidated.available = false; 
+            roomToBeValidated.bookings.push({
+                startTime: scheduleTimeEdit.startTime, 
+                endTime: scheduleTimeEdit.endTime
+            })
+            
+        } else { 
+            roomToBeValidated.available = true; 
+        }
 
         //Kollar om det finns några bokningar i databasen. (Prioritet: Databasbokningar > TimeEdit schema)
         if (bookings.length) {
             for (let j = 0; j < bookings.length; j++) {
-                if (this.isRoomBookedInDB(bookings[j], room, currentTime)) { roomToBeValidated.available = false; }
+                if (this.isRoomBookedInDB(bookings[j], room, currentTime)) { 
+                    roomToBeValidated.available = false; 
+
+                    //För att skriva över en timeedit bokning
+                    if (roomToBeValidated.bookings[0]) {
+                        roomToBeValidated.bookings = [];
+                    }
+
+                    roomToBeValidated.bookings.push({
+                        startTime: bookings[j].startTime, 
+                        endTime: getEndTimeForBooking(bookings[j])
+                    })
+                }
             }
         }
+
         return roomToBeValidated;
     }
 
@@ -70,7 +97,7 @@ module.exports = class Room {
         })
     }
 
-    //TimeEdit schedule for an array of grouprooms
+    //First booking  ([0]) from TimeEdit schedule for an array of grouprooms
     async getScheduleFromTimeEdit(rooms) {
         let promises = rooms.map((room) => {
             return new Promise((resolve, reject) => {

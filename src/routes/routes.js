@@ -26,22 +26,24 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
         .get(async function (req, res) {
             let rooms = await Room.getRoomsFromDB();
             let bookings = await Booking.getBookingsFromDB();
-            let timeEditSchedule = await Room.getScheduleFromTimeEdit(rooms).then((allSchedules) => allSchedules.sort((a, b) => a.room.localeCompare(b.room)));
-            let scheduleTimeEdit = timeEditSchedule.slice(0);
+            let schedulesFromDB = await Schedule.getSchedulesFromDB();
+            let timeEditSchedules = await Room.getScheduleFromTimeEdit(rooms).then((allSchedules) => allSchedules.sort((a, b) => a.room.localeCompare(b.room)));
             let index = 0;
             let currentTime = moment().format('LT');
 
             let promises = rooms.map((room) => {
                 return new Promise((resolve, reject) => {
-                    let validatedRoom = Room.validateGroupRoom(bookings, scheduleTimeEdit[index], room, currentTime);
+                    let validatedRoom = Room.validateGroupRoom(bookings, timeEditSchedules[index], room, currentTime);
+                    //TODO: implementera metoden
+                    //Schedule.setCorrectSchedule(validatedRoom, schedulesFromDB);
                     index++;
                     resolve(validatedRoom);
                 })
             })
 
             return Promise.all(promises)
-                .then((schedules) => {
-                    let table = buildTable(schedules);
+                .then((groupRooms) => {
+                    let table = buildTable(groupRooms);
                     return res.status(200).render('index', { rows: table });
                 }).catch((error) => {
                     console.log(error)
