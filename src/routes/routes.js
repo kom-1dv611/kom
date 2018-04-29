@@ -5,8 +5,8 @@ let bookingHandler = require('./handlers/bookingHandler');
 let scheduleHandler = require('./handlers/scheduleHandler');
 
 const Scraper = require('../libs/scraper');
-const getEndTimeForBooking = require('./helpers/endTimebooking');
-const buildTable = require('./helpers/buildTable');
+const getEndTimeForBooking = require('./utils/endTimebooking');
+const buildTable = require('./utils/buildTable');
 
 const timeEditApi = require('timeeditApi');
 const timeEdit = timeEditApi(
@@ -28,15 +28,13 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
             let bookings = await Booking.getBookingsFromDB();
             let schedulesFromDB = await Schedule.getSchedulesFromDB();
             let timeEditSchedules = await Room.getScheduleFromTimeEdit(rooms).then((allSchedules) => allSchedules.sort((a, b) => a.room.localeCompare(b.room)));
-            let index = 0;
             let currentTime = moment().format('LT');
 
-            let promises = rooms.map((room) => {
+            let promises = rooms.map((room, index) => {
                 return new Promise((resolve, reject) => {
                     let validatedRoom = Room.validateGroupRoom(bookings, timeEditSchedules[index], room, currentTime);
                     //TODO: implementera metoden
                     //Schedule.setCorrectSchedule(validatedRoom, schedulesFromDB);
-                    index++;
                     resolve(validatedRoom);
                 })
             })

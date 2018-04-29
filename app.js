@@ -9,7 +9,6 @@ let socket = require('socket.io');
 let session = require('express-session');
 let cookieParser = require('cookie-parser')
 
-
 let port = 2000;
 let app = express();
 let http = require('http').Server(app);
@@ -19,7 +18,6 @@ const mongoose = require('mongoose')
 let BookingModel = require('./src/models/Booking').model('Booking')
 let RoomModel = require('./src/models/Room').model('Room');
 let ScheduleModel = require('./src/models/Schedule').model('Schedule');
-
 
 let Handlebars = require("handlebars");
 let ngrok = require('ngrok');

@@ -1,6 +1,6 @@
 'use strict';
 
-const getEndTimeForBooking = require('../helpers/endTimebooking');
+const getEndTimeForBooking = require('../utils/endTimebooking');
 
 module.exports = class Schedule {
     constructor(ScheduleModel) {

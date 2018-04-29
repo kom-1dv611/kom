@@ -1,6 +1,6 @@
 'use strict';
 
-const getEndTimeForBooking = require('../helpers/endTimebooking');
+const getEndTimeForBooking = require('../utils/endTimebooking');
 
 const timeEditApi = require('timeeditApi');
 const timeEdit = timeEditApi(
