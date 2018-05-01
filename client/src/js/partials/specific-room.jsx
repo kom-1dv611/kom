@@ -13,6 +13,7 @@ class room extends Component {
     constructor(props) {
         super(props)
         this.props.busy(this.props.room.available);
+        this.state = {updated: false}
         $( document ).ready(function() {
             $("#book").submit((e) => {
                 e.preventDefault()
@@ -66,6 +67,9 @@ class room extends Component {
                     <div className="row justify-content-center">
                         <form id="bookingForm" className="form-inline" action={"http://www.localhost:2000/" + this.props.room.room.name} method="post">
                             <input type="time" id="currentTime" name="time" hidden/>
+                            <div className="col-md-auto">
+                                <i class="fas fa-calendar-alt fa-2x"></i>
+                            </div>
                             <Book/>
                             <div className="col-md-auto">
                                 <div className="btn-group btn-group-toggle" data-toggle="buttons">
@@ -81,16 +85,28 @@ class room extends Component {
         }
     }
 
-    async getUpdatedInfo() {
-        let room = this.props.submit;
-        let info = await fetch("http://localhost:2000/" + room);
-        info = await info.json();
-        console.log(info);
+    getUpdatedInfo() {
+        if(this.state.updated === false) {
+            this.setState(function() {
+                return {updated: true};
+            });
+            let timer = setTimeout(async () => {
+                clearTimeout(timer);
+                let room = this.props.submit;
+                let info = await fetch("http://localhost:2000/" + room);
+                info = await info.json();
+                
+                // add timer, timer is in info
+
+                this.props.room.available = false;
+                document.getElementsByTagName("body")[0].setAttribute("id", "unavailable")
+                this.forceUpdate();
+            }, 1000);
+        }
     }
 
     render() {
         let room = this.props.room.room;
-        console.log(this.props.submit);
         if(this.props.submit != null) {
             this.getUpdatedInfo();
         }

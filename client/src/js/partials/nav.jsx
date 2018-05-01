@@ -1,7 +1,16 @@
 import React, { Component } from 'react';
-import Modal from "./enterDateTime";
+import {connect} from "react-redux"; //read
+import {bindActionCreators} from "redux"; //write
+import event from "../actions/filterClick";
+
 
 class nav extends Component {
+  generateButton(text) {
+    return (<button className="dropdown-item" type="button" onClick={() => {
+		this.props.filterClick(text);
+	}}>{text}</button>);
+  }
+
   location() {
     let filter = this.props.filter;
     if(filter === "true") {
@@ -12,13 +21,13 @@ class nav extends Component {
           </button>
           <div className="dropdown-menu">
             <h6 className="dropdown-header">Location</h6>
-            <button className="dropdown-item" type="button">All</button>
-            <button className="dropdown-item" type="button">Kalmar Nyckel</button>
-            <button className="dropdown-item" type="button">Sjöfartshögskolan</button>
-            <button className="dropdown-item" type="button">Kocken</button>
-            <button className="dropdown-item" type="button">Universitetsbiblioteket</button>
-            <button className="dropdown-item" type="button">Storken</button>
-            <button className="dropdown-item" type="button">Norrgård</button>
+            {this.generateButton("All")}
+            {this.generateButton("Kalmar Nyckel")}
+            {this.generateButton("Sjöfartshögskolan")}
+            {this.generateButton("Kocken")}
+            {this.generateButton("Universitetsbiblioteket")}
+            {this.generateButton("Storken")}
+            {this.generateButton("Norrgård")}
           </div>
         </div>);
     } else {
@@ -40,5 +49,15 @@ class nav extends Component {
   }
 }
 
-export default nav;
+function read(db) {
+    return{};
+  }
+  
+  function write(dispatch) {
+    return bindActionCreators({
+      filterClick: event
+    }, dispatch);
+  }
+  
+  export default connect(read, write)(nav);
 
