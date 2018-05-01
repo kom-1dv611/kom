@@ -21,9 +21,7 @@ class room extends Component {
                 let buttons = $(".btn-group").children();
                 let active
                 $.each(buttons, function(key, value) {
-                    console.log(value);
                     if($(value).hasClass("active") === true) {
-                        console.log("OKZZZZ");
                         active = value;
                     }
                 });
@@ -32,8 +30,6 @@ class room extends Component {
                 data.username = $("#username").val();
                 data.time = $("#currentTime").val();
                 data.duration = $($(active).children()[0]).val();
-
-                console.log(data);
 
                 fetch($(e.target).attr("action"), {
                     method: 'POST',
@@ -101,6 +97,11 @@ class room extends Component {
         return (
         <div>
             {this.stateHeader()}
+            <div class="text-center">
+                <i class="fas fa-users fa-2x" title="Capacity"></i><span class="h3">5</span>
+                <i class="fas fa-laptop fa-2x mr-2" title="Computer equipment"></i>
+                <i class="fab fa-product-hunt fa-2x mr-2" title="Projector"></i>
+            </div>
             {this.booking()}
             {this.clock()}
         </div>
