@@ -1,4 +1,8 @@
 # kom
 
-## Sass compile command
-node-sass --include-path scss public/css/main.scss public/css/main.css -w
+### Setup instructions
+
+1. Clone repository
+2. cd into repository
+3. Run ```npm install```
+4. Start application with ```node app```

@@ -15,8 +15,9 @@ let http = require('http').Server(app);
 let io = require('socket.io')(http);
 
 const mongoose = require('mongoose')
-let Booking = require('./models/Booking').model('Booking')
-let Room = require('./models/Room').model('Room');
+let BookingModel = require('./src/models/Booking').model('Booking')
+let RoomModel = require('./src/models/Room').model('Room');
+let ScheduleModel = require('./src/models/Schedule').model('Schedule');
 
 let Handlebars = require("handlebars");
 let ngrok = require('ngrok');
@@ -27,7 +28,7 @@ async function getPublicUrl() {
 
 getPublicUrl();
 
-require('./config/database').initialize();
+require('./src/config/database').initialize();
 
 app.engine('.hbs', exphbs({
     defaultLayout: 'main',
@@ -39,9 +40,17 @@ app.get('/favicon.ico', function (req, res) {
     res.status(204);
 });
 
-Handlebars.registerHelper( 'loop', function( from, to, inc = 1, block ) {
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+  
+
+
+Handlebars.registerHelper('loop', function(from, to, inc = 1, block) {
     let toReturn = "";
-    for(let i = from; i <= to; i++) {
+    for (let i = from; i <= to; i++) {
         toReturn += block.fn(i * inc);
     }
     return toReturn;
@@ -63,13 +72,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
+
 //Routes
-let routes = require('./routes/routes')(Room, Booking);  
+let routes = require('./src/routes/routes')(RoomModel, BookingModel, ScheduleModel);  
 app.use('/', routes);
 
 
 //Web server
-http.listen(port, function(){
+http.listen(port, function() {
     console.log("Express started on http://localhost:" + port);
     console.log("Press Ctrl-C to terminate...");
 });
