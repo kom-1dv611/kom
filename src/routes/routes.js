@@ -85,8 +85,6 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                 startTime: req.body.time,
                 duration: req.body.duration
             }
-            console.log(req.body);
-           // console.log(data);
 
             let bookRoom = new BookingModel(data)
             bookRoom.save((err) => {
