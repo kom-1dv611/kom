@@ -42,7 +42,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
             return Promise.all(promises)
                 .then((groupRooms) => {
                     let table = buildTable(groupRooms);
-                    return res.status(200).render('index', { rows: table });
+                    return res.status(200).json({ rows: table });
                 }).catch((error) => {
                     console.log(error)
                 })
@@ -76,7 +76,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                 }
             }
 
-            res.render("room", { room: room });
+            res.json({ room: room });
         })
         .post(function (req, res) {
             let data = {

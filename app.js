@@ -40,6 +40,14 @@ app.get('/favicon.ico', function (req, res) {
     res.status(204);
 });
 
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+  
+
+
 Handlebars.registerHelper('loop', function(from, to, inc = 1, block) {
     let toReturn = "";
     for (let i = from; i <= to; i++) {
