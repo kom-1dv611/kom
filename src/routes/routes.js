@@ -81,10 +81,12 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
         .post(function (req, res) {
             let data = {
                 username: req.body.username,
-                roomID: req.body.roomID,
+                roomID: req.body.room,
                 startTime: req.body.time,
                 duration: req.body.duration
             }
+            console.log(req.body);
+           // console.log(data);
 
             let bookRoom = new BookingModel(data)
             bookRoom.save((err) => {
