@@ -43,10 +43,10 @@ let scrape = async () => {
 
     let result = await page.evaluate(() => {
         // skriver ut info som finns i pop-up ruta
-        // TODO: kunna klicka på lokal, men länk-url är fel...
         let iframe = document.getElementById('fancybox-frame')
         let iframeDoc = iframe.contentDocument || ifram.contentWindow.document
         let iframeP = iframeDoc.querySelector('.infoboxtd')
+        let iframeA = iframeP.querySelector('a').click()
 
         return iframeP.innerHTML
     })
