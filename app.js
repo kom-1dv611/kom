@@ -40,9 +40,9 @@ app.get('/favicon.ico', function (req, res) {
     res.status(204);
 });
 
-Handlebars.registerHelper( 'loop', function( from, to, inc = 1, block ) {
+Handlebars.registerHelper('loop', function(from, to, inc = 1, block) {
     let toReturn = "";
-    for(let i = from; i <= to; i++) {
+    for (let i = from; i <= to; i++) {
         toReturn += block.fn(i * inc);
     }
     return toReturn;
@@ -71,7 +71,7 @@ app.use('/', routes);
 
 
 //Web server
-http.listen(port, function(){
+http.listen(port, function() {
     console.log("Express started on http://localhost:" + port);
     console.log("Press Ctrl-C to terminate...");
 });
