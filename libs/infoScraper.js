@@ -3,7 +3,8 @@ let puppeteer = require('puppeteer')
 let scrape = async () => {
     let browser = await puppeteer.launch({ headless: false })
     let page = await browser.newPage()
-    await page.goto('https://se.timeedit.net/web/lnu/db1/schema1')
+    let url = 'https://se.timeedit.net/web/lnu/db1/schema1'
+    await page.goto(url)
     
     // Gå till: Schema och visning av bokningar...
     await page.click('#contents > div.linklist > div > div:nth-child(1) > a:nth-child(1)')
@@ -11,7 +12,7 @@ let scrape = async () => {
     // Ändra till Lokal sökning
     await page.select('#fancytypeselector', '4')
 
-    await page.waitFor(1000)
+    await page.waitFor(3000)
 
     await page.evaluate(() => {
         // Sätter värdet ny212k
@@ -51,8 +52,6 @@ let scrape = async () => {
     })
 
     await page.waitFor(2000)
-
-    // TODO: spara information om lokal
 
     browser.close()
     return result
