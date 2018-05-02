@@ -8,6 +8,10 @@
 
 {{#if room.willBeAvailable}}
     <h3 id="booking-end-time"><strong>{{room.id}}</strong> will be available after <strong>{{room.willBeAvailable}}</strong></h3>
+    <form action="/:id" method="post">
+        <input type="submit" class="btn btn-dark" value="Cancel booking" name="cancelBooking">
+        <input type="hidden" value={{room.id}} name="roomID">
+    </form>
 {{/if}}
 
 {{>flash}}
