@@ -79,6 +79,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
             res.json({ room: room });
         })
         .post(function (req, res) {
+            console.log(req.body);
             let data = {
                 username: req.body.username,
                 roomID: req.body.roomID,
