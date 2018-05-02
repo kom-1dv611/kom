@@ -14,6 +14,7 @@ class room extends Component {
         super(props)
         this.props.busy(this.props.room.available);
         this.state = {updated: false}
+        let name = this.props.room.room.name;
         $( document ).ready(function() {
             $("#book").submit((e) => {
                 e.preventDefault()
@@ -27,10 +28,13 @@ class room extends Component {
                     }
                 });
 
+                console.log(name);
+
                 //username, time, duration
                 data.username = $("#username").val();
                 data.time = $("#currentTime").val();
                 data.duration = $($(active).children()[0]).val();
+                data.room = name;
 
                 fetch($(e.target).attr("action"), {
                     method: 'POST',
@@ -40,7 +44,7 @@ class room extends Component {
                     },
                     body: JSON.stringify(data)
                     });
-            })
+            });
         });
     }
 
