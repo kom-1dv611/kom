@@ -41,14 +41,21 @@ let scrape = async () => {
 
     await page.waitFor(1000)
 
-    let result = await page.evaluate(() => {
+    await page.evaluate(() => {
         // skriver ut info som finns i pop-up ruta
         let iframe = document.getElementById('fancybox-frame')
-        let iframeDoc = iframe.contentDocument || ifram.contentWindow.document
+        let iframeDoc = iframe.contentDocument || iframe.contentWindow.document
         let iframeP = iframeDoc.querySelector('.infoboxtd')
         let iframeA = iframeP.querySelector('a').click()
+    })
 
-        return iframeP.innerHTML
+    await page.waitFor(1000)
+
+    let result = await page.evaluate(() => {
+        // TODO: försök plocka ut #info0 i den nya ifram/table
+        let test = document.querySelector('.objectsfieldsextra')
+
+        return test.innerHTML
     })
 
     await page.waitFor(2000)
