@@ -81,18 +81,30 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
         })
         .post(function (req, res) {
             console.log(req.body);
-            let data = {
-                username: req.body.username,
-                roomID: req.body.roomID,
-                startTime: req.body.time,
-                duration: req.body.duration
-            }
-
-            let bookRoom = new BookingModel(data)
-            bookRoom.save((err) => {
-                console.log('Booking saved in DB.')
-                res.redirect('/' + req.body.roomID)
-            })
+            if(req.body.cancel) {
+                BookingModel.findOneAndRemove({roomID: req.body.room}, function(err, room) {
+                    if(err) {
+                        console.log(err)
+                    } else {
+                        console.log('borttaget ur databasen')
+                        //DEN REDIRECTAR TILL 2000 ISTÄLLEF FÖR 3000. Fixa react!!
+                        res.redirect('/' + req.body.room);
+                    }
+                })
+            } else {
+                let data = {
+                    username: req.body.username,
+                    roomID: req.body.room,
+                    startTime: req.body.time,
+                    duration: req.body.duration
+                }
+    
+                let bookRoom = new BookingModel(data)
+                bookRoom.save((err) => {
+                    console.log('Booking saved in DB.')
+                    res.redirect('/' + req.body.roomID)
+                })
+            }   
         });
 
     router.route('/:roomID/schedule/today')
