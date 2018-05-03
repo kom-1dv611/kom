@@ -88,10 +88,10 @@ class room extends Component {
                 </div>);
         } else {
             return (
-            <div id="book" class="text-center">
+            <div id="cancel" class="text-center">
                 <form action={"http://www.localhost:2000/" + this.props.room.room.name} method="post">
-                    <input type="text" value={this.props.room.room.name} name="cancel" hidden />
-                    <button class="btn btn-dark" type="submit">Cancel</button>
+                    <input type="text" value={this.props.room.room.name} name="room" hidden />
+                    <button name="cancel" class="btn btn-dark" type="submit">Cancel</button>
                 </form>
             </div>);
         }

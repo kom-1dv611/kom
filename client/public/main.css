@@ -100,7 +100,7 @@ h4 a {
   top: 70%;
   color: black; }
 
-#book {
+#book, #cancel {
   position: absolute;
   width: 100%;
   top: 45%;
