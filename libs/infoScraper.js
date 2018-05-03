@@ -41,22 +41,19 @@ let scrape = async () => {
 
     await page.waitFor(1000)
 
-    await page.evaluate(() => {
+    let result = await page.evaluate(() => {
         // skriver ut info som finns i pop-up ruta
         let iframe = document.getElementById('fancybox-frame')
         let iframeDoc = iframe.contentDocument || iframe.contentWindow.document
         let iframeP = iframeDoc.querySelector('.infoboxtd')
+        // klicka på lokalens namn för att få upp info rutan
         let iframeA = iframeP.querySelector('a').click()
+
+        // försök få ut a/href för att lägga till på url:en och gå till den sidan istället.
+        return Array.from(document.getElementsByTagName('a')).map(a => a.href)
     })
 
-    await page.waitFor(1000)
-
-    let result = await page.evaluate(() => {
-        // TODO: försök plocka ut #info0 i den nya ifram/table
-        let test = document.querySelector('.objectsfieldsextra')
-
-        return test.innerHTML
-    })
+    console.log(JSON.stringify(result))
 
     await page.waitFor(2000)
 
