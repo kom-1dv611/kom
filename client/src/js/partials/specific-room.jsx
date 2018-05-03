@@ -34,6 +34,8 @@ class room extends Component {
                 data.username = $("#username").val();
                 data.time = $("#currentTime").val();
                 data.duration = $($(active).children()[0]).val();
+                data.bookDate = $("#time").val();
+                data.bookTime = $("#date").val();
                 data.room = name;
 
                 fetch($(e.target).attr("action"), {

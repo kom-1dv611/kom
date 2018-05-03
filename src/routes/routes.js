@@ -50,6 +50,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
 
     router.route('/:id')
         .get(async function (req, res) {
+            console.log(req.body);
             let room = {};
             room.id = req.params.id;
             let currentTime = moment().format('LT');
