@@ -14,6 +14,7 @@ class room extends Component {
         super(props)
         this.props.busy(this.props.room.available);
         this.state = {updated: false}
+        let name = this.props.room.room.name;
         $( document ).ready(function() {
             $("#book").submit((e) => {
                 e.preventDefault()
@@ -27,10 +28,15 @@ class room extends Component {
                     }
                 });
 
+                console.log(name);
+
                 //username, time, duration
                 data.username = $("#username").val();
                 data.time = $("#currentTime").val();
                 data.duration = $($(active).children()[0]).val();
+                data.bookDate = $("#time").val();
+                data.bookTime = $("#date").val();
+                data.room = name;
 
                 fetch($(e.target).attr("action"), {
                     method: 'POST',
@@ -40,7 +46,7 @@ class room extends Component {
                     },
                     body: JSON.stringify(data)
                     });
-            })
+            });
         });
     }
 
@@ -82,6 +88,14 @@ class room extends Component {
                         </form>
                     </div>
                 </div>);
+        } else {
+            return (
+            <div id="cancel" class="text-center">
+                <form action={"http://www.localhost:2000/" + this.props.room.room.name} method="post">
+                    <input type="text" value={this.props.room.room.name} name="room" hidden />
+                    <button name="cancel" class="btn btn-dark" type="submit">Cancel</button>
+                </form>
+            </div>);
         }
     }
 
