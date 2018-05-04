@@ -11,6 +11,15 @@ class nav extends Component {
 	}}>{text}</button>);
   }
 
+  search() {
+    let filter = this.props.filter;
+    if(filter === "true") {
+      return(<input type="text" class="form-control" id="search" placeholder="Search"/>);
+    } else{
+      return "";
+    }
+  }
+
   location() {
     let filter = this.props.filter;
     if(filter === "true") {
@@ -42,6 +51,7 @@ class nav extends Component {
           <ol className="breadcrumb">
             <li className="breadcrumb-item active"><a href="/"><i className="fas fa-home fa-fw"></i>{this.props.location}</a></li>
           </ol>
+          {this.search()}
           {this.location()}
         </div>
       </nav>

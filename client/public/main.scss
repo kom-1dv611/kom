@@ -21,6 +21,7 @@ $background: url("/imgs/background.png");
 html, body {
     margin: 0;
     height: 100%;
+    z-index: 1 !important;
 }
 
 body {
@@ -179,8 +180,21 @@ input[type=date]::-webkit-inner-spin-button {
 
 #filter {
     position: absolute;
-    right: 140px;
-    top: 8px;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3000 !important;
+    
+}
+
+#search {
+    position: absolute;
+    right: 125px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3000 !important;
+    width: 200px;
+    height: 25px;
 }
 
 @keyframes App-logo-spin {
