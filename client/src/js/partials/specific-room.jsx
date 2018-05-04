@@ -93,7 +93,7 @@ class room extends Component {
             <div id="cancel" class="text-center">
                 <form action={"http://www.localhost:2000/" + this.props.room.room.name} method="post">
                     <input type="text" value={this.props.room.room.name} name="room" hidden />
-                    <button name="cancel" class="btn btn-dark" type="submit">Cancel</button>
+                    <input type="submit" class="btn btn-dark" value="Cancel booking" name="cancel" />
                 </form>
             </div>);
         }
