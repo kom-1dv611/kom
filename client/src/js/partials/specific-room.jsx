@@ -126,12 +126,12 @@ class room extends Component {
         }
         return (
         <div>
-            {this.stateHeader()}
-            <div class="text-center">
+            <div class="ml-2 mt-5 pt-5">
                 <i class="fas fa-users fa-2x" title="Capacity"></i><span class="h3">5</span>
                 <i class="fas fa-laptop fa-2x mr-2" title="Computer equipment"></i>
                 <i class="fab fa-product-hunt fa-2x mr-2" title="Projector"></i>
             </div>
+            {this.stateHeader()}
             {this.booking()}
             {this.clock()}
         </div>

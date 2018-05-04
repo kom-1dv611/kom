@@ -11,29 +11,31 @@ body {
   opacity: 0.9;
   margin: 0 0; }
   body img {
-    position: fixed;
-    bottom: 0;
-    left: 5px;
-    max-width: 300px;
-    max-height: 300px; }
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 200px; }
 
 nav {
   position: absolute;
+  background-color: rgba(0, 0, 0, 0.5);
   width: 100%;
   top: 0;
-  left: 0; }
-  nav img {
+  left: 0;
+  color: white; }
+  nav h4 {
     position: absolute;
-    left: auto;
-    bottom: auto;
-    top: 7px;
-    right: 20px;
-    max-width: 200px;
-    max-height: 30px; }
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%); }
+  nav ol {
+    display: inline !important; }
+  nav li {
+    float: none !important; }
 
 h1 {
   font-size: 6em;
-  color: black;
+  color: white;
   font-family: "Helvetica"; }
 
 h4 a {
@@ -55,6 +57,9 @@ h4 a {
 .card {
   color: black; }
 
+.breadcrumb {
+  background-color: transparent; }
+
 .breadcrumb-item a {
   color: white; }
 
@@ -63,9 +68,6 @@ h4 a {
 
 .dropdown-menu {
   min-width: 75px !important; }
-
-.breadcrumb {
-  background-color: rgba(0, 0, 0, 0.5) !important; }
 
 .dropdown-item:hover {
   background-color: rgba(0, 0, 0, 0.1); }
@@ -98,7 +100,7 @@ h4 a {
   left: 0;
   right: 0;
   top: 70%;
-  color: black; }
+  color: white; }
 
 #book, #cancel {
   position: absolute;
@@ -111,10 +113,13 @@ h4 a {
 #available, #unavailable {
   margin-top: 50px; }
 
-#available {
+.available, .unavailable {
+  background-image: none; }
+
+.available {
   background-color: rgba(0, 255, 0, 0.4); }
 
-#unavailable {
+.unavailable {
   background-color: rgba(255, 0, 0, 0.5); }
 
 input[type=date]::-webkit-inner-spin-button {

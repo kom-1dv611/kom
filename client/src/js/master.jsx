@@ -22,23 +22,24 @@ class master extends Component {
     }
     switch(this.state.mode) {
       case "overall":
-        return (<div className="container"><Nav filter="true" location="Overview"/><Rooms clickable={false}/></div>);
+        return (<div className="container"><Nav filter="true" location="Overview"/><Rooms clickable={false}/><img src="/imgs/url.png" alt="url"/><img src="/imgs/url.png" alt="url"/></div>);
       case "specific":
         if(this.props.available) {
-          document.getElementsByTagName("body")[0].setAttribute("id", "available")
+          document.getElementsByTagName("body")[0].setAttribute("class", "available")
         } else if(this.props.available === false){
-          document.getElementsByTagName("body")[0].setAttribute("id", "unavailable")
+          document.getElementsByTagName("body")[0].setAttribute("class", "unavailable")
         }
         if(this.props.selectedRoom != null) {
-          return(<div><Nav filter="false" location={this.props.selectedRoom.room.name}/>{this.selectedRoom()}</div>);
+          return(<div><Nav filter="false" location={this.props.selectedRoom.room.name}/>{this.selectedRoom()}<img src="/imgs/url.png" alt="url"/></div>);
         } else {
-          return (<div><Nav filter="true" location="Selection"/>{this.allRooms()}</div>);
+          return (<div><Nav filter="true" location="Selection"/>{this.allRooms()}<img src="/imgs/url.png" alt="url"/></div>);
         }
       default:
         return (
           <div>
             <Nav location="Setup" filter="false"/>
             <Setup/>
+            <img src="/imgs/url.png" alt="url"/>
           </div>
       )
     }

@@ -37,12 +37,12 @@ class nav extends Component {
   render() {
     return (
       <nav>
-        <div>
+        <h4>Linnéuniversitetet</h4>
+        <div className="text-center">
           <ol className="breadcrumb">
             <li className="breadcrumb-item active"><a href="/"><i className="fas fa-home fa-fw"></i>{this.props.location}</a></li>
           </ol>
           {this.location()}
-          <img src="/imgs/url.png" alt="url"/>
         </div>
       </nav>
     );
