@@ -6,14 +6,12 @@ import event from "../actions/busy-state";
 import $ from "jquery"
 
 import Duration from "./durationSelector";
-import Confirm from "./confirm";
 import Book from "./book";
 
 class room extends Component {
     constructor(props) {
         super(props)
         this.props.busy(this.props.room.available);
-        this.state = {updated: false}
         let name = this.props.room.room.name;
         $( document ).ready(function() {
             $("#book").submit((e) => {
@@ -76,15 +74,7 @@ class room extends Component {
                             <div className="col-md-auto">
                                 <i class="fas fa-calendar-alt fa-2x"></i>
                             </div>
-                            <Book/>
-                            <div className="col-md-auto">
-                                <div className="btn-group btn-group-toggle" data-toggle="buttons">
-                                    <Duration duration="1"/>
-                                    <Duration duration="2"/>
-                                    <Duration duration="3"/>
-                                </div>
-                            </div>
-                            <Confirm room={this.props.room.room.name}/>
+                            <Book room={this.props.room.room.name}/>
                         </form>
                     </div>
                 </div>);
@@ -97,7 +87,7 @@ class room extends Component {
                         <div className="col-md-auto">
                             <i class="fas fa-calendar-alt fa-2x"></i>
                         </div>
-                        <Book/>
+                        <Book room={this.props.room.room.name}/>
                         <div className="col-md-auto">
                             <input type="submit" class="btn btn-dark" value="Cancel booking" name="cancel" />
                         </div>
@@ -133,17 +123,18 @@ class room extends Component {
             this.getUpdatedInfo();
         }
         return (
-        <div>
-            <div class="ml-2 mt-5 pt-5">
-                <i class="fas fa-users fa-2x" title="Capacity"></i><span class="h3">5</span>
-                <i class="fas fa-laptop fa-2x mr-2" title="Computer equipment"></i>
-                <i class="fab fa-product-hunt fa-2x mr-2" title="Projector"></i>
+            <div>
+                <div class="ml-2 mt-5 pt-5">
+                    <i class="fas fa-users fa-2x" title="Capacity"></i><span class="h3">5</span>
+                    <i class="fas fa-laptop fa-2x mr-2" title="Computer equipment"></i>
+                    <i class="fab fa-product-hunt fa-2x mr-2" title="Projector"></i>
+                </div>
+                {this.stateHeader()}
+                {this.booking()}
+                {this.clock()}
             </div>
-            {this.stateHeader()}
-            {this.booking()}
-            {this.clock()}
-        </div>
-        );
+            );
+        
     }
 }
 
