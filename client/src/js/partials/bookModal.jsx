@@ -8,10 +8,8 @@ class enterDateTime extends Component {
         this.state = {};
         let name = this.props.room;
         $( document ).ready(function() {
-            $("#bookLater").submit((e) => {
+            $(".confirm").on("click", () => {
                 console.log("HELLO!!!")
-                e.preventDefault()
-
                 let data = {};
                 let buttons = $(".btn-group").children();
                 let active
@@ -27,13 +25,13 @@ class enterDateTime extends Component {
                 data.username = $("#username").val();
                 data.time = $("#currentTime").val();
                 data.duration = $($(active).children()[0]).val();
-                data.bookDate = $("#time").val();
-                data.bookTime = $("#date").val();
+                data.bookDate = $("#date").val();
+                data.bookTime = $("#time").val();
                 data.room = name;
 
                 console.log(data);
 
-                fetch($(e.target).attr("action"), {
+                fetch("http://www.localhost:2000/" + name, {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
@@ -71,18 +69,18 @@ class enterDateTime extends Component {
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div className="modal-body">
-                        {this.dateAndTime()}
-                        <div className="btn-group btn-group-toggle mt-3" data-toggle="buttons">
-                            <Duration duration="1"/>
-                            <Duration duration="2"/>
-                            <Duration duration="3"/>
+                        <div className="modal-body">
+                            {this.dateAndTime()}
+                            <div className="btn-group btn-group-toggle mt-3" data-toggle="buttons">
+                                <Duration duration="1"/>
+                                <Duration duration="2"/>
+                                <Duration duration="3"/>
+                            </div>
+                            <input id="username" type="text" name="user" className="form-control mt-3" placeholder="Username"/>
                         </div>
-                        <input id="username" type="text" name="user" className="form-control mt-3" placeholder="Username"/>
-                    </div>
-                    <div className="modal-footer">
-                        <button id="bookLater" type="button" className="btn btn-dark" data-dismiss="modal">Done</button>
-                    </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-dark confirm" data-dismiss="modal">Done</button>
+                        </div>
                 </div>
             </div>
         </div>
