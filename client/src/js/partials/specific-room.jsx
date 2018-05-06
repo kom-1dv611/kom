@@ -6,6 +6,7 @@ import event from "../actions/busy-state";
 import $ from "jquery"
 
 import Duration from "./durationSelector";
+import Schedule from "./scheduleModal";
 import Book from "./book";
 
 class room extends Component {
@@ -14,36 +15,11 @@ class room extends Component {
         this.props.busy(this.props.room.available);
         let name = this.props.room.room.name;
         $( document ).ready(function() {
-            $("#book").submit((e) => {
-                e.preventDefault()
-
-                let data = {};
-                let buttons = $(".btn-group").children();
-                let active
-                $.each(buttons, function(key, value) {
-                    if($(value).hasClass("active") === true) {
-                        active = value;
-                    }
-                });
-
-                console.log(name);
-
-                //username, time, duration
-                data.username = $("#username").val();
-                data.time = $("#currentTime").val();
-                data.duration = $($(active).children()[0]).val();
-                data.bookDate = $("#time").val();
-                data.bookTime = $("#date").val();
-                data.room = name;
-
-                fetch($(e.target).attr("action"), {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                    });
+            $("#schedule").on("click", async() => {
+                console.log("PLZ MR");
+                let rows = await fetch(`http://localhost:2000/${name}/schedule/today`);
+                rows = await rows.json();
+                console.log(rows);
             });
         });
     }
@@ -71,8 +47,9 @@ class room extends Component {
                     <div className="row justify-content-center">
                         <form id="bookingForm" className="form-inline" action={"http://www.localhost:2000/" + this.props.room.room.name} method="post">
                             <input type="time" id="currentTime" name="time" hidden/>
-                            <div className="col-md-auto">
+                            <div id="schedule" className="col-md-auto">
                                 <i class="fas fa-calendar-alt fa-2x"></i>
+                                <Schedule/>
                             </div>
                             <Book room={this.props.room.room.name}/>
                         </form>
