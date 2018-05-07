@@ -5,7 +5,7 @@ let bookingSchema = mongoose.Schema({
     roomID: {type: String, required: true},
     startTime: {type: String, required: true},
     duration: {type: String, required: true},
-    bookedAt: {type: String, required: false}
+    bookingDate: {type: String, required: false}
 });
 
 let Booking = mongoose.model('Booking', bookingSchema);

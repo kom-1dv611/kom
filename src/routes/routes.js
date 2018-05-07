@@ -2,39 +2,32 @@
 
 let roomHandler = require('./handlers/roomHandler');
 let bookingHandler = require('./handlers/bookingHandler');
-let scheduleHandler = require('./handlers/scheduleHandler');
 
 const Scraper = require('../libs/scraper');
 const getEndTimeForBooking = require('./utils/endTimebooking');
 const buildTable = require('./utils/buildTable');
 
 const timeEditApi = require('timeeditApi');
-const timeEdit = timeEditApi(
-    'https://se.timeedit.net/web/lnu/db1/schema1/', 4
-);
+const timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
 
 let router = require("express").Router();
 let moment = require('moment');
 moment.locale('sv');
 
 module.exports = function (RoomModel, BookingModel, ScheduleModel) {
-    let Room = new roomHandler(RoomModel);
+    let Room = new roomHandler(RoomModel, BookingModel);
     let Booking = new bookingHandler(BookingModel);
-    let Schedule = new scheduleHandler(ScheduleModel);
 
     router.route('/')
         .get(async function (req, res) {
             let rooms = await Room.getRoomsFromDB();
             let bookings = await Booking.getBookingsFromDB();
-            let schedulesFromDB = await Schedule.getSchedulesFromDB();
             let timeEditSchedules = await Room.getScheduleFromTimeEdit(rooms).then((allSchedules) => allSchedules.sort((a, b) => a.room.localeCompare(b.room)));
             let currentTime = moment().format('LT');
 
             let promises = rooms.map((room, index) => {
                 return new Promise((resolve, reject) => {
                     let validatedRoom = Room.validateGroupRoom(bookings, timeEditSchedules[index], room, currentTime);
-                    //TODO: implementera metoden
-                    //Schedule.setCorrectSchedule(validatedRoom, schedulesFromDB);
                     resolve(validatedRoom);
                 })
             })
@@ -50,7 +43,6 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
 
     router.route('/:id')
         .get(async function (req, res) {
-            console.log(req.body);
             let room = {};
             room.id = req.params.id;
             let currentTime = moment().format('LT');
@@ -99,6 +91,10 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                     roomID: req.body.room,
                     startTime: req.body.time,
                     duration: req.body.duration
+                }
+
+                if (req.body.bookingDate) {
+                    data.bookingDate = req.body.bookingDate;
                 }
 
                 //console.log(data);

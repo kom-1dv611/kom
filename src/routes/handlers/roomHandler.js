@@ -8,8 +8,9 @@ const timeEdit = timeEditApi(
 );
 
 module.exports = class Room {
-    constructor(RoomModel) {
+    constructor(RoomModel, BookingModel) {
         this.RoomModel = RoomModel;
+        this.BookingModel = BookingModel;
     }
 
     //Determines if a room is CURRENTLY truly available or not (based on db bookings and timeedit bookings)
@@ -40,16 +41,22 @@ module.exports = class Room {
                     roomToBeValidated.available = false; 
 
                     //För att skriva över en timeedit bokning
-                    if (roomToBeValidated.bookings[0]) {
-                        roomToBeValidated.bookings = [];
-                    }
+                    // if (roomToBeValidated.bookings[0]) {
+                    //     roomToBeValidated.bookings = [];
+                    // }
 
-                    roomToBeValidated.bookings.push({
+                    let dbBooking = {
                         startTime: bookings[j].startTime, 
                         endTime: getEndTimeForBooking(bookings[j])
-                    })
+                    }
+
+                    roomToBeValidated.bookings[bookings.length + 1] = dbBooking;
                 }
             }
+        }
+
+        if (roomToBeValidated.room.name === 'Ny206K') {
+            console.log(roomToBeValidated)
         }
 
         return roomToBeValidated;
@@ -64,19 +71,32 @@ module.exports = class Room {
         return false;
     }
 
+    //Gets a specific booking from DB
+    getSpecificBooking(id) {
+        return this.BookingModel.find({ roomID: id }).exec()
+        .then((booking) => {
+            return booking;
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
+
     //checks if a room has a booking in the DB.
     isRoomBookedInDB(booking, room, currentTime) {
         if (booking.roomID === room.name) {
             let endTime = getEndTimeForBooking(booking);
             let startTime = booking.startTime;
-            
-            if (startTime > currentTime || endTime < currentTime) {
+
+            //console.log(booking);
+            //startTime > currentTime || 
+
+            if (endTime < currentTime) {
                 //Gammal, expirad bokning
                 console.log(booking.roomID + ' är en gammal bokning.')
 
-                booking.remove((err, result) => {
-                    console.log('Deleted expired booking from DB.')
-                })
+                // booking.remove((err, result) => {
+                //     console.log('Deleted expired booking from DB.')
+                // })
                 
                 return false;
             } else {
