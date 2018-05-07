@@ -34,29 +34,20 @@ module.exports = class Room {
             roomToBeValidated.available = true; 
         }
 
-        //Kollar om det finns några bokningar i databasen. (Prioritet: Databasbokningar > TimeEdit schema)
+        //Kollar om det finns några bokningar i databasen. 
         if (bookings.length) {
             for (let j = 0; j < bookings.length; j++) {
                 if (this.isRoomBookedInDB(bookings[j], room, currentTime)) { 
                     roomToBeValidated.available = false; 
 
-                    //För att skriva över en timeedit bokning
-                    // if (roomToBeValidated.bookings[0]) {
-                    //     roomToBeValidated.bookings = [];
-                    // }
-
-                    let dbBooking = {
+                    roomToBeValidated.bookings.push({
                         startTime: bookings[j].startTime, 
                         endTime: getEndTimeForBooking(bookings[j])
-                    }
+                    })
 
-                    roomToBeValidated.bookings[bookings.length + 1] = dbBooking;
+                    roomToBeValidated.bookings.sort((a, b) => a.startTime.localeCompare(b.startTime));
                 }
             }
-        }
-
-        if (roomToBeValidated.room.name === 'Ny206K') {
-            console.log(roomToBeValidated)
         }
 
         return roomToBeValidated;
@@ -81,18 +72,22 @@ module.exports = class Room {
         })
     }
 
+    //Validate if a booking has expired or not
+    hasBookingExpired() {
+        //implement method
+    }
+
     //checks if a room has a booking in the DB.
     isRoomBookedInDB(booking, room, currentTime) {
         if (booking.roomID === room.name) {
             let endTime = getEndTimeForBooking(booking);
             let startTime = booking.startTime;
 
-            //console.log(booking);
-            //startTime > currentTime || 
+            //Kolla om en bokning är förbrukad eller ej
 
             if (endTime < currentTime) {
                 //Gammal, expirad bokning
-                console.log(booking.roomID + ' är en gammal bokning.')
+                //console.log(booking.roomID + ' är en gammal bokning.')
 
                 // booking.remove((err, result) => {
                 //     console.log('Deleted expired booking from DB.')
@@ -112,6 +107,16 @@ module.exports = class Room {
         return this.RoomModel.find({}).exec()
         .then((rooms) => {
             return rooms.sort((a, b) => a.name.localeCompare(b.name));
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
+
+    //Returns array of bookings from DB
+    getBookingsFromDB() {
+        return this.BookingModel.find({}).exec()
+        .then((bookings) => {
+            return bookings;
         }).catch((err) => {
             console.log(err)
         })

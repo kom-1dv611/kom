@@ -1,7 +1,6 @@
 'use strict';
 
 let roomHandler = require('./handlers/roomHandler');
-let bookingHandler = require('./handlers/bookingHandler');
 
 const Scraper = require('../libs/scraper');
 const getEndTimeForBooking = require('./utils/endTimebooking');
@@ -14,14 +13,13 @@ let router = require("express").Router();
 let moment = require('moment');
 moment.locale('sv');
 
-module.exports = function (RoomModel, BookingModel, ScheduleModel) {
+module.exports = function (RoomModel, BookingModel) {
     let Room = new roomHandler(RoomModel, BookingModel);
-    let Booking = new bookingHandler(BookingModel);
 
     router.route('/')
         .get(async function (req, res) {
             let rooms = await Room.getRoomsFromDB();
-            let bookings = await Booking.getBookingsFromDB();
+            let bookings = await Room.getBookingsFromDB();
             let timeEditSchedules = await Room.getScheduleFromTimeEdit(rooms).then((allSchedules) => allSchedules.sort((a, b) => a.room.localeCompare(b.room)));
             let currentTime = moment().format('LT');
 
@@ -47,7 +45,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
             room.id = req.params.id;
             let currentTime = moment().format('LT');
 
-            let booking = await Booking.getSpecificBooking(req.params.id);
+            let booking = await Room.getSpecificBooking(req.params.id);
             if (booking.length > 0) {
                 let endTime = getEndTimeForBooking(booking[0]);
                 let startTime = booking[0].startTime;

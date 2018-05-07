@@ -13,7 +13,6 @@ let io = require('socket.io')(http);
 const mongoose = require('mongoose')
 let BookingModel = require('./src/models/Booking').model('Booking')
 let RoomModel = require('./src/models/Room').model('Room');
-let ScheduleModel = require('./src/models/Schedule').model('Schedule');
 
 let ngrok = require('ngrok');
 
@@ -43,7 +42,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-let routes = require('./src/routes/routes')(RoomModel, BookingModel, ScheduleModel);  
+let routes = require('./src/routes/routes')(RoomModel, BookingModel);  
 app.use('/', routes);
 
 http.listen(port, function() {
