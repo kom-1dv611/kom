@@ -7,7 +7,7 @@
     "stop": "node",
     "client": "cd client && npm run start",
     "server": "nodemon app.js",
-    "kom": "concurrently --kill-others  \"npm run server\" \"npm run client\""
+    "kom": "concurrently --kill-others  \"npm run server\" \"npm run client\" \"node-sass --include-path scss client/public/main.scss client/public/main.css -w\""
   },
   "author": "Lukas N, Sofia B, Alva F, Jonas E",
   "license": "ISC",

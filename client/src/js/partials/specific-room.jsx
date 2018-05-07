@@ -58,7 +58,7 @@ class room extends Component {
                     <div className="row justify-content-center pb-0">
                         <input type="time" id="currentTime" name="time" hidden/>
                         <div id="schedule" className="col-md-auto">
-                            <i className="fas fa-calendar-alt fa-2x"></i>
+                            <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
                             <Schedule/>
                         </div>
                         <Book room={this.props.room.room.name} available={this.props.room.available} />
@@ -69,7 +69,7 @@ class room extends Component {
             <div id="cancel" className="animated fadeIn">
                 <div className="row justify-content-center pb-0">
                     <div id="schedule" className="col-md-auto">
-                        <i className="fas fa-calendar-alt fa-2x"></i>
+                        <i type="button"className="fas fa-calendar-alt fa-2x"></i>
                         <Schedule/>
                     </div>
                     <div class="col-md-auto">
