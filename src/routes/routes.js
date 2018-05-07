@@ -56,7 +56,6 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
             let currentTime = moment().format('LT');
 
             let booking = await Booking.getSpecificBooking(req.params.id);
-
             if (booking.length > 0) {
                 let endTime = getEndTimeForBooking(booking[0]);
                 let startTime = booking[0].startTime;
@@ -69,6 +68,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                 }
             } else {
                 let roomSchedule = await Room.getSpecificScheduleTimeEdit(room);
+
                 if (roomSchedule === null || currentTime < roomSchedule[0].time.startTime) { 
                     room.available = true 
                 }  else if (currentTime > roomSchedule[0].time.startTime) { 
@@ -79,8 +79,9 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
 
             res.json({ room: room });
         })
-        .post(function (req, res) {
-            console.log(req.body);
+        .post(async function (req, res) {
+            //2. Fixa när de går att boka i framtiden
+            //3. else om det inte finns bokningar i databas eller timeEdit
             if(req.body.cancel) {
                 BookingModel.findOneAndRemove({roomID: req.body.room}, function(err, room) {
                     if(err) {
@@ -98,7 +99,45 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                     startTime: req.body.time,
                     duration: req.body.duration
                 }
-    
+
+                console.log(data);
+                //kolla databasen efter bokningar som vi bokat i framtiden
+                BookingModel.findById({roomID: req.body.room}, function(err, booking) {
+                    if(booking) {
+                        //FIXA DETTA EFTER LUKAS HAR FIXAT SÅ MAN KAN BOKA I FRAMTIDEN
+                        //om det finns bokning -> kolla så starttiden är efter bokade tiden.
+                        //om den inte är det -> skriv ut felmeddelande
+                    }
+                })
+                let times = [];
+                //kolla timeEdit efter bokningar
+                timeEdit.getTodaysSchedule(req.body.room)
+                .then((roomSchedule) => {
+                    for(let i = 0; i < roomSchedule.length; i++) {
+                        let booking = {
+                            'booking': i,
+                            'startTime': roomSchedule[i].time.startTime,
+                            'endTime': roomSchedule[i].time.endTime
+                        }
+                        times.push(booking);
+                    }
+                    for(let i = 0; i < times.length; i++) {
+                        if(getEndTimeForBooking(data) > times[i].startTime || data.startTime < times[i].endTime) {
+                            console.log('felmeddelande')
+                        } else {
+                            let bookRoom = new BookingModel(data)
+                            bookRoom.save((err) => {
+                                console.log('Booking saved in DB.')
+                                res.redirect('/' + req.body.roomID)
+                            })
+                            return;
+                        }
+                    }
+                }).catch((er) => {
+                    console.log(er);
+                });
+
+                //ska vara i en else sen
                 let bookRoom = new BookingModel(data)
                 bookRoom.save((err) => {
                     console.log('Booking saved in DB.')
