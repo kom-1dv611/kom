@@ -17,7 +17,7 @@ class room extends Component {
     render() {
         let room = this.props.room.room;
         let state = (
-        <div className={"card text-center animated fadeIn " + (this.props.room.available == true ? "available" : "unavailable")} onClick={ () => this.props.roomSelect(this.props.room)}>
+        <div className={"card text-center animated fadeIn " + (this.props.room.available === true ? "available" : "unavailable")} onClick={ () => this.props.roomSelect(this.props.room)}>
             <div className="card-body pt-1 pb-1">
                 <h5 className="card-title">{room.name}</h5>
                 <p className="location" hidden>{room.location}</p> 

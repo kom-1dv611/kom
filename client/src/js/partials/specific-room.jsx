@@ -16,8 +16,7 @@ class room extends Component {
         let name = this.props.room.room.name;
         $( document ).ready(function() {
             $("#schedule").on("click", async() => {
-                console.log("PLZ MR");
-                let rows = await fetch(`http://localhost:2000/${name}/schedule/today`);
+                let rows = await fetch(`/${name}/schedule/today`);
                 rows = await rows.json();
                 console.log(rows);
             });
@@ -82,7 +81,7 @@ class room extends Component {
             let timer = setTimeout(async () => {
                 clearTimeout(timer);
                 let room = this.props.submit;
-                let info = await fetch("http://localhost:2000/" + room);
+                let info = await fetch("/" + room);
                 info = await info.json();
                 
                 // add timer, timer is in info

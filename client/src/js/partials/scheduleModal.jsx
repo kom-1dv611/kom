@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import $ from "jquery";
 
 class Schedule extends Component {
     render() {

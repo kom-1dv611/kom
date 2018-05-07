@@ -44,7 +44,7 @@ class enterDateTime extends Component {
     }
 
     dateAndTime() {
-        if(this.props.bookLater == true) {
+        if(this.props.bookLater === true) {
             return(
                 <div>
                     <label><i className="fas fa-calendar"></i>Date: </label>
