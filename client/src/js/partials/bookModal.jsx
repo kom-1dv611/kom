@@ -1,4 +1,9 @@
 import React, { Component } from 'react';
+import {connect} from "react-redux"; //read
+import {bindActionCreators} from "redux"; //write
+
+import event from "../actions/submit";
+
 import Duration from "./durationSelector";
 import $ from "jquery";
 
@@ -7,40 +12,47 @@ class enterDateTime extends Component {
         super(props);
         this.state = {};
         let name = this.props.room;
-        $( document ).ready(function() {
-            $(".confirm").on("click", () => {
-                console.log("HELLO!!!")
-                let data = {};
-                let buttons = $(".btn-group").children();
-                let active
-                $.each(buttons, function(key, value) {
-                    if($(value).hasClass("active") === true) {
-                        active = value;
-                    }
-                });
-
-                console.log(name);
-
-                //username, time, duration
-                data.username = $("#username").val();
-                data.time = $("#currentTime").val();
-                data.duration = $($(active).children()[0]).val();
-                data.bookDate = $("#date").val();
-                data.bookTime = $("#time").val();
-                data.room = name;
-
-                console.log(data);
-
-                fetch("http://www.localhost:2000/" + name, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                    });
+        $( document ).ready(() => {
+            $(".confirm").click((e) => {
+                console.log($(e.target).text());
+                console.log(this.props);
+                switch($(e.target).text()) {
+                    case "Book Now":
+                        this.bookNow(name, props);
+                        break;
+                    case "Book Later":
+                        //bookNow(name, onPost);
+                        break;
+                    default:
+                        break;
+                }
             });
         });
+    }
+                
+    bookNow(name, props) {
+        let data = {};
+        let buttons = $(".btn-group").children();
+        let active
+        $.each(buttons, function(key, value) {
+            if($(value).hasClass("active") === true) {
+                active = value;
+            }
+        });
+        data.username = $("#nowUsername").val();
+        data.duration = $($(active).children()[0]).val();
+        data.room = name;
+        console.log(data);
+
+        fetch("/" + name, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        props.submit(name);
     }
 
     dateAndTime() {
@@ -76,10 +88,10 @@ class enterDateTime extends Component {
                                 <Duration duration="2"/>
                                 <Duration duration="3"/>
                             </div>
-                            <input id="username" type="text" name="user" className="form-control mt-3" placeholder="Username"/>
+                            <input id={this.props.bookLater === true ? "laterUsername" : "nowUsername"} type="text" name="user" className="form-control mt-3" placeholder="Username"/>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-dark confirm" data-dismiss="modal">Done</button>
+                            <button type="button" className="btn btn-dark confirm" data-dismiss="modal">{this.props.bookLater === true ? "Book Later" : "Book Now"}</button>
                         </div>
                 </div>
             </div>
@@ -89,5 +101,16 @@ class enterDateTime extends Component {
     }
 }
 
-export default enterDateTime;
+function read(db) {
+    return{};
+}
+
+function write(dispatch) {
+    return bindActionCreators({
+        submit: event
+    }, dispatch);
+}
+  
+export default connect(read, write)(enterDateTime);
+  
 
