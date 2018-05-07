@@ -1,6 +1,6 @@
 'use strict';
 
-let roomHandler = require('./handlers/roomHandler');
+let RoomHandler = require('./handlers/RoomHandler');
 
 const Scraper = require('../libs/scraper');
 const getEndTimeForBooking = require('./utils/endTimebooking');
@@ -14,7 +14,7 @@ let moment = require('moment');
 moment.locale('sv');
 
 module.exports = function (RoomModel, BookingModel) {
-    let Room = new roomHandler(RoomModel, BookingModel);
+    let Room = new RoomHandler(RoomModel, BookingModel);
 
     router.route('/')
         .get(async function (req, res) {
@@ -108,6 +108,7 @@ module.exports = function (RoomModel, BookingModel) {
                 //kolla timeEdit efter bokningar
                 timeEdit.getTodaysSchedule(req.body.room)
                 .then((roomSchedule) => {
+                    //todo: kolla om roomschedule är null eller ej
                     for(let i = 0; i < roomSchedule.length; i++) {
                         let booking = {
                             'booking': i,
@@ -123,9 +124,8 @@ module.exports = function (RoomModel, BookingModel) {
                             let bookRoom = new BookingModel(data)
                             bookRoom.save((err) => {
                                 console.log('Booking saved in DB.')
-                                res.sendStatus(200);
+                                return res.sendStatus(200);
                             })
-                            return;
                         }
                     }
                 }).catch((er) => {
