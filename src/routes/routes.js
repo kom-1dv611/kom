@@ -80,6 +80,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
             res.json({ room: room });
         })
         .post(async function (req, res) {
+            console.log(req.body);
             //2. Fixa när de går att boka i framtiden
             //3. else om det inte finns bokningar i databas eller timeEdit
             if(req.body.cancel) {
@@ -89,7 +90,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                     } else {
                         console.log('borttaget ur databasen')
                         //DEN REDIRECTAR TILL 2000 ISTÄLLEF FÖR 3000. Fixa react!!
-                        res.redirect('/' + req.body.room);
+                        res.sendStatus(200);
                     }
                 })
             } else {
@@ -100,7 +101,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                     duration: req.body.duration
                 }
 
-                console.log(data);
+                //console.log(data);
                 //kolla databasen efter bokningar som vi bokat i framtiden
                 BookingModel.findById({roomID: req.body.room}, function(err, booking) {
                     if(booking) {
@@ -128,7 +129,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                             let bookRoom = new BookingModel(data)
                             bookRoom.save((err) => {
                                 console.log('Booking saved in DB.')
-                                res.redirect('/' + req.body.roomID)
+                                res.sendStatus(200);
                             })
                             return;
                         }
@@ -141,7 +142,7 @@ module.exports = function (RoomModel, BookingModel, ScheduleModel) {
                 let bookRoom = new BookingModel(data)
                 bookRoom.save((err) => {
                     console.log('Booking saved in DB.')
-                    res.redirect('/' + req.body.roomID)
+                    res.sendStatus(200);
                 })
             }   
         });

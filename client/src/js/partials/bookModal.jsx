@@ -67,8 +67,8 @@ class enterDateTime extends Component {
         });
         data.username = $("#laterUsername").val();
         data.duration = $($(active).children()[0]).val();
-        data.bookDate = $("#date").val();
-        data.bookTime = $("#time").val();
+        data.bookingDate = $("#date").val();
+        data.time = $("#time").val();
         data.room = name;
         console.log(data);
 
@@ -89,7 +89,7 @@ class enterDateTime extends Component {
                     <label><i className="fas fa-calendar"></i>Date: </label>
                     <input id="date" type="date" name="bookDate" className="form-control"/>
                     <label><i className="fas fa-clock"></i>Time: </label>
-                    <input id="time"type="time" name="bookTime" className="form-control"/>
+                    <input id="time"type="time" name="time" className="form-control"/>
                 </div>
             );
         } else {
