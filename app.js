@@ -31,26 +31,21 @@ app.use(function(req, res, next) {
     next();
 });
 
-let scrape = require('./libs/infoScraper.js')
+let scrape = require('./src/libs/infoScraper')
 app.get('/scrape', function (req, res) {
     scrape().then((value) => {
         res.send(value)
     })
 })
 
-
-//Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-//the req.body
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//Routes
 let routes = require('./src/routes/routes')(RoomModel, BookingModel, ScheduleModel);  
 app.use('/', routes);
 
-//Web server
 http.listen(port, function() {
     console.log("Express started on http://localhost:" + port);
     console.log("Press Ctrl-C to terminate...");

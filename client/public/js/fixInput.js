@@ -60,6 +60,8 @@ function run() {
             durationSelected = true;
             if(bookLater === false) {
                 $("#modalToggleUsername").attr("data-toggle", "modal");
+            } else if(bookingValid === true) {
+                $("#modalToggleUsername").attr("data-toggle", "modal");
             }
         }
     });

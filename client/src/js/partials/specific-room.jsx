@@ -6,46 +6,19 @@ import event from "../actions/busy-state";
 import $ from "jquery"
 
 import Duration from "./durationSelector";
-import Confirm from "./confirm";
+import Schedule from "./scheduleModal";
 import Book from "./book";
 
 class room extends Component {
     constructor(props) {
         super(props)
         this.props.busy(this.props.room.available);
-        this.state = {updated: false}
         let name = this.props.room.room.name;
         $( document ).ready(function() {
-            $("#book").submit((e) => {
-                e.preventDefault()
-
-                let data = {};
-                let buttons = $(".btn-group").children();
-                let active
-                $.each(buttons, function(key, value) {
-                    if($(value).hasClass("active") === true) {
-                        active = value;
-                    }
-                });
-
-                console.log(name);
-
-                //username, time, duration
-                data.username = $("#username").val();
-                data.time = $("#currentTime").val();
-                data.duration = $($(active).children()[0]).val();
-                data.bookDate = $("#time").val();
-                data.bookTime = $("#date").val();
-                data.room = name;
-
-                fetch($(e.target).attr("action"), {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                    });
+            $("#schedule").on("click", async() => {
+                let rows = await fetch(`/${name}/schedule/today`);
+                rows = await rows.json();
+                console.log(rows);
             });
         });
     }
@@ -73,18 +46,11 @@ class room extends Component {
                     <div className="row justify-content-center">
                         <form id="bookingForm" className="form-inline" action={"http://www.localhost:2000/" + this.props.room.room.name} method="post">
                             <input type="time" id="currentTime" name="time" hidden/>
-                            <div className="col-md-auto">
+                            <div id="schedule" className="col-md-auto">
                                 <i class="fas fa-calendar-alt fa-2x"></i>
+                                <Schedule/>
                             </div>
-                            <Book/>
-                            <div className="col-md-auto">
-                                <div className="btn-group btn-group-toggle" data-toggle="buttons">
-                                    <Duration duration="1"/>
-                                    <Duration duration="2"/>
-                                    <Duration duration="3"/>
-                                </div>
-                            </div>
-                            <Confirm room={this.props.room.room.name}/>
+                            <Book room={this.props.room.room.name}/>
                         </form>
                     </div>
                 </div>);
@@ -93,7 +59,15 @@ class room extends Component {
             <div id="cancel" class="text-center">
                 <form action={"http://www.localhost:2000/" + this.props.room.room.name} method="post">
                     <input type="text" value={this.props.room.room.name} name="room" hidden />
-                    <input type="submit" class="btn btn-dark" value="Cancel booking" name="cancel" />
+                    <div className="row justify-content-center">
+                        <div className="col-md-auto">
+                            <i class="fas fa-calendar-alt fa-2x"></i>
+                        </div>
+                        <Book room={this.props.room.room.name}/>
+                        <div className="col-md-auto">
+                            <input type="submit" class="btn btn-dark" value="Cancel booking" name="cancel" />
+                        </div>
+                    </div>
                 </form>
             </div>);
         }
@@ -107,7 +81,7 @@ class room extends Component {
             let timer = setTimeout(async () => {
                 clearTimeout(timer);
                 let room = this.props.submit;
-                let info = await fetch("http://localhost:2000/" + room);
+                let info = await fetch("/" + room);
                 info = await info.json();
                 
                 // add timer, timer is in info
@@ -125,17 +99,18 @@ class room extends Component {
             this.getUpdatedInfo();
         }
         return (
-        <div>
-            {this.stateHeader()}
-            <div class="text-center">
-                <i class="fas fa-users fa-2x" title="Capacity"></i><span class="h3">5</span>
-                <i class="fas fa-laptop fa-2x mr-2" title="Computer equipment"></i>
-                <i class="fab fa-product-hunt fa-2x mr-2" title="Projector"></i>
+            <div>
+                <div class="ml-2 mt-5 pt-5">
+                    <i class="fas fa-users fa-2x" title="Capacity"></i><span class="h3">5</span>
+                    <i class="fas fa-laptop fa-2x mr-2" title="Computer equipment"></i>
+                    <i class="fab fa-product-hunt fa-2x mr-2" title="Projector"></i>
+                </div>
+                {this.stateHeader()}
+                {this.booking()}
+                {this.clock()}
             </div>
-            {this.booking()}
-            {this.clock()}
-        </div>
-        );
+            );
+        
     }
 }
 
