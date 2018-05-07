@@ -21,7 +21,7 @@ class enterDateTime extends Component {
                         this.bookNow(name, props);
                         break;
                     case "Book Later":
-                        //bookNow(name, onPost);
+                        this.bookLater(name);
                         break;
                     default:
                         break;
@@ -41,6 +41,7 @@ class enterDateTime extends Component {
         });
         data.username = $("#nowUsername").val();
         data.duration = $($(active).children()[0]).val();
+        data.time = $("#currentTime").val();
         data.room = name;
         console.log(data);
 
@@ -53,6 +54,32 @@ class enterDateTime extends Component {
             body: JSON.stringify(data)
         });
         props.submit(name);
+    }
+
+    bookLater(name) {
+        let data = {};
+        let buttons = $(".btn-group").children();
+        let active
+        $.each(buttons, function(key, value) {
+            if($(value).hasClass("active") === true) {
+                active = value;
+            }
+        });
+        data.username = $("#laterUsername").val();
+        data.duration = $($(active).children()[0]).val();
+        data.bookDate = $("#date").val();
+        data.bookTime = $("#time").val();
+        data.room = name;
+        console.log(data);
+
+        fetch("/" + name, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
     }
 
     dateAndTime() {

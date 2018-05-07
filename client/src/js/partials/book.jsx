@@ -29,12 +29,14 @@ class book extends Component {
     if(this.props.available === true) {
       return(
       <div className="row">
+        <input id="currentTime" type="text" hidden/>
         {this.bookLater()}
         {this.bookNow()}
       </div>);
     } else {
       return(
       <div className="row">
+      <input id="currentTime" type="text" hidden/>
       {this.bookLater()}
       {this.cancel()}
       </div>);
