@@ -20,7 +20,7 @@ module.exports = class Room {
      * {room} - Object representing the room to be validated
      * {currentTime} - momentJS current localtime
      */
-    validateGroupRoom(bookings, scheduleTimeEdit, room, currentTime) {
+    async validateGroupRoom(bookings, scheduleTimeEdit, room, currentTime) {
         let roomToBeValidated = { room, bookings: [] }
 
         if (this.isRoomBookedInTimeEdit(scheduleTimeEdit, currentTime, roomToBeValidated))  { 
@@ -38,7 +38,18 @@ module.exports = class Room {
         if (bookings.length) {
             for (let j = 0; j < bookings.length; j++) {
                 if (this.isRoomBookedInDB(bookings[j], room, currentTime)) { 
-                    roomToBeValidated.available = false; 
+                    // if (this.hasBookingExpired(bookings[j], currentTime)) {
+                    //     //return delete booking()
+                    //     return await this.removeBookingFromDB(bookings[j].roomID);
+                    // }
+
+                    //Kolla vilken tid som rummet är bokat
+
+                    if (bookings[j].startTime > currentTime) {
+                        roomToBeValidated.available = true;
+                    } else {
+                        roomToBeValidated.available = false;
+                    }
 
                     roomToBeValidated.bookings.push({
                         startTime: bookings[j].startTime, 
@@ -56,8 +67,10 @@ module.exports = class Room {
     //Checks if a room is booked in timeedit. Takes the TimeEdit schedule, current time and the room that is getting validated.
     isRoomBookedInTimeEdit(scheduleTimeEdit, currentTime, roomToBeValidated) {
         if (!roomToBeValidated.hasOwnProperty('available')) {
-            if (scheduleTimeEdit.isNull || currentTime < scheduleTimeEdit.startTime || currentTime > scheduleTimeEdit.endTime) { return false; }
-            return true;
+            // if (scheduleTimeEdit.isNull || currentTime < scheduleTimeEdit.startTime || currentTime > scheduleTimeEdit.endTime) { return false; }
+            // return true;
+
+            return scheduleTimeEdit.isNull || currentTime < scheduleTimeEdit.startTime || currentTime > scheduleTimeEdit.endTime ? false : true;
         } 
         return false;
     }
@@ -72,9 +85,27 @@ module.exports = class Room {
         })
     }
 
+    removeBookingFromDB(id) {
+        return this.BookingModel.find({ roomID: id }).remove().exec()
+        .then((result) => {
+            return result;
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
+
     //Validate if a booking has expired or not
-    hasBookingExpired() {
-        //implement method
+    hasBookingExpired(booking, currentTime) {
+        let endTime = getEndTimeForBooking(booking);
+        // if (endTime < currentTime) {
+        //     //Gammal, expirad bokning
+        //     return false;
+        // } else {
+        //     console.log(room.name + ' är bokat (' + booking.startTime + '-' + endTime + ') i MongoDB.')
+        //     return true;
+        // }
+
+        return endTime < currentTime ? false : true;
     }
 
     //checks if a room has a booking in the DB.
@@ -82,22 +113,7 @@ module.exports = class Room {
         if (booking.roomID === room.name) {
             let endTime = getEndTimeForBooking(booking);
             let startTime = booking.startTime;
-
-            //Kolla om en bokning är förbrukad eller ej
-
-            if (endTime < currentTime) {
-                //Gammal, expirad bokning
-                //console.log(booking.roomID + ' är en gammal bokning.')
-
-                // booking.remove((err, result) => {
-                //     console.log('Deleted expired booking from DB.')
-                // })
-                
-                return false;
-            } else {
-                console.log(room.name + ' är bokat (' + booking.startTime + '-' + endTime + ') i MongoDB.')
-                return true;
-            }
+            return true;
         } 
         return false;
     }
