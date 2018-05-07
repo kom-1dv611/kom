@@ -1,11 +1,8 @@
 'use strict';
 
 const getEndTimeForBooking = require('../utils/endTimebooking');
-
 const timeEditApi = require('timeeditApi');
-const timeEdit = timeEditApi(
-    'https://se.timeedit.net/web/lnu/db1/schema1/', 4
-);
+const timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
 
 module.exports = class RoomHandler {
     constructor(RoomModel, BookingModel) {
@@ -33,8 +30,7 @@ module.exports = class RoomHandler {
             roomToBeValidated.available = true; 
         }
 
-        //Kollar om det finns några bokningar i databasen. 
-        //Ta bort gamla bokningar
+        //Kollar om det finns några bokningar i databasen och tar bort gamla bokningar
         if (bookings.length) {
             bookings.map(async (booking) =>  {
                 if (this.isRoomBookedInDB(booking, room, currentTime)) { 

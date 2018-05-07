@@ -78,9 +78,8 @@ module.exports = function (RoomModel, BookingModel) {
                     if(err) {
                         console.log(err)
                     } else {
-                        console.log('borttaget ur databasen')
-                        //DEN REDIRECTAR TILL 2000 ISTÄLLEF FÖR 3000. Fixa react!!
-                        res.sendStatus(200);
+                        console.log('Booking successfully deleted from DB.');
+                        return res.status(200).json({message: 'Booking successfully deleted from DB.'});
                     }
                 })
             } else {
@@ -95,7 +94,6 @@ module.exports = function (RoomModel, BookingModel) {
                     data.bookingDate = req.body.bookingDate;
                 }
 
-                //console.log(data);
                 //kolla databasen efter bokningar som vi bokat i framtiden
                 BookingModel.findById({roomID: req.body.room}, function(err, booking) {
                     if(booking) {
@@ -108,26 +106,29 @@ module.exports = function (RoomModel, BookingModel) {
                 //kolla timeEdit efter bokningar
                 timeEdit.getTodaysSchedule(req.body.room)
                 .then((roomSchedule) => {
-                    //todo: kolla om roomschedule är null eller ej
-                    for(let i = 0; i < roomSchedule.length; i++) {
-                        let booking = {
-                            'booking': i,
-                            'startTime': roomSchedule[i].time.startTime,
-                            'endTime': roomSchedule[i].time.endTime
+                    if (roomSchedule) {
+                        for(let i = 0; i < roomSchedule.length; i++) {
+                            let booking = {
+                                'booking': i,
+                                'startTime': roomSchedule[i].time.startTime,
+                                'endTime': roomSchedule[i].time.endTime
+                            }
+                            times.push(booking);
                         }
-                        times.push(booking);
-                    }
-                    for(let i = 0; i < times.length; i++) {
-                        if(getEndTimeForBooking(data) > times[i].startTime || data.startTime < times[i].endTime) {
-                            console.log('felmeddelande')
-                        } else {
-                            let bookRoom = new BookingModel(data)
-                            bookRoom.save((err) => {
-                                console.log('Booking saved in DB.')
-                                return res.sendStatus(200);
-                            })
+                        for(let i = 0; i < times.length; i++) {
+                            if(getEndTimeForBooking(data) > times[i].startTime || data.startTime < times[i].endTime) {
+                                console.log('felmeddelande')
+                            } else {
+                                let bookRoom = new BookingModel(data)
+                                bookRoom.save((err) => {
+                                    if (!err) {
+                                        console.log('Booking saved in DB.')
+                                        return res.status(200).json({message: 'Booking successfully saved in DB.'});
+                                    }
+                                })
+                            }
                         }
-                    }
+                    }                    
                 }).catch((er) => {
                     console.log(er);
                 });
@@ -135,8 +136,10 @@ module.exports = function (RoomModel, BookingModel) {
                 //ska vara i en else sen
                 let bookRoom = new BookingModel(data)
                 bookRoom.save((err) => {
-                    console.log('Booking saved in DB.')
-                    res.sendStatus(200);
+                    if (!err) {
+                        console.log('Booking saved in DB.')
+                        return res.status(200).json({message: 'Booking successfully saved in DB.'});
+                    }
                 })
             }   
         });
