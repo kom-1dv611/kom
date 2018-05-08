@@ -25,6 +25,7 @@ class room extends Component {
             $("#cancelButton").on("click", async() => {
                 let data = {};
                 data.room = name;
+                data.cancel = true;
                 fetch(`/${name}`, {
                     method: 'POST',
                     headers: {
@@ -71,7 +72,7 @@ class room extends Component {
             <div id="cancel" className="animated fadeIn">
                 <div className="row justify-content-center pb-0">
                     <div id="schedule" className="col-md-auto">
-                        <i type="button"className="fas fa-calendar-alt fa-2x"></i>
+                        <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
                         <Schedule/>
                     </div>
                     <div class="col-md-auto">
