@@ -16,7 +16,7 @@ let scrape = async () => {
 
     await page.evaluate(() => {
         // Sätter värdet ny212k
-        document.querySelector('#ffsearchname').value = 'ny215k'
+        document.querySelector('#ffsearchname').value = 'ny212k'
 
         // Klicka på SÖK knappen
         document.querySelector('.ffsearchbutton.objectsearchbutton').click()
@@ -41,20 +41,48 @@ let scrape = async () => {
 
     await page.waitFor(1000)
 
-    let result = await page.evaluate(() => {
-        // skriver ut info som finns i pop-up ruta
-        // TODO: kunna klicka på lokal, men länk-url är fel...
+    let newUrl = await page.evaluate(() => {
+        // skriver ut info som finns i första pop-up ruta
         let iframe = document.getElementById('fancybox-frame')
-        let iframeDoc = iframe.contentDocument || ifram.contentWindow.document
+        let iframeDoc = iframe.contentDocument || iframe.contentWindow.document
         let iframeP = iframeDoc.querySelector('.infoboxtd')
+        // url till info sidan
+        let iframeA = iframeP.querySelector('a').href
 
-        return iframeP.innerHTML
+        return iframeA
     })
+
+    await page.waitFor(1000)
+
+    // gå till info sidan
+    await page.goto(newUrl)    
+
+    let room = await page.evaluate(() => {
+        // skriv ut lokalens namn
+        return document.querySelector('.objectfieldsextra > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2)').textContent
+    })
+
+    let size = await page.evaluate(() => {
+        // skriv ut lokalens storlek
+        return document.querySelector('.objectfieldsextra > tbody:nth-child(1) > tr:nth-child(7) > td:nth-child(2)').textContent
+    })
+
+    let equipment = await page.evaluate(() => {
+        // skriv ut lokalens utrustning
+        return document.querySelector('.objectfieldsextra > tbody:nth-child(1) > tr:nth-child(9) > td:nth-child(2)').textContent
+    })
+
+    // TODO: hämta ut information på ett bättre sätt? Få med all utrustning som finns listad, inte bara första elementet.
+    // TODO: spara information om rummen.
+    // TODO: gå igenom alla rum som finns i databasen och spara info till de rummen.
+
+    // OBS! Vad händer om man tar bort alla waitFor? Kanske måste ha dem, kan vi köra skrapan ändå?
+    // När man gör en sökning och väljer "Lokal", väljs inte alltid lokal. Vad gör vi åt detta?
 
     await page.waitFor(2000)
 
     browser.close()
-    return result
+    return "Room: " + room + "\nSize: " + size + "\nEquipment: " + equipment
 }
 
 module.exports = scrape
