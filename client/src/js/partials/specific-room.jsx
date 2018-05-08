@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {connect} from "react-redux"; //read
 import {bindActionCreators} from "redux"; //write
 import event from "../actions/busy-state";
+import schedule from "../actions/loadSchedule";
 
 import $ from "jquery"
 
@@ -14,11 +15,12 @@ class room extends Component {
         this.state = {updated: false}
         this.props.busy(this.props.room.available);
         let name = this.props.room.room.name;
-        $( document ).ready(function() {
+        $( document ).ready(() => {
             $("#schedule").on("click", async() => {
                 let rows = await fetch(`/${name}/schedule/today`);
                 rows = await rows.json();
                 console.log(rows);
+                this.props.schedule(rows);
             });
             $("#cancelButton").on("click", async() => {
                 let data = {};
@@ -117,7 +119,8 @@ function read(db) {
   
 function write(dispatch) {
     return bindActionCreators({
-        busy: event
+        busy: event,
+        schedule: schedule
     }, dispatch);
 }
   

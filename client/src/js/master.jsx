@@ -22,7 +22,7 @@ class master extends Component {
     }
     switch(this.state.mode) {
       case "overall":
-        return (<div className="container"><Nav filter="true" location="Overview"/><Rooms clickable={false}/><img src="/imgs/url.png" alt="url"/><img src="/imgs/url.png" alt="url"/></div>);
+        return (<div className="container"><Nav filter="true" location="Overview"/><Rooms clickable={false}/></div>);
       case "specific":
         if(this.props.available) {
           document.getElementsByTagName("body")[0].setAttribute("class", "available")
