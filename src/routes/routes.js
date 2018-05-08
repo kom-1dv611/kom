@@ -70,7 +70,6 @@ module.exports = function (RoomModel, BookingModel) {
         })
         .post(async function (req, res) {
             console.log(req.body);
-            //2. Fixa när de går att boka i framtiden
             //3. else om det inte finns bokningar i databas eller timeEdit
             if(req.body.cancel) {
                 BookingModel.findOneAndRemove({roomID: req.body.room}, function(err, room) {
@@ -95,14 +94,30 @@ module.exports = function (RoomModel, BookingModel) {
                     data.bookingDate = req.body.bookingDate;
                 }
 
-                //kolla databasen efter bokningar som vi bokat i framtiden
-                BookingModel.findById({roomID: req.body.room}, function(err, booking) {
-                    if(booking) {
-                        //FIXA DETTA EFTER LUKAS HAR FIXAT SÅ MAN KAN BOKA I FRAMTIDEN
-                        //om det finns bokning -> kolla så starttiden är efter bokade tiden.
-                        //om den inte är det -> skriv ut felmeddelande
+                BookingModel.find({roomID: req.body.room}, function(err, bookings) {
+                    if(err) {
+                        console.log(err);
+                    } else {             
+                        if(bookings) {
+                            for(let i = 0; i < booking.length; i++) {
+                                if(data.endTime > bookings[i].startTime || data.startTime < bookings[i].endTime) {
+                                    console.log('felmeddelande')
+                                } else {
+                                    let bookRoom = new BookingModel(data)
+                                    bookRoom.save((err) => {
+                                        if (!err) {
+                                            console.log('Booking saved in DB.')
+                                            return res.status(200).json({message: 'Booking successfully saved in DB.'});
+                                        }
+                                    })
+                                }
+                            }
+                            
+                        }
                     }
                 })
+              
+                
                 let times = [];
                 //kolla timeEdit efter bokningar
                 timeEdit.getTodaysSchedule(req.body.room)
@@ -141,7 +156,7 @@ module.exports = function (RoomModel, BookingModel) {
                         console.log('Booking saved in DB.')
                         return res.status(200).json({message: 'Booking successfully saved in DB.'});
                     }
-                })
+                }) 
             }   
         });
 
