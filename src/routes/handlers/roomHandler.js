@@ -36,20 +36,25 @@ module.exports = class RoomHandler {
                 if (this.isRoomBookedInDB(booking, room, currentTime)) { 
                     if (this.hasBookingExpired(booking, currentTime)) {
                         console.log(booking.roomID + ' har expirat och tas nu bort. (' + booking.startTime + '-' + getEndTimeForBooking(booking) + ')')
-                        await this.removeBookingFromDB(booking.roomID);
+                        //await this.removeBookingFromDB(booking.roomID);
                     } else {
                         roomToBeValidated.available = booking.startTime > currentTime ? true : false;
 
                         roomToBeValidated.bookings.push({
                             startTime: booking.startTime, 
-                            endTime: getEndTimeForBooking(booking)
+                            endTime: booking.endTime
                         })
                         roomToBeValidated.bookings.sort((a, b) => a.startTime.localeCompare(b.startTime));
                     }
+                    //console.log(roomToBeValidated)
                 }
             })
         }
         return roomToBeValidated;
+    }
+
+    checkBookingStatus() {
+
     }
 
     //Checks if a room is booked in timeedit. Takes the TimeEdit schedule, current time and the room that is getting validated.
@@ -82,8 +87,7 @@ module.exports = class RoomHandler {
 
     //Validate if a booking has expired or not
     hasBookingExpired(booking, currentTime) {
-        let endTime = getEndTimeForBooking(booking);
-        return endTime < currentTime ? true : false;
+        return booking.endTime < currentTime ? true : false;
     }
 
     //checks if a room has a booking in the DB.

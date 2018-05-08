@@ -47,14 +47,13 @@ module.exports = function (RoomModel, BookingModel) {
 
             let booking = await Room.getSpecificBooking(req.params.id);
             if (booking.length > 0) {
-                let endTime = getEndTimeForBooking(booking[0]);
                 let startTime = booking[0].startTime;
                 
-                if (startTime > currentTime || endTime < currentTime) {
+                if (startTime > currentTime || booking[0].endTime < currentTime) {
                     room.available = true;
                 } else {
                     room.available = false;
-                    room.willBeAvailable = endTime;
+                    room.willBeAvailable = booking[0].endTime;
                 }
             } else {
                 let roomSchedule = await Room.getSpecificScheduleTimeEdit(room);
@@ -87,7 +86,9 @@ module.exports = function (RoomModel, BookingModel) {
                     username: req.body.username,
                     roomID: req.body.room,
                     startTime: req.body.time,
-                    duration: req.body.duration
+                    duration: req.body.duration,
+                    endTime: getEndTimeForBooking({startTime: req.body.time, duration: req.body.duration}),
+                    bookingDate: moment().format('YYYY-MM-DD')
                 }
 
                 if (req.body.bookingDate) {
@@ -116,7 +117,7 @@ module.exports = function (RoomModel, BookingModel) {
                             times.push(booking);
                         }
                         for(let i = 0; i < times.length; i++) {
-                            if(getEndTimeForBooking(data) > times[i].startTime || data.startTime < times[i].endTime) {
+                            if(data.endTime > times[i].startTime || data.startTime < times[i].endTime) {
                                 console.log('felmeddelande')
                             } else {
                                 let bookRoom = new BookingModel(data)
@@ -148,6 +149,7 @@ module.exports = function (RoomModel, BookingModel) {
         .get(function (req, res) {
             timeEdit.getTodaysSchedule(req.params.roomID)
                 .then((roomSchedule) => {
+                    //todo: interna bokningssystemet
                     res.send(JSON.stringify(roomSchedule, null, 2));
                 }).catch((er) => {
                     console.log(er);
