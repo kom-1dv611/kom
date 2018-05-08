@@ -5,6 +5,7 @@ import busy from "./room-state";
 import filter from "./filter-select";
 import booked from "./submit";
 import schedule from "./schedule-select";
+import cancel from "./cancel-booking";
 
 const test = combineReducers({
     setupSelect: setup,
@@ -12,6 +13,7 @@ const test = combineReducers({
     busyRoom: busy,
     filterSelect: filter,
     submit: booked,
+    cancelBookinng: cancel,
     loadedSchedule: schedule
 });
 

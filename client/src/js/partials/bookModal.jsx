@@ -11,23 +11,6 @@ class enterDateTime extends Component {
     constructor(props) {
         super(props);
         this.state = {};
-        let name = this.props.room;
-        $( document ).ready(() => {
-            $(".confirm").click((e) => {
-                console.log($(e.target).text());
-                console.log(this.props);
-                switch($(e.target).text()) {
-                    case "Book Now":
-                        this.bookNow(name, props);
-                        break;
-                    case "Book Later":
-                        this.bookLater(name);
-                        break;
-                    default:
-                        break;
-                }
-            });
-        });
     }
                 
     bookNow(name, props) {
@@ -54,6 +37,7 @@ class enterDateTime extends Component {
             body: JSON.stringify(data)
         });
         props.submit(name);
+        this.forceUpdate();
     }
 
     bookLater(name) {
@@ -98,6 +82,22 @@ class enterDateTime extends Component {
     }
 
     render() {
+        let name = this.props.room;
+        $( document ).ready(() => {
+            $(".confirm").off();
+            $(".confirm").click((e) => {
+                switch($(e.target).text()) {
+                    case "Book Now":
+                        this.bookNow(name,this.props);
+                        break;
+                    case "Book Later":
+                        this.bookLater(name);
+                        break;
+                    default:
+                        break;
+                }
+            });
+        });
         return (
             <div className="modal fade" id={this.props.toggler} tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div className="modal-dialog" role="document">

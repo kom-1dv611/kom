@@ -13,7 +13,6 @@ class roomWrapper extends Component {
 
   async setRows() {
     let rows = await this.getRows();
-    console.log(rows);
     this.setState(function() {
       return {loaded: true, rows: rows}
     })

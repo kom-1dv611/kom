@@ -3,6 +3,7 @@ import {connect} from "react-redux"; //read
 import {bindActionCreators} from "redux"; //write
 import event from "../actions/busy-state";
 import schedule from "../actions/loadSchedule";
+import cancel from "../actions/cancelBooking";
 
 import $ from "jquery"
 
@@ -14,7 +15,7 @@ class room extends Component {
         super(props)
         this.state = {updated: false}
         this.props.busy(this.props.room.available);
-        let name = this.props.room.room.name;
+        this.cancel = false;
         $( document ).ready(() => {
             $("#schedule").on("click", async() => {
                 this.onScheduleClick();
@@ -28,7 +29,6 @@ class room extends Component {
     }
 
     async onScheduleClick() {
-        console.log(this.props);
         let name = this.props.room.room.name;
         let rows = await fetch(`/${name}/schedule/today`);
         rows = await rows.json();
@@ -52,6 +52,10 @@ class room extends Component {
             },
             body: JSON.stringify(data)
         });
+        
+        this.props.cancel(name);
+        this.cancel = true;
+        this.forceUpdate();
     }
 
     stateHeader() {
@@ -91,7 +95,7 @@ class room extends Component {
                         <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
                         <Schedule/>
                     </div>
-                    <div class="col-md-auto">
+                    <div className="col-md-auto">
                         <Book room={this.props.room.room.name} available={this.props.room.available} />
                     </div>
                 </div>
@@ -99,28 +103,45 @@ class room extends Component {
         }
     }
 
-    async getUpdatedInfo() {
-        if(this.state.updated === false) {
-            this.props.room.available = false;
-            $("body").addClass("unavailable");
-            $("#schedule").off("click");
-            $( document ).ready(() => {
-                $("#schedule").on("click", async() => {
-                    this.onScheduleClick();
-                });
-                $("#cancelButton").on("click", async() => {
-                    this.onCancelClick();
-                });
+    async book() {
+        $("body").addClass("unavailable");
+        $("body").removeClass("available");
+        this.props.room.available = false;
+        $( document ).ready(() => {
+            $("#schedule").off();
+            $("#cancelButton").off();
+            $("#schedule").on("click", async() => {
+                this.onScheduleClick();
             });
-        }
+            $("#cancelButton").on("click", async() => {
+                this.onCancelClick();
+            });
+        });
+        return true;
+    }
+
+    async cancelBooking() {
+        $("body").addClass("available");
+        $("body").removeClass("unavailable");
+        this.props.room.available = true;
+        $( document ).ready(() => {
+            $("#schedule").off("click");
+            $("#schedule").on("click", async() => {
+                this.onScheduleClick();
+            });
+        });
         return true;
     }
 
     render() {
-        if(this.props.submit !== null && this.props.submit !== "" ) {
-            this.getUpdatedInfo();
+        console.log(this.cancel);
+        if(this.cancel === true) {
+            this.cancel = false;
+            this.cancelBooking();
+        } else if(this.props.submit !== null && this.props.submit !== "") {
+            console.log("tries to update?")
+            this.book();
         }
-        console.log(this.props.room.available)
         return (
             <div>
                 <div className="ml-2 mt-5 pt-5">
@@ -146,6 +167,7 @@ function read(db) {
 function write(dispatch) {
     return bindActionCreators({
         busy: event,
+        cancel: cancel,
         schedule: schedule
     }, dispatch);
 }
