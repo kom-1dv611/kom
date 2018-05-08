@@ -13,7 +13,7 @@ class enterDateTime extends Component {
         this.state = {};
     }
                 
-    bookNow(name, props) {
+    async bookNow(name, props) {
         let data = {};
         let buttons = $(".btn-group").children();
         let active
@@ -28,7 +28,7 @@ class enterDateTime extends Component {
         data.room = name;
         console.log(data);
 
-        fetch("/" + name, {
+        let resp = await fetch("/" + name, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -36,8 +36,12 @@ class enterDateTime extends Component {
             },
             body: JSON.stringify(data)
         });
-        props.submit(name);
-        this.forceUpdate();
+
+        resp = await resp.json();
+
+        console.log(await resp);
+
+        //props.submit(name);
     }
 
     bookLater(name) {
