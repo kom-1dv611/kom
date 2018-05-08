@@ -17,24 +17,40 @@ class room extends Component {
         let name = this.props.room.room.name;
         $( document ).ready(() => {
             $("#schedule").on("click", async() => {
-                let rows = await fetch(`/${name}/schedule/today`);
-                rows = await rows.json();
-                console.log(rows);
-                this.props.schedule(rows);
+                this.onScheduleClick();
             });
-            $("#cancelButton").on("click", async() => {
-                let data = {};
-                data.room = name;
-                data.cancel = true;
-                fetch(`/${name}`, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
+            if(this.props.room.available === false) {
+                $("#cancelButton").on("click", async() => {
+                    this.onCancelClick();
                 });
-            });
+            }
+        });
+    }
+
+    async onScheduleClick() {
+        console.log(this.props);
+        let name = this.props.room.room.name;
+        let rows = await fetch(`/${name}/schedule/today`);
+        rows = await rows.json();
+        console.log(rows);
+        if(rows === null) {
+            rows = [];
+        }
+        this.props.schedule(rows);
+    }
+
+    async onCancelClick() {
+        let name = this.props.room.room.name;
+        let data = {};
+        data.room = name;
+        data.cancel = true;
+        fetch(`/${name}`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
         });
     }
 
@@ -87,15 +103,24 @@ class room extends Component {
         if(this.state.updated === false) {
             this.props.room.available = false;
             $("body").addClass("unavailable");
+            $("#schedule").off("click");
+            $( document ).ready(() => {
+                $("#schedule").on("click", async() => {
+                    this.onScheduleClick();
+                });
+                $("#cancelButton").on("click", async() => {
+                    this.onCancelClick();
+                });
+            });
         }
         return true;
     }
 
     render() {
         if(this.props.submit !== null && this.props.submit !== "" ) {
-            console.log("plz mr plz")
             this.getUpdatedInfo();
         }
+        console.log(this.props.room.available)
         return (
             <div>
                 <div className="ml-2 mt-5 pt-5">
