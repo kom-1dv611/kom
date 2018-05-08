@@ -99,7 +99,7 @@ module.exports = function (RoomModel, BookingModel) {
                         console.log(err);
                     } else {             
                         if(bookings) {
-                            for(let i = 0; i < booking.length; i++) {
+                            for(let i = 0; i < bookings.length; i++) {
                                 if(data.endTime > bookings[i].startTime || data.startTime < bookings[i].endTime) {
                                     console.log('felmeddelande')
                                 } else {
