@@ -37,11 +37,11 @@ class enterDateTime extends Component {
             body: JSON.stringify(data)
         });
 
-        //resp = await resp.json();
-
-        console.log(await resp.json().status);
-
-        //props.submit(name);
+        if(resp.status >= 200 && resp.status < 400) {
+            props.submit(name)
+        } else {
+            console.log("Booking failed");
+        }
     }
 
     bookLater(name) {
