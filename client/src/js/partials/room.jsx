@@ -8,12 +8,13 @@ class room extends Component {
     getState(check) {
         let toReturn;
         if(check === true) {
-            toReturn = (<h6 className="card-subtitle text-success">Available</h6>);
+            toReturn = (<h6 className="card-subtitle text-dark">Available</h6>);
         } else if(check === false) {
             toReturn = (<h6 className="card-subtitle text-muted">In use</h6>);
         }
         return toReturn;
     }
+
     render() {
         let room = this.props.room.room;
         let state = (

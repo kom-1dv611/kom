@@ -118,7 +118,7 @@ h4 a {
   background-image: none; }
 
 .available {
-  background-color: rgba(0, 255, 0, 0.4); }
+  background-color: rgba(0, 255, 0, 0.55); }
 
 .unavailable {
   background-color: rgba(255, 0, 0, 0.5); }

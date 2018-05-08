@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {connect} from "react-redux"; //read
 import {bindActionCreators} from "redux"; //write
 import event from "../actions/busy-state";
+import schedule from "../actions/loadSchedule";
 
 import $ from "jquery"
 
@@ -14,15 +15,17 @@ class room extends Component {
         this.state = {updated: false}
         this.props.busy(this.props.room.available);
         let name = this.props.room.room.name;
-        $( document ).ready(function() {
+        $( document ).ready(() => {
             $("#schedule").on("click", async() => {
                 let rows = await fetch(`/${name}/schedule/today`);
                 rows = await rows.json();
                 console.log(rows);
+                this.props.schedule(rows);
             });
             $("#cancelButton").on("click", async() => {
                 let data = {};
                 data.room = name;
+                data.cancel = true;
                 fetch(`/${name}`, {
                     method: 'POST',
                     headers: {
@@ -58,7 +61,7 @@ class room extends Component {
                     <div className="row justify-content-center pb-0">
                         <input type="time" id="currentTime" name="time" hidden/>
                         <div id="schedule" className="col-md-auto">
-                            <i className="fas fa-calendar-alt fa-2x"></i>
+                            <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
                             <Schedule/>
                         </div>
                         <Book room={this.props.room.room.name} available={this.props.room.available} />
@@ -69,7 +72,7 @@ class room extends Component {
             <div id="cancel" className="animated fadeIn">
                 <div className="row justify-content-center pb-0">
                     <div id="schedule" className="col-md-auto">
-                        <i className="fas fa-calendar-alt fa-2x"></i>
+                        <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
                         <Schedule/>
                     </div>
                     <div class="col-md-auto">
@@ -117,7 +120,8 @@ function read(db) {
   
 function write(dispatch) {
     return bindActionCreators({
-        busy: event
+        busy: event,
+        schedule: schedule
     }, dispatch);
 }
   
