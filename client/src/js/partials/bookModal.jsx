@@ -37,9 +37,9 @@ class enterDateTime extends Component {
             body: JSON.stringify(data)
         });
 
-        resp = await resp.json();
+        //resp = await resp.json();
 
-        console.log(await resp);
+        console.log(await resp.json().status);
 
         //props.submit(name);
     }
