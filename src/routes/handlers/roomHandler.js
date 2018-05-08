@@ -3,6 +3,7 @@
 const getEndTimeForBooking = require('../utils/endTimebooking');
 const timeEditApi = require('timeeditApi');
 const timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
+let moment = require('moment');
 
 module.exports = class RoomHandler {
     constructor(RoomModel, BookingModel) {
@@ -24,7 +25,8 @@ module.exports = class RoomHandler {
             roomToBeValidated.available = false; 
             roomToBeValidated.bookings.push({
                 startTime: scheduleTimeEdit.startTime, 
-                endTime: scheduleTimeEdit.endTime
+                endTime: scheduleTimeEdit.endTime,
+                bookingDate: moment().format('YYYY-MM-DD')
             })
         } else { 
             roomToBeValidated.available = true; 
@@ -35,18 +37,18 @@ module.exports = class RoomHandler {
             bookings.map(async (booking) =>  {
                 if (this.isRoomBookedInDB(booking, room, currentTime)) { 
                     if (this.hasBookingExpired(booking, currentTime)) {
-                        console.log(booking.roomID + ' har expirat och tas nu bort. (' + booking.startTime + '-' + getEndTimeForBooking(booking) + ')')
+                        console.log(booking.roomID + ' har expirat och tas nu bort. (' + booking.startTime + '-' + getEndTimeForBooking(booking) + ') ' + booking.bookingDate)
                         //await this.removeBookingFromDB(booking.roomID);
                     } else {
                         roomToBeValidated.available = booking.startTime > currentTime ? true : false;
 
                         roomToBeValidated.bookings.push({
                             startTime: booking.startTime, 
-                            endTime: booking.endTime
+                            endTime: booking.endTime,
+                            bookingDate: booking.bookingDate
                         })
                         roomToBeValidated.bookings.sort((a, b) => a.startTime.localeCompare(b.startTime));
                     }
-                    //console.log(roomToBeValidated)
                 }
             })
         }
@@ -85,9 +87,13 @@ module.exports = class RoomHandler {
         })
     }
 
-    //Validate if a booking has expired or not
+    //Validate if a booking has expired or not based on date and time
     hasBookingExpired(booking, currentTime) {
-        return booking.endTime < currentTime ? true : false;
+        if (booking.bookingDate < moment().format('YYYY-MM-DD')) {
+            return true;
+        } else if (booking.bookingDate === moment().format('YYYY-MM-DD')) {
+            return booking.endTime < currentTime ? true : false;
+        }
     }
 
     //checks if a room has a booking in the DB.
