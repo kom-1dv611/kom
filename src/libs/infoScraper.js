@@ -1,4 +1,5 @@
 let puppeteer = require('puppeteer')
+let Room = require('../models/Room.js')
 
 let scrape = async () => {
     let browser = await puppeteer.launch({ headless: false })
@@ -71,17 +72,20 @@ let scrape = async () => {
     })
 
     let roomInfo = []
+    let list
 
     for (let i = 0; i < table.length; i++) {
-        let list = table[i].replace(/\s+/g, ' ')
+        list = table[i].replace(/\s+/g, ' ')
         list = list.split(' ');
 
         let context = {}
 
         context.name = list[4]
         context.size = list[15]
-        // hur ska vi hämta ut utrustning om det finns mer än en sak?
-        context.equipment = list[19]
+        // hur ska vi hämta ut utrustning om det finns mer än en sak? Hamnar på olika index.
+        // om det inte finns någon information om rummet kommer de finnas annan info på dessa index
+        // TODO: först kolla om det finns ett index som innehåller "Utrustning"?
+        context.equipment = {first: list[19], second: list[20] }
         roomInfo.push(context)
     }
 
@@ -94,6 +98,7 @@ let scrape = async () => {
     await page.waitFor(2000)
 
     browser.close()
+    // använd list för att se vilket index
     return roomInfo
 }
 
