@@ -64,7 +64,11 @@ class room extends Component {
         if(available === true) {
             toReturn = (<h1 id="state" className="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently available!">Available</h1>);
         } else if(available === false) {
-            toReturn = (<h1 id="state" className="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently available!">Unavailable</h1>);
+            toReturn = (
+            <div className="text-center animated fadeIn">
+                <h1 id="state" data-toggle="tooltip" data-placement="top" title="This room is currently available!">Unavailable</h1>
+                <h3>Available: {this.props.room.bookings[0].endTime}</h3>
+            </div>);
         }
         return toReturn;
     }
