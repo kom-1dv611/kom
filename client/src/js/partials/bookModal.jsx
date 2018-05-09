@@ -119,7 +119,7 @@ class enterDateTime extends Component {
                                 <Duration duration="2"/>
                                 <Duration duration="3"/>
                             </div>
-                            <input id={this.props.bookLater === true ? "laterUsername" : "nowUsername"} type="text" name="user" className="form-control mt-3" placeholder="Username"/>
+                            <input id={this.props.bookLater === true ? "laterUsername" : "nowUsername"} type="text" name="user" className="form-control mt-3" placeholder="Username" minLength="3"/>
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-dark confirm" data-dismiss="modal">{this.props.bookLater === true ? "Book Later" : "Book Now"}</button>

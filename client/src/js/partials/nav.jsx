@@ -45,7 +45,7 @@ class nav extends Component {
   }
   render() {
     return (
-      <nav>
+      <nav className="animated fadeInDown">
         <h4>Linnéuniversitetet</h4>
         <div className="text-center">
           <ol className="breadcrumb">

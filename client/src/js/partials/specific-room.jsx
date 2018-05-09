@@ -64,11 +64,16 @@ class room extends Component {
         if(available === true) {
             toReturn = (<h1 id="state" className="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently available!">Available</h1>);
         } else if(available === false) {
-            toReturn = (
-            <div className="text-center animated fadeIn">
-                <h1 id="state" data-toggle="tooltip" data-placement="top" title="This room is currently available!">Unavailable</h1>
-                <h3>Available: {this.props.room.bookings[0].endTime}</h3>
-            </div>);
+            console.log(this.props);
+            if(this.props.room.bookings.length > 0) {
+                toReturn = (
+                    <div className="text-center animated fadeIn">
+                        <h1 id="state" data-toggle="tooltip" data-placement="top" title="This room is currently unavailable!">Unavailable</h1>
+                        <h3>Available: {this.props.room.bookings[0].endTime}</h3>
+                    </div>);
+            } else {
+                toReturn = (<h1 id="state" className="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently unavailable!">Unavailable</h1>);
+            }
         }
         return toReturn;
     }
@@ -81,7 +86,7 @@ class room extends Component {
         let available = this.props.room.available;
         if(available === true) {
             return (
-                <div id="book" className="animated fadeIn">
+                <div id="book" className="animated fadeInLeft">
                     <div className="row justify-content-center pb-0">
                         <input type="time" id="currentTime" name="time" hidden/>
                         <div id="schedule" className="col-md-auto">
@@ -93,7 +98,7 @@ class room extends Component {
                 </div>);
         } else {
             return (
-            <div id="cancel" className="animated fadeIn">
+            <div id="cancel" className="animated fadeInLeft">
                 <div className="row justify-content-center pb-0">
                     <div id="schedule" className="col-md-auto">
                         <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
