@@ -154,7 +154,7 @@ module.exports = class RoomHandler {
     }
 
     getSpecificScheduleTimeEdit(room) {
-        return timeEdit.getTodaysSchedule(room.id)
+        return timeEdit.getTodaysSchedule(room)
         .then((roomSchedule) => {
             return roomSchedule;
         }).catch((er) => {

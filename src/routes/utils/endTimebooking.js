@@ -1,5 +1,6 @@
 'use strict';
 
+//TODO - fixa så de blir ex 09.00 istället för 9.00
 module.exports = function(booking) {
     let startTime = booking.startTime;
     let hour = startTime.substring(0, 2);
