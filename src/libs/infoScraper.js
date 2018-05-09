@@ -5,14 +5,16 @@ let scrape = async () => {
     let page = await browser.newPage()
     let url = 'https://se.timeedit.net/web/lnu/db1/schema1'
     await page.goto(url)
-    
+
     // Gå till: Schema och visning av bokningar...
     await page.click('#contents > div.linklist > div > div:nth-child(1) > a:nth-child(1)')
-    
+
+    await page.waitFor(2000)
+
     // Ändra till Lokal sökning
     await page.select('#fancytypeselector', '4')
 
-    await page.waitFor(3000)
+    await page.waitFor(2000)
 
     await page.evaluate(() => {
         // Sätter värdet ny212k
@@ -55,26 +57,36 @@ let scrape = async () => {
     await page.waitFor(1000)
 
     // gå till info sidan
-    await page.goto(newUrl)    
+    await page.goto(newUrl)
 
-    let room = await page.evaluate(() => {
-        // skriv ut lokalens namn
-        return document.querySelector('.objectfieldsextra > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2)').textContent
+    let table = await page.evaluate(() => {
+        let lists = document.querySelector('.objectfieldsextra')
+        let roomList = []
+
+        for (let i = 0; i < lists.childElementCount; i++) {
+            roomList.push(lists.children[i].textContent)
+        }
+
+        return roomList
     })
 
-    let size = await page.evaluate(() => {
-        // skriv ut lokalens storlek
-        return document.querySelector('.objectfieldsextra > tbody:nth-child(1) > tr:nth-child(7) > td:nth-child(2)').textContent
-    })
+    let roomInfo = []
 
-    let equipment = await page.evaluate(() => {
-        // skriv ut lokalens utrustning
-        return document.querySelector('.objectfieldsextra > tbody:nth-child(1) > tr:nth-child(9) > td:nth-child(2)').textContent
-    })
+    for (let i = 0; i < table.length; i++) {
+        let list = table[i].replace(/\s+/g, ' ')
+        list = list.split(' ');
 
-    // TODO: hämta ut information på ett bättre sätt? Få med all utrustning som finns listad, inte bara första elementet.
-    // TODO: spara information om rummen.
+        let context = {}
+
+        context.name = list[4]
+        context.size = list[15]
+        // hur ska vi hämta ut utrustning om det finns mer än en sak?
+        context.equipment = list[19]
+        roomInfo.push(context)
+    }
+
     // TODO: gå igenom alla rum som finns i databasen och spara info till de rummen.
+    // TODO: spara information om rummen.
 
     // OBS! Vad händer om man tar bort alla waitFor? Kanske måste ha dem, kan vi köra skrapan ändå?
     // När man gör en sökning och väljer "Lokal", väljs inte alltid lokal. Vad gör vi åt detta?
@@ -82,7 +94,7 @@ let scrape = async () => {
     await page.waitFor(2000)
 
     browser.close()
-    return "Room: " + room + "\nSize: " + size + "\nEquipment: " + equipment
+    return roomInfo
 }
 
 module.exports = scrape
