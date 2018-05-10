@@ -13,7 +13,21 @@ import Book from "./book";
 class room extends Component {
     constructor(props) {
         super(props)
-        this.state = {updated: false}
+
+        let booking = this.props.room.bookings[0];
+        let hours = parseInt(booking.endTime.substring(0, booking.endTime.indexOf(":"))) * 3600;
+        let minutes = parseInt(booking.endTime.substring(booking.endTime.indexOf(":") + 1, booking.endTime.length)) * 60;
+
+        let now = new Date();
+        let currentMinutes = now.getMinutes() * 60;
+        let currentHours = now.getHours() * 3600;
+        let currentSeconds = now.getSeconds();
+
+        this.state = { time: {}, seconds: (hours + minutes) - (currentHours + currentMinutes + currentSeconds) };
+        this.timer = 0;
+        this.startTimer = this.startTimer.bind(this);
+        this.countDown = this.countDown.bind(this);
+
         this.props.busy(this.props.room.available);
         this.cancel = false;
         $( document ).ready(() => {
@@ -25,14 +39,51 @@ class room extends Component {
                     this.onCancelClick();
                 });
             }
+            this.startTimer();
+            let timeLeftVar = this.secondsToTime(this.state.seconds);
+            this.setState({ time: timeLeftVar });
         });
     }
+
+    startTimer() {
+        if (this.timer == 0) {
+            this.timer = setInterval(this.countDown, 1000);
+        }
+    }
+
+    countDown() {
+        let seconds = this.state.seconds - 1;
+        this.setState({
+          time: this.secondsToTime(seconds),
+          seconds: seconds,
+        });
+        
+        if (seconds == 0) { 
+          clearInterval(this.timer);
+        }
+      }
+
+    secondsToTime(secs){
+        let hours = Math.floor(secs / (60 * 60));
+    
+        let divisor_for_minutes = secs % (60 * 60);
+        let minutes = Math.floor(divisor_for_minutes / 60);
+    
+        let divisor_for_seconds = divisor_for_minutes % 60;
+        let seconds = Math.ceil(divisor_for_seconds);
+    
+        let obj = {
+            "h": hours,
+            "m": minutes,
+            "s": seconds
+        };
+        return obj;
+      };
 
     async onScheduleClick() {
         let name = this.props.room.room.name;
         let rows = await fetch(`/${name}/schedule/today`);
         rows = await rows.json();
-        console.log(rows);
         if(rows === null) {
             rows = [];
         }
@@ -64,12 +115,11 @@ class room extends Component {
         if(available === true) {
             toReturn = (<h1 id="state" className="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently available!">Available</h1>);
         } else if(available === false) {
-            console.log(this.props);
             if(this.props.room.bookings.length > 0) {
                 toReturn = (
                     <div className="text-center animated fadeIn">
                         <h1 id="state" data-toggle="tooltip" data-placement="top" title="This room is currently unavailable!">Unavailable</h1>
-                        <h3>Available: {this.props.room.bookings[0].endTime}</h3>
+                        <h3>Available: {this.props.room.bookings[0].endTime}({this.state.time.h}:{this.state.time.m}:{this.state.time.s})</h3>
                     </div>);
             } else {
                 toReturn = (<h1 id="state" className="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently unavailable!">Unavailable</h1>);
@@ -143,12 +193,10 @@ class room extends Component {
     }
 
     render() {
-        console.log(this.cancel);
         if(this.cancel === true) {
             this.cancel = false;
             this.cancelBooking();
         } else if(this.props.submit !== null && this.props.submit !== "") {
-            console.log("tries to update?")
             this.book();
         }
         return (
