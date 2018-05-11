@@ -14,22 +14,14 @@ class room extends Component {
     constructor(props) {
         super(props)
 
-        let booking = this.props.room.bookings[0];
-        let hours = parseInt(booking.endTime.substring(0, booking.endTime.indexOf(":"))) * 3600;
-        let minutes = parseInt(booking.endTime.substring(booking.endTime.indexOf(":") + 1, booking.endTime.length)) * 60;
+        this.props.busy(this.props.room.available);
+        this.cancel = false;
 
-        let now = new Date();
-        let currentMinutes = now.getMinutes() * 60;
-        let currentHours = now.getHours() * 3600;
-        let currentSeconds = now.getSeconds();
-
-        this.state = { time: {}, seconds: (hours + minutes) - (currentHours + currentMinutes + currentSeconds) };
+        this.state = {time: {}, seconds: 0};
         this.timer = 0;
         this.startTimer = this.startTimer.bind(this);
         this.countDown = this.countDown.bind(this);
 
-        this.props.busy(this.props.room.available);
-        this.cancel = false;
         $( document ).ready(() => {
             $("#schedule").on("click", async() => {
                 this.onScheduleClick();
@@ -38,11 +30,51 @@ class room extends Component {
                 $("#cancelButton").on("click", async() => {
                     this.onCancelClick();
                 });
+                this.setupTimer();
             }
-            this.startTimer();
-            let timeLeftVar = this.secondsToTime(this.state.seconds);
-            this.setState({ time: timeLeftVar });
         });
+    }
+
+    getDuration(localBooking) {
+        let booking, hours, minutes, active, buttons;
+        if(localBooking === false) {
+            booking = this.props.room.bookings[0];
+            hours = parseInt(booking.endTime.substring(0, booking.endTime.indexOf(":"))) * 3600;
+            minutes = parseInt(booking.endTime.substring(booking.endTime.indexOf(":") + 1, booking.endTime.length)) * 60;
+            return hours + minutes;
+        } else {
+            buttons = $(".btn-group").children();
+            $.each(buttons, function(key, value) {
+                buttons = $(".btn-group").children();
+                if($(value).hasClass("active") === true) {
+                    active = value;
+                }
+            });
+            let duration = $(active).children().val()
+            return duration * 3600;
+        }
+    }
+
+    setupTimer(localBooking = false, update = true) {
+        if(this.timer === 0) {
+                let duration = this.getDuration(localBooking);
+                console.log(duration);
+                let now = new Date();
+                let currentMinutes = now.getMinutes() * 60;
+                let currentHours = now.getHours() * 3600;
+                let currentSeconds = now.getSeconds();
+    
+                this.startTimer();
+                let timeLeftVar = this.secondsToTime(this.state.seconds);
+                if(update === true) {
+                    this.setState({ time: timeLeftVar, seconds: duration - (currentHours + currentMinutes + currentSeconds)});
+                } else {
+                    this.state.time = timeLeftVar;
+                    this.state.seconds =  duration - (currentHours + currentMinutes + currentSeconds) >= 0 ? duration - (currentHours + currentMinutes + currentSeconds) : (currentHours + currentMinutes + currentSeconds) - duration;
+                    console.log(this.state);
+                }
+        }
+        return true;
     }
 
     startTimer() {
@@ -116,6 +148,7 @@ class room extends Component {
             toReturn = (<h1 id="state" className="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently available!">Available</h1>);
         } else if(available === false) {
             if(this.props.room.bookings.length > 0) {
+                // Detta ska förmodligen funka om schemat returneras våra bokningar?
                 toReturn = (
                     <div className="text-center animated fadeIn">
                         <h1 id="state" data-toggle="tooltip" data-placement="top" title="This room is currently unavailable!">Unavailable</h1>
@@ -166,6 +199,7 @@ class room extends Component {
         $("body").addClass("unavailable");
         $("body").removeClass("available");
         this.props.room.available = false;
+        this.setupTimer(true, false);
         $( document ).ready(() => {
             $("#schedule").off();
             $("#cancelButton").off();
@@ -189,10 +223,12 @@ class room extends Component {
                 this.onScheduleClick();
             });
         });
+        clearInterval(this.timer);
         return true;
     }
 
     render() {
+        console.log("renders")
         if(this.cancel === true) {
             this.cancel = false;
             this.cancelBooking();
