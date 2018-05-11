@@ -19,7 +19,7 @@ let scrape = async () => {
 
     await page.evaluate(() => {
         // Sätter värdet ny212k
-        document.querySelector('#ffsearchname').value = 'ny212k'
+        document.querySelector('#ffsearchname').value = 'ny256k'
 
         // Klicka på SÖK knappen
         document.querySelector('.ffsearchbutton.objectsearchbutton').click()
@@ -49,7 +49,7 @@ let scrape = async () => {
         let iframe = document.getElementById('fancybox-frame')
         let iframeDoc = iframe.contentDocument || iframe.contentWindow.document
         let iframeP = iframeDoc.querySelector('.infoboxtd')
-        // url till info sidan
+        // TODO: plockar ut första url:en, se till att plocka ut just Lokal url:en
         let iframeA = iframeP.querySelector('a').href
 
         return iframeA
@@ -82,18 +82,19 @@ let scrape = async () => {
 
         context.name = list[4]
         context.size = list[15]
-        // hur ska vi hämta ut utrustning om det finns mer än en sak? Hamnar på olika index.
-        // om det inte finns någon information om rummet kommer de finnas annan info på dessa index
-        // TODO: först kolla om det finns ett index som innehåller "Utrustning"?
-        context.equipment = {first: list[19], second: list[20] }
+        // TODO: om det finns 3 saker listade i utrustning?
+        if (list[18] === 'Utrustning') {
+            console.log('utrustning')
+            context.equipment = {first: list[19], second: list[20] }
+        } else {
+            console.log('ingen utrustning')
+            context.equipment = {}
+        }
         roomInfo.push(context)
     }
 
     // TODO: gå igenom alla rum som finns i databasen och spara info till de rummen.
     // TODO: spara information om rummen.
-
-    // OBS! Vad händer om man tar bort alla waitFor? Kanske måste ha dem, kan vi köra skrapan ändå?
-    // När man gör en sökning och väljer "Lokal", väljs inte alltid lokal. Vad gör vi åt detta?
 
     await page.waitFor(2000)
 
