@@ -11,26 +11,9 @@ class enterDateTime extends Component {
     constructor(props) {
         super(props);
         this.state = {};
-        let name = this.props.room;
-        $( document ).ready(() => {
-            $(".confirm").click((e) => {
-                console.log($(e.target).text());
-                console.log(this.props);
-                switch($(e.target).text()) {
-                    case "Book Now":
-                        this.bookNow(name, props);
-                        break;
-                    case "Book Later":
-                        this.bookLater(name);
-                        break;
-                    default:
-                        break;
-                }
-            });
-        });
     }
                 
-    bookNow(name, props) {
+    async bookNow(name, props) {
         let data = {};
         let buttons = $(".btn-group").children();
         let active
@@ -39,13 +22,17 @@ class enterDateTime extends Component {
                 active = value;
             }
         });
+
+        let today = new Date();
+
         data.username = $("#nowUsername").val();
         data.duration = $($(active).children()[0]).val();
+        data.date = {month: today.getMonth() + 1, day: today.getDate(), year: today.getFullYear()}
         data.time = $("#currentTime").val();
         data.room = name;
         console.log(data);
 
-        fetch("/" + name, {
+        let resp = await fetch("/" + name, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -53,7 +40,12 @@ class enterDateTime extends Component {
             },
             body: JSON.stringify(data)
         });
-        props.submit(name);
+
+        if(resp.status >= 200 && resp.status < 400) {
+            props.submit(name)
+        } else {
+            console.log("Booking failed");
+        }
     }
 
     bookLater(name) {
@@ -65,9 +57,13 @@ class enterDateTime extends Component {
                 active = value;
             }
         });
+
+        let today = new Date();
+
         data.username = $("#laterUsername").val();
         data.duration = $($(active).children()[0]).val();
         data.bookingDate = $("#date").val();
+        data.date = {month: today.getMonth() + 1, day: today.getDate(), year: today.getFullYear()}
         data.time = $("#time").val();
         data.room = name;
         console.log(data);
@@ -98,6 +94,22 @@ class enterDateTime extends Component {
     }
 
     render() {
+        let name = this.props.room;
+        $( document ).ready(() => {
+            $(".confirm").off();
+            $(".confirm").click((e) => {
+                switch($(e.target).text()) {
+                    case "Book Now":
+                        this.bookNow(name,this.props);
+                        break;
+                    case "Book Later":
+                        this.bookLater(name);
+                        break;
+                    default:
+                        break;
+                }
+            });
+        });
         return (
             <div className="modal fade" id={this.props.toggler} tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div className="modal-dialog" role="document">
@@ -115,7 +127,7 @@ class enterDateTime extends Component {
                                 <Duration duration="2"/>
                                 <Duration duration="3"/>
                             </div>
-                            <input id={this.props.bookLater === true ? "laterUsername" : "nowUsername"} type="text" name="user" className="form-control mt-3" placeholder="Username"/>
+                            <input id={this.props.bookLater === true ? "laterUsername" : "nowUsername"} type="text" name="user" className="form-control mt-3" placeholder="Username" minLength="3"/>
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-dark confirm" data-dismiss="modal">{this.props.bookLater === true ? "Book Later" : "Book Now"}</button>

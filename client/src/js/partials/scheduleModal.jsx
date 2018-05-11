@@ -7,33 +7,38 @@ class Schedule extends Component {
     }
 
     content() {
-        if(this.props.onLoadSchedule != null) {
+        if(this.props.onLoadSchedule !== null) {
             let schedule = this.props.onLoadSchedule;
             console.log(schedule)
             let rows = [];
-            schedule.forEach(function(booking) {
-                rows.push((
-                <tr>
-                    <th scope="row">{booking.columns[4] != "" ? booking.columns[4] : booking.columns[5]}</th>
-                    <td>{booking.time.startTime}</td>
-                    <td>{booking.time.endTime}</td>
-                </tr>
-            ));
-            });
-            return(
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Booker</th>
-                            <th scope="col">Start</th>
-                            <th scope="col">End</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rows}
-                    </tbody>
-                </table>
-            );
+            if(schedule.length > 0) {
+                schedule.forEach(function(booking) {
+                    rows.push((
+                    <tr>
+                        <th scope="row">{booking.columns[4] !== "" ? booking.columns[4] : booking.columns[5]}</th>
+                        <td>{booking.time.startTime}</td>
+                        <td>{booking.time.endTime}</td>
+                    </tr>
+                ));
+                });
+                return(
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Booker</th>
+                                <th scope="col">Start</th>
+                                <th scope="col">End</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows}
+                        </tbody>
+                    </table>
+                );
+            } else {
+                return <p>No bookings today</p>;
+            }
+        
         } else {
             return(
                 <div className="text-center text-dark">

@@ -1,6 +1,6 @@
 export default function(state = null, action) {
     switch(action.type) {
-        case "SCHEDULE_LOADED":
+        case "BOOKING_CANCELED":
             return action.value;
         default:
             break;

@@ -13,7 +13,7 @@ class book extends Component {
   bookNow() {
     return(
       <div className="col-md-auto">
-        <button title="Book this room at a later date" id="bookNowButton" className="btn btn-dark" type="button" data-toggle="modal" data-target="#bookNow">Book Now</button>
+        <button title="Book this room now" id="bookNowButton" className="btn btn-dark" type="button" data-toggle="modal" data-target="#bookNow">Book Now</button>
         <Modal room={this.props.room} bookLater={false} toggler="bookNow"/>
       </div>);
   }
@@ -21,7 +21,7 @@ class book extends Component {
   cancel() {
     return (
     <div className="col-md">
-      <button id="cancelButton" type="button" className="btn btn-dark">Cancel Booking</button>
+      <button id="cancelButton" title="Cancel current booking" type="button" className="btn btn-dark">Cancel Booking</button>
     </div>);
   }
 
