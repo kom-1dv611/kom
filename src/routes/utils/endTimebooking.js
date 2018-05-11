@@ -1,6 +1,5 @@
 'use strict';
 
-//TODO - fixa så de blir ex 09.00 istället för 9.00
 module.exports = function(booking) {
     let startTime = booking.startTime;
     let hour = startTime.substring(0, 2);
@@ -8,6 +7,9 @@ module.exports = function(booking) {
     let parsedDuration = parseInt(booking.duration);
     let endTimeHour = parsedHour + parsedDuration;
     let minutes = startTime.substring(3, 6);
+    if(endTimeHour === 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9) {
+        endTimeHour = '0' + endTimeHour
+    }
     if(endTimeHour === 24) {
         endTimeHour = '01';
     } else if(endTimeHour === 25) {
