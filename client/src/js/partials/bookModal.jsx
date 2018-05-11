@@ -22,8 +22,12 @@ class enterDateTime extends Component {
                 active = value;
             }
         });
+
+        let today = new Date();
+
         data.username = $("#nowUsername").val();
         data.duration = $($(active).children()[0]).val();
+        data.date = {month: today.getMonth() + 1, day: today.getDate(), year: today.getFullYear()}
         data.time = $("#currentTime").val();
         data.room = name;
         console.log(data);
@@ -53,9 +57,13 @@ class enterDateTime extends Component {
                 active = value;
             }
         });
+
+        let today = new Date();
+
         data.username = $("#laterUsername").val();
         data.duration = $($(active).children()[0]).val();
         data.bookingDate = $("#date").val();
+        data.date = {month: today.getMonth() + 1, day: today.getDate(), year: today.getFullYear()}
         data.time = $("#time").val();
         data.room = name;
         console.log(data);
