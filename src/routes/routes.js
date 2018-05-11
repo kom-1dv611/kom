@@ -73,6 +73,7 @@ module.exports = function (RoomModel, BookingModel) {
             //TODO: Någon annan dags schema, kollar bara dagens bokningar just nu. FIXA!
             //TODO: Ta bort aktuell bokning vid cancel booking
             console.log(req.body);
+            console.log(req.body.date.month)
             if(req.body.cancel) {
                 BookingModel.findOneAndRemove({roomID: req.body.room}, function(err, room) {
                     if(err) {
@@ -82,7 +83,7 @@ module.exports = function (RoomModel, BookingModel) {
                         return res.status(200).json({message: 'Booking successfully deleted from DB.'});
                     }
                 })
-            } else if(req.body.username != undefined){
+            } else {
                 let data = {
                     username: req.body.username,
                     roomID: req.body.room,
@@ -92,8 +93,18 @@ module.exports = function (RoomModel, BookingModel) {
                     bookingDate: moment().format('YYYY-MM-DD')
                 }
 
+                let month = JSON.stringify(req.body.date.month)
+                if(month.length === 1) {
+                    month = '0' + month;
+                }
+
+                let date = req.body.date.year + '-' + month + '-' + req.body.date.day;
+                console.log(date);
+
                 if (req.body.bookingDate) {
                     data.bookingDate = req.body.bookingDate;
+                } else {
+                    data.bookingDate = date;
                 }
 
                 let status = false;
@@ -101,13 +112,18 @@ module.exports = function (RoomModel, BookingModel) {
                 let firstPromise = new Promise(async function(resolve, reject) {
                     let bookings = await Room.getBookingsFromDB();
                     let matchBookings = [];
-                    for(let i = 0; i < bookings.length; i++) {
-                        if(bookings[i].roomID === req.body.room) {
-                            matchBookings.push(bookings[i]);
-                        } else {
-                            status = true;
+                    if(bookings.length === 0) {
+                        status = true;
+                    } else {
+                        for(let i = 0; i < bookings.length; i++) {
+                            if(bookings[i].roomID === req.body.room && bookings[i].bookingDate === data.bookingDate) {
+                                matchBookings.push(bookings[i]);
+                            } else {
+                                status = true;
+                            }
                         }
                     }
+                    
 
                     if(status === true && matchBookings.length === 0) {
                         resolve('Success')
@@ -135,7 +151,7 @@ module.exports = function (RoomModel, BookingModel) {
                     let statusWrong = false;
                     let statusRight = false;
                     if(value === 'Success') {
-                        let timeEditBookings = await Room.getSpecificScheduleTimeEdit(req.body.room);
+                        let timeEditBookings = await Room.getSpecificScheduleTimeEditByDate(req.body.room, data.bookingDate);
                         if(timeEditBookings === null) {
                             console.log('inget i timeEdit, boka här')
                             let bookRoom = new BookingModel(data)
@@ -156,6 +172,7 @@ module.exports = function (RoomModel, BookingModel) {
                             if(statusWrong === true && statusRight === true || statusWrong === true) {
                                 console.log('felmeddelande här = ej bokas.')
                             } else if(statusRight === true) {
+                                console.log('bokas asa')
                                 let bookRoom = new BookingModel(data)
                                 bookRoom.save((err) => {
                                     if (!err) {

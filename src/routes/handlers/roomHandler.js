@@ -161,4 +161,13 @@ module.exports = class RoomHandler {
             console.log(er);
         });
     }
+
+    getSpecificScheduleTimeEditByDate(room, date) {
+        return timeEdit.getScheduleByDate(room, new Date(date))
+        .then((roomSchedule) => {
+            return roomSchedule;
+        }).catch((er) => {
+            console.log(er);
+        });
+    }
 };
