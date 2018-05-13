@@ -10,35 +10,58 @@ import $ from "jquery"
 import Schedule from "./scheduleModal";
 import Book from "./book";
 
+import logo from '../../logo.svg';
+
 class room extends Component {
     constructor(props) {
         super(props)
 
-        this.props.busy(this.props.room.available);
+        this.getRoomInfo(this.props.room).then((room) => {
+            //this.props.busy(room.available);
+            this.setState(() => {
+                return {
+                    room: room,
+                    time: {},
+                    seconds: 0,
+                };
+            });
+        });
+
         this.cancel = false;
 
-        this.state = {time: {}, seconds: 0};
+        this.state = {};
+        
         this.timer = 0;
         this.startTimer = this.startTimer.bind(this);
         this.countDown = this.countDown.bind(this);
+        this.ticks = 0;
 
+        console.log(this.state);
+        /*
         $( document ).ready(() => {
             $("#schedule").on("click", async() => {
-                this.onScheduleClick();
+                this.onScheduleClick(); 
             });
-            if(this.props.room.available === false) {
+            if(this.state.room.available === false) {
                 $("#cancelButton").on("click", async() => {
                     this.onCancelClick();
                 });
                 this.setupTimer();
             }
-        });
+        });*/
+    }
+
+    async getRoomInfo(name) {
+        let room = await fetch("/" + name);
+        room = await room.json();
+        console.log("Fetched info from: " + "/" + name)
+        return room;
     }
 
     getDuration(localBooking) {
         let booking, hours, minutes, active, buttons;
         if(localBooking === false) {
-            booking = this.props.room.bookings[0];
+            booking = this.state.room.bookings[0];
             hours = parseInt(booking.endTime.substring(0, booking.endTime.indexOf(":"))) * 3600;
             minutes = parseInt(booking.endTime.substring(booking.endTime.indexOf(":") + 1, booking.endTime.length)) * 60;
             return hours + minutes;
@@ -58,20 +81,22 @@ class room extends Component {
     setupTimer(localBooking = false, update = true) {
         if(this.timer === 0) {
                 let duration = this.getDuration(localBooking);
-                console.log(duration);
-                let now = new Date();
-                let currentMinutes = now.getMinutes() * 60;
-                let currentHours = now.getHours() * 3600;
-                let currentSeconds = now.getSeconds();
-    
-                this.startTimer();
-                let timeLeftVar = this.secondsToTime(this.state.seconds);
-                if(update === true) {
-                    this.setState({ time: timeLeftVar, seconds: duration - (currentHours + currentMinutes + currentSeconds)});
+                if(duration > 0) {
+                    let now = new Date();
+                    let currentMinutes = now.getMinutes() * 60;
+                    let currentHours = now.getHours() * 3600;
+                    let currentSeconds = now.getSeconds();
+        
+                    this.startTimer();
+                    let timeLeftVar = this.secondsToTime(this.state.seconds);
+                    if(update === true) {
+                        this.setState({ time: timeLeftVar, seconds: duration - (currentHours + currentMinutes + currentSeconds)});
+                    } else {
+                        this.state.time = timeLeftVar;
+                        this.state.seconds =  duration - (currentHours + currentMinutes + currentSeconds) >= 0 ? duration - (currentHours + currentMinutes + currentSeconds) : (currentHours + currentMinutes + currentSeconds) - duration;
+                    }
                 } else {
-                    this.state.time = timeLeftVar;
-                    this.state.seconds =  duration - (currentHours + currentMinutes + currentSeconds) >= 0 ? duration - (currentHours + currentMinutes + currentSeconds) : (currentHours + currentMinutes + currentSeconds) - duration;
-                    console.log(this.state);
+                    console.log("Timer could not be started");
                 }
         }
         return true;
@@ -83,15 +108,33 @@ class room extends Component {
         }
     }
 
-    countDown() {
+    async countDown() {
         let seconds = this.state.seconds - 1;
-        this.setState({
-          time: this.secondsToTime(seconds),
-          seconds: seconds,
-        });
-        
+        this.ticks++;
+    
         if (seconds == 0) { 
-          clearInterval(this.timer);
+            clearInterval(this.timer);
+        }
+
+        if(this.ticks >= 5) {
+            let name = this.state.room.room.name;
+            this.ticks = 0;
+            let updated = await fetch("/" + name);
+            updated = await updated.json();
+            console.log(updated);
+            updated.bookings = [];
+            this.setState(function() {
+                return {
+                    room: updated,
+                    time: this.secondsToTime(seconds),
+                    seconds: seconds
+                };
+            });
+        } else {
+            this.setState({
+                time: this.secondsToTime(seconds),
+                seconds: seconds
+            });
         }
       }
 
@@ -113,7 +156,7 @@ class room extends Component {
       };
 
     async onScheduleClick() {
-        let name = this.props.room.room.name;
+        let name = this.state.room.room.name;
         let rows = await fetch(`/${name}/schedule/today`);
         rows = await rows.json();
         if(rows === null) {
@@ -123,7 +166,7 @@ class room extends Component {
     }
 
     async onCancelClick() {
-        let name = this.props.room.room.name;
+        let name = this.state.room.room.name;
         let data = {};
         data.room = name;
         data.cancel = true;
@@ -142,17 +185,17 @@ class room extends Component {
     }
 
     stateHeader() {
-        let available = this.props.room.available;
+        let available = this.state.room.available;
         let toReturn;
         if(available === true) {
             toReturn = (<h1 id="state" className="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently available!">Available</h1>);
         } else if(available === false) {
-            if(this.props.room.bookings.length > 0) {
-                // Detta ska förmodligen funka om schemat returneras våra bokningar?
+            if(this.state.room.bookings && this.state.room.bookings.length > 0) {
+                // Detta ska förmodligen funka om schemat returner våra bokningar?
                 toReturn = (
                     <div className="text-center animated fadeIn">
                         <h1 id="state" data-toggle="tooltip" data-placement="top" title="This room is currently unavailable!">Unavailable</h1>
-                        <h3>Available: {this.props.room.bookings[0].endTime}({this.state.time.h}:{this.state.time.m}:{this.state.time.s})</h3>
+                        <h3>Available: {this.state.room.bookings[0].endTime}({this.state.time.h}:{this.state.time.m}:{this.state.time.s})</h3>
                     </div>);
             } else {
                 toReturn = (<h1 id="state" className="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently unavailable!">Unavailable</h1>);
@@ -166,7 +209,7 @@ class room extends Component {
     }
 
     booking() {
-        let available = this.props.room.available;
+        let available = this.state.room.available;
         if(available === true) {
             return (
                 <div id="book" className="animated fadeInLeft">
@@ -176,7 +219,7 @@ class room extends Component {
                             <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
                             <Schedule/>
                         </div>
-                        <Book room={this.props.room.room.name} available={this.props.room.available} />
+                        <Book room={this.state.room.room.name} available={this.state.room.available} />
                     </div>
                 </div>);
         } else {
@@ -188,7 +231,7 @@ class room extends Component {
                         <Schedule/>
                     </div>
                     <div className="col-md-auto">
-                        <Book room={this.props.room.room.name} available={this.props.room.available} />
+                        <Book room={this.state.room.room.name} available={this.state.room.available} />
                     </div>
                 </div>
             </div>);
@@ -198,7 +241,7 @@ class room extends Component {
     async book() {
         $("body").addClass("unavailable");
         $("body").removeClass("available");
-        this.props.room.available = false;
+        this.state.room.available = false;
         this.setupTimer(true, false);
         $( document ).ready(() => {
             $("#schedule").off();
@@ -216,7 +259,7 @@ class room extends Component {
     async cancelBooking() {
         $("body").addClass("available");
         $("body").removeClass("unavailable");
-        this.props.room.available = true;
+        this.state.room.available = true;
         $( document ).ready(() => {
             $("#schedule").off("click");
             $("#schedule").on("click", async() => {
@@ -228,26 +271,33 @@ class room extends Component {
     }
 
     render() {
-        console.log("renders")
-        if(this.cancel === true) {
-            this.cancel = false;
-            this.cancelBooking();
-        } else if(this.props.submit !== null && this.props.submit !== "") {
-            this.book();
-        }
-        return (
+        if(Object.keys(this.state).length === 0) {
+            return(
             <div>
-                <div className="ml-2 mt-5 pt-5">
-                    <i className="fas fa-users fa-2x" title="Capacity"></i><span className="h3">5</span>
-                    <i className="fas fa-laptop fa-2x mr-2" title="Computer equipment"></i>
-                    <i className="fab fa-product-hunt fa-2x mr-2" title="Projector"></i>
+                <img src={logo} alt="loading icon" className="App-logo"/>
+                <h1 className="mt-5">Loading</h1>
+            </div>)
+        }else {
+            console.log(this.state);
+            if(this.cancel === true) {
+                this.cancel = false;
+                this.cancelBooking();
+            } else if(this.state.submit !== null && this.state.submit !== "") {
+                this.book();
+            }
+            return (
+                <div>
+                    <div className="ml-2 mt-5 pt-5">
+                        <i className="fas fa-users fa-2x" title="Capacity"></i><span className="h3">5</span>
+                        <i className="fas fa-laptop fa-2x mr-2" title="Computer equipment"></i>
+                        <i className="fab fa-product-hunt fa-2x mr-2" title="Projector"></i>
+                    </div>
+                    {this.stateHeader()}
+                    {this.booking()}
+                    {this.clock()}
                 </div>
-                {this.stateHeader()}
-                {this.booking()}
-                {this.clock()}
-            </div>
-            );
-        
+                );
+        }     
     }
 }
 

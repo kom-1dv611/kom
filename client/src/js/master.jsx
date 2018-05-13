@@ -9,7 +9,7 @@ class master extends Component {
   state = {mode: "pending"}
 
   selectedRoom() {
-    return(<div><Room room={this.props.selectedRoom}/></div>);
+    return(<div><Room room={this.props.selectedRoom.room.name}/></div>);
   }
 
   allRooms() {
