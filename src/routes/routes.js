@@ -41,6 +41,7 @@ module.exports = function (RoomModel, BookingModel) {
 
     router.route('/:id')
         .get(async function (req, res) {
+            console.log('yolo')
             let room = {};
             room.id = req.params.id;
             let currentTime = moment().format('LT');
@@ -192,9 +193,25 @@ module.exports = function (RoomModel, BookingModel) {
     router.route('/:roomID/schedule/today')
         .get(function (req, res) {
             timeEdit.getTodaysSchedule(req.params.roomID)
-                .then((roomSchedule) => {
-                    //todo: interna bokningssystemet
-                    res.send(JSON.stringify(roomSchedule, null, 2));
+                .then(async (roomSchedule) => {
+                    let collection = [];
+                    let schedule = [];
+                    let booking = await Room.getSpecificBooking(req.params.roomID);
+                    
+                    if (booking.length > 0 && booking.bookingDate === moment().format('YYYY-MM-DD')) collection.push(booking[0]);
+                    if (roomSchedule) collection.push(roomSchedule);
+                    
+                    collection.map((x) => {
+                        schedule.push(
+                            {
+                                username: x.username,
+                                startTime: x.startTime,
+                                endTime: x.endTime
+                            }
+                        )
+                    })
+                    
+                    res.send(JSON.stringify(schedule, null, 2));
                 }).catch((er) => {
                     console.log(er);
                 });

@@ -38,9 +38,9 @@ module.exports = class RoomHandler {
                 if (this.isRoomBookedInDB(booking, room, currentTime)) { 
                     if (this.hasBookingExpired(booking, currentTime)) {
                         console.log(booking.roomID + ' har expirat och tas nu bort. (' + booking.startTime + '-' + getEndTimeForBooking(booking) + ') ' + booking.bookingDate)
-                        //await this.removeBookingFromDB(booking.roomID);
+                        await this.removeBookingFromDB(booking.roomID);
                     } else {
-                        roomToBeValidated.available = booking.startTime > currentTime ? true : false;
+                        roomToBeValidated.available = this.isRoomAvailable(booking, currentTime);
 
                         roomToBeValidated.bookings.push({
                             startTime: booking.startTime, 
@@ -55,8 +55,16 @@ module.exports = class RoomHandler {
         return roomToBeValidated;
     }
 
-    checkBookingStatus() {
-
+    isRoomAvailable(booking, currentTime) {
+        if (booking.bookingDate > moment().format('YYYY-MM-DD')) {
+            //den är ledig
+            return true;
+        } else if (booking.bookingDate === moment().format('YYYY-MM-DD')) {
+            //Idag, jämför tiden.
+            return booking.startTime > currentTime ? true : false;
+        } else {
+            console.log('här ska den inte gå in, hehe');
+        }
     }
 
     //Checks if a room is booked in timeedit. Takes the TimeEdit schedule, current time and the room that is getting validated.
