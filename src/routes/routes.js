@@ -41,14 +41,18 @@ module.exports = function (RoomModel, BookingModel) {
 
     router.route('/:id')
         .get(async function (req, res) {
+            console.log('yolo')
             let room = {};
             room.name = req.params.id;
             let available = false;
             let unavailable = false;
             let currentTime = moment().format('LT');
             let currentBooking;
+            room.available = true;
 
             let booking = await Room.getSpecificBooking(req.params.id);
+            console.log(booking)
+            console.log('_____')
             if (booking.length > 0) {
                 for(let i = 0; i < booking.length; i++) {
                     if(booking[i].bookingDate === moment().format('YYYY-MM-DD')) {
@@ -84,11 +88,23 @@ module.exports = function (RoomModel, BookingModel) {
             res.json({ room: room });
         })
         .post(async function (req, res) {
-            //TODO: Postas två gåner ibland bara?
-            //TODO: Någon annan dags schema, kollar bara dagens bokningar just nu. FIXA!
-            //TODO: Ta bort aktuell bokning vid cancel booking
             if(req.body.cancel) {
-                await Room.removeBookingFromDB(req.body.room);
+                BookingModel.find({roomID: req.body.room}, function(err, rooms) {
+                    if(err) {
+                        console.log(err)
+                    } else {
+                        let booking = rooms.sort((a, b) => a.startTime.localeCompare(b.startTime));
+                        console.log(booking[0])
+                        BookingModel.findOneAndRemove({roomID: req.body.room, startTime: booking[0].startTime }, function(err, room) {
+                            if(err) {
+                                console.log(err)
+                            } else {
+                                console.log('Booking successfully deleted from DB.');
+                                return res.status(200).json({message: 'Booking successfully deleted from DB.'});
+                            }
+                        })
+                    }
+                })
                 // BookingModel.findOneAndRemove({roomID: req.body.room}, function(err, room) {
                 //     if(err) {
                 //         console.log(err)
