@@ -32,70 +32,55 @@ module.exports = class RoomHandler {
                 }
             }
         }
-
         //Sätter dagens schema för ett grupprum
         roomToBeValidated.bookings = await this.getCompleteScheduleToday(room.name);
-
         return roomToBeValidated;
     }
 
     getCompleteScheduleToday(room) {
-        return new Promise((resolve, reject) => {
-            timeEdit.getTodaysSchedule(room)
-                    .then(async (roomSchedule) => {
-                        let schedule = [];
-                        let booking = await this.getSpecificBooking(room);
-                        
-                        if (booking.length > 0 && booking[0].bookingDate === moment().format('YYYY-MM-DD')) {
-                            booking.map((x) => {
-                                schedule.push({
-                                    username: x.username,
-                                    startTime: x.startTime,
-                                    endTime: x.endTime
-                                })
-                            })
-                        }
-
-                        if (roomSchedule) {
-                            schedule.push({
-                                username: 'timeedit',
-                                startTime: roomSchedule[0].time.startTime,
-                                endTime: roomSchedule[0].time.endTime
-                            });
-                        }
-
-                        resolve(schedule);
-
-                        return schedule;
-                    }).catch((er) => {
-                        console.log(er);
-                        reject('');
-                    });
-                })
+        return timeEdit.getTodaysSchedule(room)
+            .then(async (roomSchedule) => {
+                let schedule = [];
+                let booking = await this.getSpecificBooking(room);
                 
+                if (booking.length > 0 && booking[0].bookingDate === moment().format('YYYY-MM-DD')) {
+                    booking.map((x) => {
+                        schedule.push({
+                            username: x.username,
+                            startTime: x.startTime,
+                            endTime: x.endTime
+                        })
+                    })
+                }
+
+                if (roomSchedule) {
+                    schedule.push({
+                        username: 'timeedit',
+                        startTime: roomSchedule[0].time.startTime,
+                        endTime: roomSchedule[0].time.endTime
+                    });
+                }
+
+                return schedule;
+            }).catch((er) => {
+                console.log(er);
+            });
     }
 
     isRoomAvailable(booking, currentTime) {
-        if (booking.bookingDate > moment().format('YYYY-MM-DD')) {
-            //den är ledig
-            return true;
-        } else if (booking.bookingDate === moment().format('YYYY-MM-DD')) {
-            //Idag, jämför tiden.
-            if(booking.startTime <= currentTime && booking.endTime >= currentTime) {
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            console.log('här ska den inte gå in, hehe');
-        }
+        if (booking.bookingDate > moment().format('YYYY-MM-DD')) return true;
+        if (booking.bookingDate === moment().format('YYYY-MM-DD')) return booking.startTime <= currentTime && booking.endTime >= currentTime ? false : true;
+    }
+
+    hasBookingExpired(booking, currentTime) {
+        if (booking.bookingDate < moment().format('YYYY-MM-DD')) return true;
+        if (booking.bookingDate === moment().format('YYYY-MM-DD')) return booking.endTime < currentTime ? true : false;
     }
 
     isRoomBookedInTimeEdit(scheduleTimeEdit, currentTime, roomToBeValidated) {
         if (!roomToBeValidated.hasOwnProperty('available')) {
             return scheduleTimeEdit.isNull || currentTime < scheduleTimeEdit.startTime || currentTime > scheduleTimeEdit.endTime ? false : true;
-        } 
-        return false;
+        } else { return false; }
     }
 
     isRoomBookedInDB(booking, room, currentTime) {
@@ -105,19 +90,11 @@ module.exports = class RoomHandler {
     removeBookingFromDB(id) {
         return this.BookingModel.find({ roomID: id }).remove().exec()
         .then((result) => {
-            console.log('Successfully removed ' + id + ' from DB!');
+            console.log('Successfully removed ' + id + ' booking from DB!');
             return result;
         }).catch((err) => {
             console.log(err)
         })
-    }
-
-    hasBookingExpired(booking, currentTime) {
-        if (booking.bookingDate < moment().format('YYYY-MM-DD')) {
-            return true;
-        } else if (booking.bookingDate === moment().format('YYYY-MM-DD')) {
-            return booking.endTime < currentTime ? true : false;
-        }
     }
 
     //Get specific booking from DB
