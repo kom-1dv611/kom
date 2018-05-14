@@ -1,10 +1,10 @@
 'use strict';
 
-let RoomHandler = require('./handlers/RoomHandler');
+let RoomHandler = require('../handlers/roomHandler');
 
 const Scraper = require('../libs/scraper');
-const getEndTimeForBooking = require('./utils/endTimebooking');
-const buildTable = require('./utils/buildTable');
+const getEndTimeForBooking = require('../utils/endTimebooking');
+const buildTable = require('../utils/buildTable');
 
 const timeEditApi = require('timeeditApi');
 const timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
@@ -41,7 +41,6 @@ module.exports = function (RoomModel, BookingModel) {
 
     router.route('/:id')
         .get(async function (req, res) {
-            console.log('yolo')
             let room = {};
             room.name = req.params.id;
             let available = false;
@@ -73,15 +72,12 @@ module.exports = function (RoomModel, BookingModel) {
                 }
             } 
            else {
-                console.log("plz no crash")
                 let roomSchedule = await Room.getSpecificScheduleTimeEdit(room.name);
                 
                 if (roomSchedule === null || currentTime < roomSchedule[0].time.startTime) { 
-                    console.log("true")
                     room.available = true 
                 }  else if (currentTime > roomSchedule[0].time.startTime) { 
                     room.available = false; 
-                    console.log("false")
                     room.willBeAvailable = roomSchedule[0].time.endTime; 
                 }
             }
@@ -121,7 +117,6 @@ module.exports = function (RoomModel, BookingModel) {
                 }
 
                 let date = req.body.date.year + '-' + month + '-' + req.body.date.day;
-                console.log(date);
 
                 if (req.body.bookingDate) {
                     data.bookingDate = req.body.bookingDate;

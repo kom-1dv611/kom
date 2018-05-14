@@ -11,89 +11,72 @@ module.exports = class RoomHandler {
         this.BookingModel = BookingModel;
     }
 
-    //Determines if a room is CURRENTLY truly available or not (based on db bookings and timeedit bookings)
-    /**
-     * {bookings} - Array of bookings from DB
-     * {scheduleTimeEdit} - Object representing a rooms timeedit schedule
-     * {room} - Object representing the room to be validated
-     * {currentTime} - momentJS current localtime
-     */
     async validateGroupRoom(bookings, scheduleTimeEdit, room, currentTime) {
         let roomToBeValidated = { room, bookings: [] }
 
-        if (this.isRoomBookedInTimeEdit(scheduleTimeEdit, currentTime, roomToBeValidated))  { 
-            roomToBeValidated.available = false; 
-            roomToBeValidated.bookings.push({
-                startTime: scheduleTimeEdit.startTime, 
-                endTime: scheduleTimeEdit.endTime,
-                bookingDate: moment().format('YYYY-MM-DD')
-            })
-        } else { 
-            roomToBeValidated.available = true; 
-        }
-        //Kollar om det finns några bokningar i databasen och tar bort gamla bokningar
+        //Är grupprummet bokat i timeedit så sätt tillgänglighet baserat på statusen.
+        this.isRoomBookedInTimeEdit(scheduleTimeEdit, currentTime, roomToBeValidated) ? roomToBeValidated.available = false : roomToBeValidated.available = true; 
+
+        //Filtrerar ut den "första" bokningen, så att man ser om rummet är tillgängligt eller inte JUST NU. Tar även bort expirade bokningar.
         if (bookings.length) {
-            let hej = bookings.filter((x) => {
-                return x.roomID === room.name;
-            })
 
-            let booking = hej.sort((a, b) => a.startTime.localeCompare(b.startTime));
+            let roomBookings = bookings.filter((x) => x.roomID === room.name && x.bookingDate === moment().format('YYYY-MM-DD'));
+            //if (x.roomID === room.name && x.bookingDate === moment().format('YYYY-MM-DD')) return x;
+            let earliestBooking = roomBookings.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
 
-            if (booking.length > 0) {
-                if (this.isRoomBookedInDB(booking[0], room, currentTime)) { 
-                    if (this.hasBookingExpired(booking[0], currentTime)) {
-                        console.log(booking[0].roomID + ' har expirat och tas nu bort. (' + booking[0].startTime + '-' + getEndTimeForBooking(booking[0]) + ') ' + booking[0].bookingDate)
-                        await this.removeBookingFromDB(booking.roomID);
+            if (roomBookings.length > 0) {
+                if (this.isRoomBookedInDB(earliestBooking, room, currentTime)) { 
+                    if (this.hasBookingExpired(earliestBooking, currentTime)) {
+                        console.log(earliestBooking.roomID + ' har expirat och tas nu bort. (' + earliestBooking.startTime + '-' + getEndTimeForBooking(earliestBooking) + ') ' + earliestBooking.bookingDate)
+                        await this.removeBookingFromDB(earliestBooking.roomID);
                     } else {
-                        //Kör bara metoden för den bokningen som gäller först, inte den sista
-                        roomToBeValidated.available = this.isRoomAvailable(booking[0], currentTime);
-
-                        roomToBeValidated.bookings.push({
-                            startTime: booking[0].startTime, 
-                            endTime: booking[0].endTime,
-                            bookingDate: booking[0].bookingDate
-                        })
-                        roomToBeValidated.bookings.sort((a, b) => a.startTime.localeCompare(b.startTime));
+                        roomToBeValidated.available = this.isRoomAvailable(earliestBooking, currentTime);
                     }
                 }
             }
         }
+
+        //Sätter dagens schema för ett grupprum
+        roomToBeValidated.bookings = await this.getCompleteScheduleToday(room.name);
+
         return roomToBeValidated;
     }
 
     getCompleteScheduleToday(room) {
-            return new Promise((resolve, reject) => {
-
-                this.getSpecificScheduleTimeEdit(room);
-
-                timeEdit.getTodaysSchedule(req.params.roomID)
-                        .then(async (roomSchedule) => {
-                            let schedule = [];
-                            let booking = await Room.getSpecificBooking(req.params.roomID);
-                            
-                            if (booking.length > 0 && booking[0].bookingDate === moment().format('YYYY-MM-DD')) {
-                                booking.map((x) => {
-                                    schedule.push({
-                                        username: x.username,
-                                        startTime: x.startTime,
-                                        endTime: x.endTime
-                                    })
-                                })
-                            }
-
-                            if (roomSchedule) {
+        return new Promise((resolve, reject) => {
+            timeEdit.getTodaysSchedule(room)
+                    .then(async (roomSchedule) => {
+                        let schedule = [];
+                        let booking = await this.getSpecificBooking(room);
+                        
+                        if (booking.length > 0 && booking[0].bookingDate === moment().format('YYYY-MM-DD')) {
+                            booking.map((x) => {
                                 schedule.push({
-                                    username: 'timeedit',
-                                    startTime: roomSchedule[0].time.startTime,
-                                    endTime: roomSchedule[0].time.endTime
-                                });
-                            }
-                            
-                            //res.send(JSON.stringify(schedule, null, 2));
-                        }).catch((er) => {
-                            console.log(er);
-                        });
-                    })
+                                    username: x.username,
+                                    startTime: x.startTime,
+                                    endTime: x.endTime
+                                })
+                            })
+                        }
+
+                        if (roomSchedule) {
+                            schedule.push({
+                                username: 'timeedit',
+                                startTime: roomSchedule[0].time.startTime,
+                                endTime: roomSchedule[0].time.endTime
+                            });
+                        }
+
+                        resolve(schedule);
+
+                        return schedule;
+                        
+                        //res.send(JSON.stringify(schedule, null, 2));
+                    }).catch((er) => {
+                        console.log(er);
+                        reject('');
+                    });
+                })
                 
     }
 
@@ -113,12 +96,32 @@ module.exports = class RoomHandler {
         }
     }
 
-    //Checks if a room is booked in timeedit. Takes the TimeEdit schedule, current time and the room that is getting validated.
     isRoomBookedInTimeEdit(scheduleTimeEdit, currentTime, roomToBeValidated) {
         if (!roomToBeValidated.hasOwnProperty('available')) {
             return scheduleTimeEdit.isNull || currentTime < scheduleTimeEdit.startTime || currentTime > scheduleTimeEdit.endTime ? false : true;
         } 
         return false;
+    }
+
+    isRoomBookedInDB(booking, room, currentTime) {
+        return booking.roomID === room.name ? true : false;
+    }
+
+    removeBookingFromDB(id) {
+        return this.BookingModel.find({ roomID: id }).remove().exec()
+        .then((result) => {
+            return result;
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
+
+    hasBookingExpired(booking, currentTime) {
+        if (booking.bookingDate < moment().format('YYYY-MM-DD')) {
+            return true;
+        } else if (booking.bookingDate === moment().format('YYYY-MM-DD')) {
+            return booking.endTime < currentTime ? true : false;
+        }
     }
 
     //Get specific booking from DB
@@ -129,30 +132,6 @@ module.exports = class RoomHandler {
         }).catch((err) => {
             console.log(err)
         })
-    }
-
-    //Remove specific booking from DB
-    removeBookingFromDB(id) {
-        return this.BookingModel.find({ roomID: id }).remove().exec()
-        .then((result) => {
-            return result;
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
-
-    //Validate if a booking has expired or not based on date and time
-    hasBookingExpired(booking, currentTime) {
-        if (booking.bookingDate < moment().format('YYYY-MM-DD')) {
-            return true;
-        } else if (booking.bookingDate === moment().format('YYYY-MM-DD')) {
-            return booking.endTime < currentTime ? true : false;
-        }
-    }
-
-    //checks if a room has a booking in the DB.
-    isRoomBookedInDB(booking, room, currentTime) {
-        return booking.roomID === room.name ? true : false;
     }
 
     //Returns array of grouprooms from DB
