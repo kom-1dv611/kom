@@ -41,12 +41,10 @@ module.exports = class RoomHandler {
 
             if (booking.length > 0) {
                 if (this.isRoomBookedInDB(booking[0], room, currentTime)) { 
-                    //console.log(booking[0])
                     if (this.hasBookingExpired(booking[0], currentTime)) {
                         console.log(booking[0].roomID + ' har expirat och tas nu bort. (' + booking[0].startTime + '-' + getEndTimeForBooking(booking[0]) + ') ' + booking[0].bookingDate)
                         await this.removeBookingFromDB(booking.roomID);
                     } else {
-
                         //Kör bara metoden för den bokningen som gäller först, inte den sista
                         roomToBeValidated.available = this.isRoomAvailable(booking[0], currentTime);
 
@@ -100,13 +98,12 @@ module.exports = class RoomHandler {
     }
 
     isRoomAvailable(booking, currentTime) {
-        console.log(booking);
         if (booking.bookingDate > moment().format('YYYY-MM-DD')) {
             //den är ledig
             return true;
         } else if (booking.bookingDate === moment().format('YYYY-MM-DD')) {
             //Idag, jämför tiden.
-            if(booking.startTime < currentTime && booking.endTime > currentTime) {
+            if(booking.startTime <= currentTime && booking.endTime >= currentTime) {
                 return false;
             } else {
                 return true;

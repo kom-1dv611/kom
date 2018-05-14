@@ -41,7 +41,6 @@ module.exports = function (RoomModel, BookingModel) {
 
     router.route('/:id')
         .get(async function (req, res) {
-            console.log('yolo')
             let room = {};
             room.name = req.params.id;
             let available = false;
@@ -89,14 +88,15 @@ module.exports = function (RoomModel, BookingModel) {
             //TODO: Någon annan dags schema, kollar bara dagens bokningar just nu. FIXA!
             //TODO: Ta bort aktuell bokning vid cancel booking
             if(req.body.cancel) {
-                BookingModel.findOneAndRemove({roomID: req.body.room}, function(err, room) {
-                    if(err) {
-                        console.log(err)
-                    } else {
-                        console.log('Booking successfully deleted from DB.');
-                        return res.status(200).json({message: 'Booking successfully deleted from DB.'});
-                    }
-                })
+                await Room.removeBookingFromDB(req.body.room);
+                // BookingModel.findOneAndRemove({roomID: req.body.room}, function(err, room) {
+                //     if(err) {
+                //         console.log(err)
+                //     } else {
+                //         console.log('Booking successfully deleted from DB.');
+                //         return res.status(200).json({message: 'Booking successfully deleted from DB.'});
+                //     }
+                // })
             } else {
                 let data = {
                     username: req.body.username,
