@@ -7,7 +7,7 @@ class roomCollection extends Component {
         let rows = target.map(function (row, i) {
             let cols = [];
             row.cols.map(function(col, j) {
-                return cols.push(<div key={"r" + i + "c" + j} className="col"><Room key={"r" + i + "c" + j + "r"} room={row.cols[j]}/></div>);
+                return cols.push(<div key={"r" + i + "c" + j} className="col-sm-3"><Room key={"r" + i + "c" + j + "r"} room={row.cols[j]}/></div>);
             });
             return <div key={"r" + i} className="row top-buffer mb-4">{cols}</div>
         });
@@ -15,17 +15,19 @@ class roomCollection extends Component {
     }
 
     sort(rooms) {
-        let size = Math.ceil(rooms.length / 3);
+        let rowSize = 4;
+        let size = Math.ceil(rooms.length / rowSize);
         let rows = [];
         for(let i = 0; i < size; i++) {
             rows.push({})
             rows[i].cols = [];
-            for(let j = i * 3; j < (i * 3) + 3; j++) {
+            for(let j = i * rowSize; j < (i * rowSize) + rowSize; j++) {
                 if(rooms[j] !== undefined) {
                     rows[i].cols.push(rooms[j]);
                 }
             }
         }
+        console.log(rows);
         return rows;
     }
 

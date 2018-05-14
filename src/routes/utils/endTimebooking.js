@@ -7,6 +7,9 @@ module.exports = function(booking) {
     let parsedDuration = parseInt(booking.duration);
     let endTimeHour = parsedHour + parsedDuration;
     let minutes = startTime.substring(3, 6);
+    if(endTimeHour === 1 || endTimeHour === 2 || endTimeHour === 3 || endTimeHour === 4 || endTimeHour === 5 || endTimeHour === 6 || endTimeHour === 7 || endTimeHour === 8 || endTimeHour === 9 ) {
+        endTimeHour = '0' + endTimeHour
+    } 
     if(endTimeHour === 24) {
         endTimeHour = '01';
     } else if(endTimeHour === 25) {

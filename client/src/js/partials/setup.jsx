@@ -7,7 +7,7 @@ import event from "../actions/setup"
 class setup extends Component {
     render() {
         return(
-            <div id="book">
+            <div id="book" className="animated fadeInLeft">
                 <div className="row justify-content-center">
                 <div className="col-md-auto">
                     <button className="btn btn-dark" onClick={ () => this.props.setup("overall") }>Overview</button>

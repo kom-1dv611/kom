@@ -1,4 +1,4 @@
-$mainTextColor: black;
+$mainTextColor: white;
 $mainOverlayColor: rgba(0, 0, 0, 0.5);
 $mainOnHoverColor: rgba(0, 0, 0, 0.1);
 $navColor: white;
@@ -21,6 +21,7 @@ $background: url("/imgs/background.png");
 html, body {
     margin: 0;
     height: 100%;
+    z-index: 1 !important;
 }
 
 body {
@@ -29,31 +30,41 @@ body {
     margin: 0 0;
     img {
         position: fixed;
-        bottom: 0;
-        left: 5px;
-        max-width: 300px;
-        max-height: 300px;
+        bottom: 10px;
+        right: 10px;
+        width: 200px;
     }
 }
 
 nav {
     position: absolute;
+    background-color: $mainOverlayColor;
     width: 100%;
     top: 0;
     left: 0;
-    img {
+    color: $mainTextColor;
+    h4 {
         position: absolute;
-        left: auto;
-        bottom: auto;
-        top: 7px;
-        right: 20px;
-        max-width: 200px;
-        max-height: 30px;
+        top: 50%;
+        left: 10px;
+        transform: translateY(-50%);
+    }
+    ol {
+        display: inline !important;
+    }
+    li {
+        float: none !important;
     }
 }
 
 h1 {
     font-size: 6em;
+    color: $mainTextColor;
+    font-family: "Helvetica";
+}
+
+
+h3 {
     color: $mainTextColor;
     font-family: "Helvetica";
 }
@@ -87,6 +98,10 @@ h4 {
     color: black;
 }
 
+.breadcrumb {
+    background-color: rgba(0, 0, 0, 0);
+}
+
 .breadcrumb-item {
     a{
         color: $navColor;
@@ -98,10 +113,6 @@ h4 {
 
 .dropdown-menu {
     min-width: 75px !important;
-}
-
-.breadcrumb {
-    background-color: $mainOverlayColor !important;
 }
 
 .dropdown-item:hover {
@@ -156,12 +167,16 @@ h4 {
     margin-top: 50px;
 }
 
-#available {
-    background-color: rgba(0, 255, 0, 0.4);
+.available, .unavailable {
+    background-image: none;
 }
 
-#unavailable {
-    background-color: rgba(255, 0, 0, 0.5);
+.available {
+    background-color: rgba(0, 255, 0, 0.55);
+}
+
+.unavailable {
+    background-color: rgba(255, 0, 0, 0.65);
 }
 
 input[type=date]::-webkit-inner-spin-button {
@@ -171,8 +186,21 @@ input[type=date]::-webkit-inner-spin-button {
 
 #filter {
     position: absolute;
-    right: 140px;
-    top: 8px;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3000 !important;
+    
+}
+
+#search {
+    position: absolute;
+    right: 125px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3000 !important;
+    width: 200px;
+    height: 25px;
 }
 
 @keyframes App-logo-spin {
