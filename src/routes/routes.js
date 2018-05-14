@@ -43,7 +43,7 @@ module.exports = function (RoomModel, BookingModel) {
         .get(async function (req, res) {
             console.log('yolo')
             let room = {};
-            room.id = req.params.id;
+            room.name = req.params.id;
             let currentTime = moment().format('LT');
 
             let booking = await Room.getSpecificBooking(req.params.id);
@@ -57,16 +57,19 @@ module.exports = function (RoomModel, BookingModel) {
                     room.willBeAvailable = booking[0].endTime;
                 }
             } else {
-                let roomSchedule = await Room.getSpecificScheduleTimeEdit(room);
-
+                console.log("plz no crash")
+                let roomSchedule = await Room.getSpecificScheduleTimeEdit(room.name);
+                
                 if (roomSchedule === null || currentTime < roomSchedule[0].time.startTime) { 
+                    console.log("true")
                     room.available = true 
                 }  else if (currentTime > roomSchedule[0].time.startTime) { 
                     room.available = false; 
+                    console.log("false")
                     room.willBeAvailable = roomSchedule[0].time.endTime; 
                 }
             }
-
+            console.log(room);
             res.json({ room: room });
         })
         .post(async function (req, res) {
