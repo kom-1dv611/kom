@@ -105,14 +105,6 @@ module.exports = function (RoomModel, BookingModel) {
                         })
                     }
                 })
-                // BookingModel.findOneAndRemove({roomID: req.body.room}, function(err, room) {
-                //     if(err) {
-                //         console.log(err)
-                //     } else {
-                //         console.log('Booking successfully deleted from DB.');
-                //         return res.status(200).json({message: 'Booking successfully deleted from DB.'});
-                //     }
-                // })
             } else {
                 let data = {
                     username: req.body.username,
