@@ -41,29 +41,31 @@ module.exports = function (RoomModel, BookingModel) {
 
     router.route('/:id')
         .get(async function (req, res) {
-            console.log('yolo')
             let room = {};
             room.name = req.params.id;
             let currentTime = moment().format('LT');
 
             let booking = await Room.getSpecificBooking(req.params.id);
             if (booking.length > 0) {
-                let startTime = booking[0].startTime;
+                console.log(booking[0])
+                room.available = Room.isRoomAvailable(booking[0], currentTime);
                 
-                if (startTime > currentTime || booking[0].endTime < currentTime) {
-                    room.available = true;
-                } else {
-                    room.available = false;
-                    room.willBeAvailable = booking[0].endTime;
-                }
+                // if (startTime > currentTime || booking[0].endTime < currentTime) {
+                //     room.available = true;
+                // } else {
+                //     room.available = false;
+                //     room.willBeAvailable = booking[0].endTime;
+                // }
             } else {
                 console.log("plz no crash")
                 let roomSchedule = await Room.getSpecificScheduleTimeEdit(room.name);
                 
-                if (roomSchedule === null || currentTime < roomSchedule[0].time.startTime) { 
+                if (roomSchedule === null) {
                     console.log("true")
-                    room.available = true 
-                }  else if (currentTime > roomSchedule[0].time.startTime) { 
+                    room.available = true;
+                }  else if (currentTime < roomSchedule[0].time.startTime) {
+                    room.available = true;
+                }else if (currentTime > roomSchedule[0].time.startTime) { 
                     room.available = false; 
                     console.log("false")
                     room.willBeAvailable = roomSchedule[0].time.endTime; 
@@ -197,22 +199,26 @@ module.exports = function (RoomModel, BookingModel) {
         .get(function (req, res) {
             timeEdit.getTodaysSchedule(req.params.roomID)
                 .then(async (roomSchedule) => {
-                    let collection = [];
                     let schedule = [];
                     let booking = await Room.getSpecificBooking(req.params.roomID);
                     
-                    if (booking.length > 0 && booking.bookingDate === moment().format('YYYY-MM-DD')) collection.push(booking[0]);
-                    if (roomSchedule) collection.push(roomSchedule);
-                    
-                    collection.map((x) => {
-                        schedule.push(
-                            {
+                    if (booking.length > 0 && booking[0].bookingDate === moment().format('YYYY-MM-DD')) {
+                        booking.map((x) => {
+                            schedule.push({
                                 username: x.username,
                                 startTime: x.startTime,
                                 endTime: x.endTime
-                            }
-                        )
-                    })
+                            })
+                        })
+                    }
+
+                    if (roomSchedule) {
+                        schedule.push({
+                            username: 'timeedit',
+                            startTime: roomSchedule[0].time.startTime,
+                            endTime: roomSchedule[0].time.endTime
+                        });
+                    }
                     
                     res.send(JSON.stringify(schedule, null, 2));
                 }).catch((er) => {

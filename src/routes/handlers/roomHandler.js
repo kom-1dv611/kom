@@ -139,13 +139,11 @@ module.exports = class RoomHandler {
 
                     if (roomSchedule) {
                         timeEditschedule.room = roomSchedule[0].searchId;
-                        timeEditschedule.available = false;
                         timeEditschedule.startTime = roomSchedule[0].time.startTime;
                         timeEditschedule.endTime = roomSchedule[0].time.endTime;
                         timeEditschedule.isNull = false;
                     } else {
                         timeEditschedule.room = room.name;
-                        timeEditschedule.available = true;
                         timeEditschedule.isNull = true;
                     }
                     resolve(timeEditschedule);
