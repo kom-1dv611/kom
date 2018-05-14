@@ -41,6 +41,7 @@ module.exports = function (RoomModel, BookingModel) {
 
     router.route('/:id')
         .get(async function (req, res) {
+            console.log('yolo')
             let room = {};
             room.id = req.params.id;
             let currentTime = moment().format('LT');
@@ -69,8 +70,11 @@ module.exports = function (RoomModel, BookingModel) {
             res.json({ room: room });
         })
         .post(async function (req, res) {
+            //TODO: Postas två gåner ibland bara?
+            //TODO: Någon annan dags schema, kollar bara dagens bokningar just nu. FIXA!
+            //TODO: Ta bort aktuell bokning vid cancel booking
             console.log(req.body);
-            //3. else om det inte finns bokningar i databas eller timeEdit
+            console.log(req.body.date.month)
             if(req.body.cancel) {
                 BookingModel.findOneAndRemove({roomID: req.body.room}, function(err, room) {
                     if(err) {
@@ -90,82 +94,124 @@ module.exports = function (RoomModel, BookingModel) {
                     bookingDate: moment().format('YYYY-MM-DD')
                 }
 
-                if (req.body.bookingDate) {
-                    data.bookingDate = req.body.bookingDate;
+                let month = JSON.stringify(req.body.date.month)
+                if(month.length === 1) {
+                    month = '0' + month;
                 }
 
-                BookingModel.find({roomID: req.body.room}, function(err, bookings) {
-                    if(err) {
-                        console.log(err);
-                    } else {             
-                        if(bookings) {
-                            for(let i = 0; i < bookings.length; i++) {
-                                if(data.endTime > bookings[i].startTime || data.startTime < bookings[i].endTime) {
-                                    console.log('felmeddelande')
-                                } else {
-                                    let bookRoom = new BookingModel(data)
-                                    bookRoom.save((err) => {
-                                        if (!err) {
-                                            console.log('Booking saved in DB.')
-                                            return res.status(200).json({message: 'Booking successfully saved in DB.'});
-                                        }
-                                    })
-                                }
+                let date = req.body.date.year + '-' + month + '-' + req.body.date.day;
+                console.log(date);
+
+                if (req.body.bookingDate) {
+                    data.bookingDate = req.body.bookingDate;
+                } else {
+                    data.bookingDate = date;
+                }
+
+                let status = false;
+
+                let firstPromise = new Promise(async function(resolve, reject) {
+                    let bookings = await Room.getBookingsFromDB();
+                    let matchBookings = [];
+                    if(bookings.length === 0) {
+                        status = true;
+                    } else {
+                        for(let i = 0; i < bookings.length; i++) {
+                            if(bookings[i].roomID === req.body.room && bookings[i].bookingDate === data.bookingDate) {
+                                matchBookings.push(bookings[i]);
+                            } else {
+                                status = true;
                             }
-                            
                         }
                     }
-                })
-              
-                
-                let times = [];
-                //kolla timeEdit efter bokningar
-                timeEdit.getTodaysSchedule(req.body.room)
-                .then((roomSchedule) => {
-                    if (roomSchedule) {
-                        for(let i = 0; i < roomSchedule.length; i++) {
-                            let booking = {
-                                'booking': i,
-                                'startTime': roomSchedule[i].time.startTime,
-                                'endTime': roomSchedule[i].time.endTime
-                            }
-                            times.push(booking);
+                    
+
+                    if(status === true && matchBookings.length === 0) {
+                        resolve('Success')
+                    }
+
+                    let statusWrong = false;
+                    let statusRight = false;
+                    
+                    for(let i = 0; i < matchBookings.length; i++) {
+                        if(data.startTime < matchBookings[i].endTime && data.endTime > matchBookings[i].startTime) {                 
+                            statusWrong = true;
+                        } else {
+                            statusRight = true;
                         }
-                        for(let i = 0; i < times.length; i++) {
-                            if(data.endTime > times[i].startTime || data.startTime < times[i].endTime) {
-                                console.log('felmeddelande')
-                            } else {
+                    }
+
+                    if(statusRight === true && statusWrong === true || statusWrong === true) {
+                        reject('Fail')
+                    } else if(statusRight === true) {
+                        resolve('Success')
+                    }
+                });
+
+                firstPromise.then(async function(value) {
+                    let statusWrong = false;
+                    let statusRight = false;
+                    if(value === 'Success') {
+                        let timeEditBookings = await Room.getSpecificScheduleTimeEditByDate(req.body.room, data.bookingDate);
+                        if(timeEditBookings === null) {
+                            console.log('inget i timeEdit, boka här')
+                            let bookRoom = new BookingModel(data)
+                            bookRoom.save((err) => {
+                                if (!err) {
+                                    console.log('Booking saved in DB.')
+                                    return res.status(200).json({message: 'Booking successfully saved in DB.'});
+                                }
+                            }) 
+                        } else {
+                            for(let i = 0; i < timeEditBookings.length; i++) {
+                                if(data.startTime < timeEditBookings[i].time.endTime && data.endTime > timeEditBookings[i].time.startTime) {
+                                    statusWrong = true;
+                                } else {
+                                    statusRight = true;
+                                }
+                            }
+                            if(statusWrong === true && statusRight === true || statusWrong === true) {
+                                console.log('felmeddelande här = ej bokas.')
+                            } else if(statusRight === true) {
+                                console.log('bokas asa')
                                 let bookRoom = new BookingModel(data)
                                 bookRoom.save((err) => {
                                     if (!err) {
                                         console.log('Booking saved in DB.')
                                         return res.status(200).json({message: 'Booking successfully saved in DB.'});
                                     }
-                                })
+                                }) 
                             }
                         }
-                    }                    
-                }).catch((er) => {
-                    console.log(er);
-                });
-
-                //ska vara i en else sen
-                let bookRoom = new BookingModel(data)
-                bookRoom.save((err) => {
-                    if (!err) {
-                        console.log('Booking saved in DB.')
-                        return res.status(200).json({message: 'Booking successfully saved in DB.'});
-                    }
-                }) 
+                    } 
+                }).catch(function(error) {
+                    console.log(error);
+                })
             }   
         });
 
     router.route('/:roomID/schedule/today')
         .get(function (req, res) {
             timeEdit.getTodaysSchedule(req.params.roomID)
-                .then((roomSchedule) => {
-                    //todo: interna bokningssystemet
-                    res.send(JSON.stringify(roomSchedule, null, 2));
+                .then(async (roomSchedule) => {
+                    let collection = [];
+                    let schedule = [];
+                    let booking = await Room.getSpecificBooking(req.params.roomID);
+                    
+                    if (booking.length > 0 && booking.bookingDate === moment().format('YYYY-MM-DD')) collection.push(booking[0]);
+                    if (roomSchedule) collection.push(roomSchedule);
+                    
+                    collection.map((x) => {
+                        schedule.push(
+                            {
+                                username: x.username,
+                                startTime: x.startTime,
+                                endTime: x.endTime
+                            }
+                        )
+                    })
+                    
+                    res.send(JSON.stringify(schedule, null, 2));
                 }).catch((er) => {
                     console.log(er);
                 });
