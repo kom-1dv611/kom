@@ -88,8 +88,6 @@ module.exports = function (RoomModel, BookingModel) {
             //TODO: Postas två gåner ibland bara?
             //TODO: Någon annan dags schema, kollar bara dagens bokningar just nu. FIXA!
             //TODO: Ta bort aktuell bokning vid cancel booking
-            console.log(req.body);
-            console.log(req.body.date.month)
             if(req.body.cancel) {
                 BookingModel.findOneAndRemove({roomID: req.body.room}, function(err, room) {
                     if(err) {
