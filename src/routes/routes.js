@@ -41,37 +41,47 @@ module.exports = function (RoomModel, BookingModel) {
 
     router.route('/:id')
         .get(async function (req, res) {
+            console.log('yolo')
             let room = {};
             room.name = req.params.id;
+            let available = false;
+            let unavailable = false;
             let currentTime = moment().format('LT');
+            let currentBooking;
 
             let booking = await Room.getSpecificBooking(req.params.id);
             if (booking.length > 0) {
-                console.log(booking[0])
-                room.available = Room.isRoomAvailable(booking[0], currentTime);
-                
-                // if (startTime > currentTime || booking[0].endTime < currentTime) {
-                //     room.available = true;
-                // } else {
-                //     room.available = false;
-                //     room.willBeAvailable = booking[0].endTime;
-                // }
-            } else {
+                for(let i = 0; i < booking.length; i++) {
+                    if(booking[i].bookingDate === moment().format('YYYY-MM-DD')) {
+                        if(booking[i].startTime > currentTime ) {
+                            available = true;
+                        } else {
+                            currentBooking = booking[i];
+                            unavailable = true;
+                        }
+                    }       
+                }
+
+                if(available === true && unavailable === true || unavailable === true) {
+                    room.available = false;
+                    room.willBeAvailable = currentBooking.endTime;
+                } else {
+                    room.available = true;
+                }
+            } 
+           else {
                 console.log("plz no crash")
                 let roomSchedule = await Room.getSpecificScheduleTimeEdit(room.name);
                 
-                if (roomSchedule === null) {
+                if (roomSchedule === null || currentTime < roomSchedule[0].time.startTime) { 
                     console.log("true")
-                    room.available = true;
-                }  else if (currentTime < roomSchedule[0].time.startTime) {
-                    room.available = true;
-                }else if (currentTime > roomSchedule[0].time.startTime) { 
+                    room.available = true 
+                }  else if (currentTime > roomSchedule[0].time.startTime) { 
                     room.available = false; 
                     console.log("false")
                     room.willBeAvailable = roomSchedule[0].time.endTime; 
                 }
             }
-            console.log(room);
             res.json({ room: room });
         })
         .post(async function (req, res) {
