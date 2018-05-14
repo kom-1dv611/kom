@@ -207,34 +207,9 @@ module.exports = function (RoomModel, BookingModel) {
         });
 
     router.route('/:roomID/schedule/today')
-        .get(function (req, res) {
-            timeEdit.getTodaysSchedule(req.params.roomID)
-                .then(async (roomSchedule) => {
-                    let schedule = [];
-                    let booking = await Room.getSpecificBooking(req.params.roomID);
-                    
-                    if (booking.length > 0 && booking[0].bookingDate === moment().format('YYYY-MM-DD')) {
-                        booking.map((x) => {
-                            schedule.push({
-                                username: x.username,
-                                startTime: x.startTime,
-                                endTime: x.endTime
-                            })
-                        })
-                    }
-
-                    if (roomSchedule) {
-                        schedule.push({
-                            username: 'timeedit',
-                            startTime: roomSchedule[0].time.startTime,
-                            endTime: roomSchedule[0].time.endTime
-                        });
-                    }
-                    
-                    res.send(JSON.stringify(schedule, null, 2));
-                }).catch((er) => {
-                    console.log(er);
-                });
+        .get(async (req, res) => {
+            let schedule = await Room.getCompleteScheduleToday(req.params.roomID);
+            res.send(JSON.stringify(schedule, null, 2));
         });
 
     router.route('/room/:roomID/schedule/')

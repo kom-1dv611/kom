@@ -19,15 +19,12 @@ module.exports = class RoomHandler {
 
         //Filtrerar ut den "första" bokningen, så att man ser om rummet är tillgängligt eller inte JUST NU. Tar även bort expirade bokningar.
         if (bookings.length) {
-
             let roomBookings = bookings.filter((x) => x.roomID === room.name && x.bookingDate === moment().format('YYYY-MM-DD'));
-            //if (x.roomID === room.name && x.bookingDate === moment().format('YYYY-MM-DD')) return x;
             let earliestBooking = roomBookings.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
 
             if (roomBookings.length > 0) {
                 if (this.isRoomBookedInDB(earliestBooking, room, currentTime)) { 
                     if (this.hasBookingExpired(earliestBooking, currentTime)) {
-                        console.log(earliestBooking.roomID + ' har expirat och tas nu bort. (' + earliestBooking.startTime + '-' + getEndTimeForBooking(earliestBooking) + ') ' + earliestBooking.bookingDate)
                         await this.removeBookingFromDB(earliestBooking.roomID);
                     } else {
                         roomToBeValidated.available = this.isRoomAvailable(earliestBooking, currentTime);
@@ -70,8 +67,6 @@ module.exports = class RoomHandler {
                         resolve(schedule);
 
                         return schedule;
-                        
-                        //res.send(JSON.stringify(schedule, null, 2));
                     }).catch((er) => {
                         console.log(er);
                         reject('');
@@ -110,6 +105,7 @@ module.exports = class RoomHandler {
     removeBookingFromDB(id) {
         return this.BookingModel.find({ roomID: id }).remove().exec()
         .then((result) => {
+            console.log('Successfully removed ' + id + ' from DB!');
             return result;
         }).catch((err) => {
             console.log(err)
