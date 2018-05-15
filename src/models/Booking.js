@@ -6,7 +6,9 @@ let bookingSchema = mongoose.Schema({
     startTime: {type: String, required: true},
     duration: {type: String, required: true},
     endTime: {type: String, required: true},
-    bookingDate: {type: String, required: false}
+    bookingDate: {type: String, required: false},
+    isBookLater: {type: Boolean, required: true},
+    hasUserCheckedIn: {type: Boolean, required: false}
 });
 
 let Booking = mongoose.model('Booking', bookingSchema);

@@ -5,6 +5,7 @@ let RoomHandler = require('../handlers/roomHandler');
 const Scraper = require('../libs/scraper');
 const getEndTimeForBooking = require('../utils/endTimebooking');
 const buildTable = require('../utils/buildTable');
+const addMinutesToTime = require('../utils/addMinutesToTime');
 
 const timeEditApi = require('timeeditApi');
 const timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
@@ -119,10 +120,15 @@ module.exports = function (RoomModel, BookingModel) {
                 let date = req.body.date.year + '-' + month + '-' + req.body.date.day;
 
                 if (req.body.bookingDate) {
+                    data.isBookLater = true;
+                    data.hasUserCheckedIn = false;
                     data.bookingDate = req.body.bookingDate;
                 } else {
+                    data.isBookLater = false;
                     data.bookingDate = date;
                 }
+
+                console.log(data);
 
                 let status = false;
 
@@ -211,6 +217,34 @@ module.exports = function (RoomModel, BookingModel) {
             let schedule = await Room.getCompleteScheduleToday(req.params.roomID);
             res.send(JSON.stringify(schedule, null, 2));
         });
+
+    router.route('/checkIn/:room')
+        .get(function(req, res) {
+            let currentTime = moment().format('LT');
+            BookingModel.find({roomID: req.body.room}, function(err, rooms) {
+                if(err) {
+                    console.log(err)
+                } else {
+                    let booking = rooms.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
+                    if(booking.isBookLater === true) {
+                        if(booking.hasUserCheckedIn === true) {
+                            console.log('Nu ska bakgrunden bli röd')
+                        } else if(currentTime > addMinutesToTime(booking.startTime, 15)) {
+                            BookingModel.findOneAndRemove({roomID: req.body.room, startTime: booking.startTime}, function(err, result) {
+                                if(err) {
+                                    console.log(err);
+                                } else {
+                                    console.log('deleted from DB')
+                                }
+                            })
+                        }
+                    }
+                }
+            })
+        })
+        .post(function(req, res) {
+            //ta emot post från checka in
+        })
 
     router.route('/room/:roomID/schedule/')
         .get(function (req, res) {
