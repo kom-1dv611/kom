@@ -51,8 +51,6 @@ module.exports = function (RoomModel, BookingModel) {
             room.available = true;
 
             let booking = await Room.getSpecificBooking(req.params.id);
-            console.log(booking)
-            console.log('_____')
             if (booking.length > 0) {
                 for(let i = 0; i < booking.length; i++) {
                     if(booking[i].bookingDate === moment().format('YYYY-MM-DD')) {
@@ -86,22 +84,9 @@ module.exports = function (RoomModel, BookingModel) {
         })
         .post(async function (req, res) {
             if(req.body.cancel) {
-                BookingModel.find({roomID: req.body.room}, function(err, rooms) {
-                    if(err) {
-                        console.log(err)
-                    } else {
-                        let booking = rooms.sort((a, b) => a.startTime.localeCompare(b.startTime));
-                        console.log(booking[0])
-                        BookingModel.findOneAndRemove({roomID: req.body.room, startTime: booking[0].startTime }, function(err, room) {
-                            if(err) {
-                                console.log(err)
-                            } else {
-                                console.log('Booking successfully deleted from DB.');
-                                return res.status(200).json({message: 'Booking successfully deleted from DB.'});
-                            }
-                        })
-                    }
-                })
+                let allBookings = await Room.getSpecificBooking(req.body.room);
+                let currentBooking = allBookings.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
+                await Room.removeSpecificBookingFromDB(currentBooking);
             } else {
                 let data = {
                     username: req.body.username,
@@ -127,8 +112,6 @@ module.exports = function (RoomModel, BookingModel) {
                     data.isBookLater = false;
                     data.bookingDate = date;
                 }
-
-                console.log(data);
 
                 let status = false;
 

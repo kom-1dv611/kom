@@ -97,6 +97,17 @@ module.exports = class RoomHandler {
         })
     }
 
+    //remove current booking
+    removeSpecificBookingFromDB(room) {
+        return this.BookingModel.findOneAndRemove({roomID: room.roomID, startTime: room.startTime})
+        .then((result) => {
+            console.log('Successfully removed from DB');
+            return result;
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+
     //Get specific booking from DB
     getSpecificBooking(id) {
         return this.BookingModel.find({ roomID: id }).exec()
