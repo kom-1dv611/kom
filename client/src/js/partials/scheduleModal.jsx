@@ -15,14 +15,14 @@ class Schedule extends Component {
                 schedule.forEach(function(booking) {
                     rows.push((
                     <tr>
-                        <th scope="row">{booking.columns[4] !== "" ? booking.columns[4] : booking.columns[5]}</th>
-                        <td>{booking.time.startTime}</td>
-                        <td>{booking.time.endTime}</td>
+                        <th scope="row">{booking.username}</th>
+                        <td>{booking.startTime}</td>
+                        <td>{booking.endTime}</td>
                     </tr>
                 ));
                 });
                 return(
-                    <table class="table">
+                    <table className="table">
                         <thead>
                             <tr>
                                 <th scope="col">Booker</th>
