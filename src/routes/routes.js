@@ -5,7 +5,7 @@ let RoomHandler = require('../handlers/roomHandler');
 const Scraper = require('../libs/scraper');
 const getEndTimeForBooking = require('../utils/endTimebooking');
 const buildTable = require('../utils/buildTable');
-const addMinutesToTime = require('../utils/addMinutesToTime');
+const add15MinutesToTime = require('../utils/addMinutesToTime');
 
 const timeEditApi = require('timeeditApi');
 const timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
@@ -21,12 +21,11 @@ module.exports = function (RoomModel, BookingModel) {
         .get(async function (req, res) {
             let rooms = await Room.getRoomsFromDB();
             let bookings = await Room.getBookingsFromDB();
-            let timeEditSchedules = await Room.getScheduleFromTimeEdit(rooms).then((allSchedules) => allSchedules.sort((a, b) => a.room.localeCompare(b.room)));
             let currentTime = moment().format('LT');
 
-            let promises = rooms.map((room, index) => {
+            let promises = rooms.map((room, i) => {
                 return new Promise((resolve, reject) => {
-                    let validatedRoom = Room.validateGroupRoom(bookings, timeEditSchedules[index], room, currentTime);
+                    let validatedRoom = Room.validateGroupRoom(bookings, room, currentTime);
                     resolve(validatedRoom);
                 })
             })
@@ -85,8 +84,8 @@ module.exports = function (RoomModel, BookingModel) {
         .post(async function (req, res) {
             if(req.body.cancel) {
                 let allBookings = await Room.getSpecificBooking(req.body.room);
-                let currentBooking = allBookings.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
-                await Room.removeSpecificBookingFromDB(currentBooking);
+                let currentBooking = allBookings.sort((a, b) => a.startTime.localeCompare(b.startTime))[0]; //todo: måste kolla vilket datum också, inte bara första bästa bokningen
+                await Room.removeBookingWithStartTime(currentBooking);
             } else {
                 let data = {
                     username: req.body.username,
@@ -212,7 +211,7 @@ module.exports = function (RoomModel, BookingModel) {
                     if(booking.isBookLater === true) {
                         if(booking.hasUserCheckedIn === true) {
                             console.log('Nu ska bakgrunden bli röd')
-                        } else if(currentTime > addMinutesToTime(booking.startTime, 15)) {
+                        } else if(currentTime > add15MinutesToTime(booking.startTime)) {
                             BookingModel.findOneAndRemove({roomID: req.body.room, startTime: booking.startTime}, function(err, result) {
                                 if(err) {
                                     console.log(err);
