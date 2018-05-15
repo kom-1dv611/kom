@@ -13,6 +13,7 @@ class Schedule extends Component {
             let rows = [];
             if(schedule.length > 0) {
                 schedule.forEach(function(booking) {
+                    console.log(booking);
                     rows.push((
                     <tr>
                         <th scope="row">{booking.columns[4] !== "" ? booking.columns[4] : booking.columns[5]}</th>
