@@ -1,10 +1,11 @@
 'use strict';
 
-let RoomHandler = require('./handlers/RoomHandler');
+let RoomHandler = require('../handlers/roomHandler');
 
 const Scraper = require('../libs/scraper');
-const getEndTimeForBooking = require('./utils/endTimebooking');
-const buildTable = require('./utils/buildTable');
+const getEndTimeForBooking = require('../utils/endTimebooking');
+const buildTable = require('../utils/buildTable');
+const addMinutesToTime = require('../utils/addMinutesToTime');
 
 const timeEditApi = require('timeeditApi');
 const timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
@@ -41,52 +42,51 @@ module.exports = function (RoomModel, BookingModel) {
 
     router.route('/:id')
         .get(async function (req, res) {
-            console.log('yolo')
             let room = {};
             room.name = req.params.id;
+            let available = false;
+            let unavailable = false;
             let currentTime = moment().format('LT');
+            let currentBooking;
+            room.available = true;
 
             let booking = await Room.getSpecificBooking(req.params.id);
             if (booking.length > 0) {
-                let startTime = booking[0].startTime;
-                
-                if (startTime > currentTime || booking[0].endTime < currentTime) {
-                    room.available = true;
-                } else {
-                    room.available = false;
-                    room.willBeAvailable = booking[0].endTime;
+                for(let i = 0; i < booking.length; i++) {
+                    if(booking[i].bookingDate === moment().format('YYYY-MM-DD')) {
+                        if(booking[i].startTime > currentTime ) {
+                            available = true;
+                        } else {
+                            currentBooking = booking[i];
+                            unavailable = true;
+                        }
+                    }       
                 }
-            } else {
-                console.log("plz no crash")
+
+                if(available === true && unavailable === true || unavailable === true) {
+                    room.available = false;
+                    room.willBeAvailable = currentBooking.endTime;
+                } else {
+                    room.available = true;
+                }
+            } 
+           else {
                 let roomSchedule = await Room.getSpecificScheduleTimeEdit(room.name);
                 
                 if (roomSchedule === null || currentTime < roomSchedule[0].time.startTime) { 
-                    console.log("true")
                     room.available = true 
                 }  else if (currentTime > roomSchedule[0].time.startTime) { 
                     room.available = false; 
-                    console.log("false")
                     room.willBeAvailable = roomSchedule[0].time.endTime; 
                 }
             }
-            console.log(room);
             res.json({ room: room });
         })
         .post(async function (req, res) {
-            //TODO: Postas två gåner ibland bara?
-            //TODO: Någon annan dags schema, kollar bara dagens bokningar just nu. FIXA!
-            //TODO: Ta bort aktuell bokning vid cancel booking
-            console.log(req.body);
-            console.log(req.body.date.month)
             if(req.body.cancel) {
-                BookingModel.findOneAndRemove({roomID: req.body.room}, function(err, room) {
-                    if(err) {
-                        console.log(err)
-                    } else {
-                        console.log('Booking successfully deleted from DB.');
-                        return res.status(200).json({message: 'Booking successfully deleted from DB.'});
-                    }
-                })
+                let allBookings = await Room.getSpecificBooking(req.body.room);
+                let currentBooking = allBookings.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
+                await Room.removeSpecificBookingFromDB(currentBooking);
             } else {
                 let data = {
                     username: req.body.username,
@@ -103,11 +103,13 @@ module.exports = function (RoomModel, BookingModel) {
                 }
 
                 let date = req.body.date.year + '-' + month + '-' + req.body.date.day;
-                console.log(date);
 
                 if (req.body.bookingDate) {
+                    data.isBookLater = true;
+                    data.hasUserCheckedIn = false;
                     data.bookingDate = req.body.bookingDate;
                 } else {
+                    data.isBookLater = false;
                     data.bookingDate = date;
                 }
 
@@ -194,31 +196,38 @@ module.exports = function (RoomModel, BookingModel) {
         });
 
     router.route('/:roomID/schedule/today')
-        .get(function (req, res) {
-            timeEdit.getTodaysSchedule(req.params.roomID)
-                .then(async (roomSchedule) => {
-                    let collection = [];
-                    let schedule = [];
-                    let booking = await Room.getSpecificBooking(req.params.roomID);
-                    
-                    if (booking.length > 0 && booking.bookingDate === moment().format('YYYY-MM-DD')) collection.push(booking[0]);
-                    if (roomSchedule) collection.push(roomSchedule);
-                    
-                    collection.map((x) => {
-                        schedule.push(
-                            {
-                                username: x.username,
-                                startTime: x.startTime,
-                                endTime: x.endTime
-                            }
-                        )
-                    })
-                    
-                    res.send(JSON.stringify(schedule, null, 2));
-                }).catch((er) => {
-                    console.log(er);
-                });
+        .get(async (req, res) => {
+            let schedule = await Room.getCompleteScheduleToday(req.params.roomID);
+            res.send(JSON.stringify(schedule, null, 2));
         });
+
+    router.route('/checkIn/:room')
+        .get(function(req, res) {
+            let currentTime = moment().format('LT');
+            BookingModel.find({roomID: req.body.room}, function(err, rooms) {
+                if(err) {
+                    console.log(err)
+                } else {
+                    let booking = rooms.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
+                    if(booking.isBookLater === true) {
+                        if(booking.hasUserCheckedIn === true) {
+                            console.log('Nu ska bakgrunden bli röd')
+                        } else if(currentTime > addMinutesToTime(booking.startTime, 15)) {
+                            BookingModel.findOneAndRemove({roomID: req.body.room, startTime: booking.startTime}, function(err, result) {
+                                if(err) {
+                                    console.log(err);
+                                } else {
+                                    console.log('deleted from DB')
+                                }
+                            })
+                        }
+                    }
+                }
+            })
+        })
+        .post(function(req, res) {
+            //ta emot post från checka in
+        })
 
     router.route('/room/:roomID/schedule/')
         .get(function (req, res) {
