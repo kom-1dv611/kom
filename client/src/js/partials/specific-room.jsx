@@ -19,19 +19,9 @@ class room extends Component {
         this.state = {};
 
         this.getRoomInfo(this.props.room).then((room) => {
-            //this.props.busy(room.available);
             this.setState(() => {
-                $( document ).ready(() => {
-                    $("#schedule").on("click", async() => {
-                        this.onScheduleClick(); 
-                    });
-                    if(this.state.room.available === false) {
-                        $("#cancelButton").on("click", async() => {
-                            this.onCancelClick();
-                        });
-                    }
-                    this.startTimer();
-                });
+                this.loaded = true;
+                this.componentDidMount();
                 return {
                     room: {
                         name: room.name,
@@ -40,12 +30,30 @@ class room extends Component {
                 };
             });
         });
-
-        this.cancel = false;
-        
+        this.loaded = false;
         this.timer = 0;
         this.startTimer = this.startTimer.bind(this);
         this.countDown = this.countDown.bind(this);
+    }
+
+    componentDidMount() {
+        if(this.loaded === true) {
+            $( document ).ready(() => {
+                $("#schedule").on("click", async() => {
+                    this.onScheduleClick(); 
+                });
+                if(this.state.room.available === false) {
+                    $("#cancelButton").on("click", async() => {
+                        this.onCancelClick();
+                    });
+                }
+                this.startTimer();
+            });
+        }
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.timer);
     }
 
     async getRoomInfo(name) {
@@ -98,7 +106,6 @@ class room extends Component {
         });
         console.log("send cancel request for " + name);
         this.props.cancel(name);
-        this.cancel = true;
         this.setState((prev) => {
             return {room: {
                 name: prev.room.name,
@@ -165,29 +172,6 @@ class room extends Component {
 
     async book() {
         this.state.room.available = false;
-        $( document ).ready(() => {
-            $("#schedule").off();
-            $("#cancelButton").off();
-            $("#schedule").on("click", async() => {
-                this.onScheduleClick();
-            });
-            $("#cancelButton").on("click", async() => {
-                this.onCancelClick();
-            });
-        });
-        return true;
-    }
-
-    async canceling() {
-        //try
-        console.log("cancel!!!")
-        $( document ).ready(() => {
-            $("#schedule").off("click");
-            $("#schedule").on("click", async() => {
-                this.onScheduleClick();
-            });
-        });
-        clearInterval(this.timer); //remove?
         return true;
     }
 
@@ -209,11 +193,8 @@ class room extends Component {
                 <img src={logo} alt="loading icon" className="App-logo"/>
                 <h1 className="mt-5">Loading</h1>
             </div>)
-        }else {
-            if(this.cancel === true) {
-                this.cancel = false;
-                this.canceling();
-            } else if(this.props.submit !== null && this.state.submit !== "") {
+        } else {
+            if(this.props.submit !== null && this.state.submit !== "") {
                 this.book();
             }
             console.log(this.state);
