@@ -18,15 +18,13 @@ module.exports = class RoomHandler {
         let timeedit = await this.getSpecificScheduleTimeEdit(room.name);
         this.isRoomBookedInTimeEdit(timeedit, currentTime) ? grouproom.available = false : grouproom.available = true;
         
-        //Filtrerar ut den "första" bokningen, så att man ser om rummet är tillgängligt eller inte JUST NU. Tar även bort expirade bokningar.
+        //Filtrerar ut den tidigaste bokningen så att man ser om rummet är tillgängligt eller inte JUST NU. Tar även bort expirade bokningar.
         if (bookings.length) {
             let roomBookings = bookings.filter((x) => x.roomID === room.name && x.bookingDate === moment().format('YYYY-MM-DD'));
             let earliestBooking = roomBookings.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
 
             if (roomBookings.length > 0) {
-                if (this.isRoomBookedInDB(earliestBooking, room, currentTime)) {
-                    this.hasBookingExpired(earliestBooking, currentTime) ? await this.removeBookingFromDB(earliestBooking.roomID) : grouproom.available = this.isRoomAvailable(earliestBooking, currentTime);
-                }
+                this.hasBookingExpired(earliestBooking, currentTime) ? await this.removeBookingFromDB(earliestBooking.roomID) : grouproom.available = this.isRoomAvailable(earliestBooking, currentTime);
             }
         }
         //Sätter dagens schema för ett grupprum
@@ -60,7 +58,7 @@ module.exports = class RoomHandler {
 
     hasBookingExpired(booking, currentTime) {
         if (booking.bookingDate < moment().format('YYYY-MM-DD')) return true;
-        if (booking.bookingDate === moment().format('YYYY-MM-DD')) return booking.endTime < currentTime ? true : false;
+        if (booking.bookingDate === moment().format('YYYY-MM-DD')) return booking.endTime < currentTime ? true : false; //BUG: Om en bokning går över midnatt så går det ej att jämföra endTime < currentTime
     }
 
     isRoomBookedInTimeEdit(timeedit, currentTime) {
