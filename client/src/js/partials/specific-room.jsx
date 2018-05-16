@@ -188,9 +188,9 @@ class room extends Component {
             return (
                 <div>
                     <div className="ml-2 mt-5 pt-5 text-center">
-                        <i className="fas fa-users fa-2x" title="Capacity"></i><span className="h3">5</span>
-                        <i className="fas fa-laptop fa-2x mr-2" title="Computer equipment"></i>
-                        <i className="fab fa-product-hunt fa-2x mr-2" title="Projector"></i>
+                        <i className="fas fa-users fa-3x" title="Capacity"></i><span className="h3">5</span>
+                        <i className="fas fa-laptop fa-3x mr-2" title="Computer equipment"></i>
+                        <i className="fab fa-product-hunt fa-3x mr-2" title="Projector"></i>
                     </div>
                     {this.stateHeader()}
                     {this.booking()}
