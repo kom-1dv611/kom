@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import {connect} from "react-redux"; //read
 import {bindActionCreators} from "redux"; //write
 import event from "../actions/busy-state";
-import schedule from "../actions/loadSchedule";
 import cancel from "../actions/cancelBooking";
 
 import $ from "jquery"
@@ -39,9 +38,6 @@ class room extends Component {
     componentDidMount() {
         if(this.loaded === true) {
             $( document ).ready(() => {
-                $("#schedule").on("click", async() => {
-                    this.onScheduleClick(); 
-                });
                 if(this.state.room.available === false) {
                     $("#cancelButton").on("click", async() => {
                         this.onCancelClick();
@@ -80,16 +76,6 @@ class room extends Component {
             };
         });
       }
-
-    async onScheduleClick() {
-        let name = this.state.room.name;
-        let rows = await fetch(`/${name}/schedule/today`);
-        rows = await rows.json();
-        if(rows === null) {
-            rows = [];
-        }
-        this.props.schedule(rows);
-    }
 
     async onCancelClick() {
         let name = this.state.room.name;
@@ -149,7 +135,7 @@ class room extends Component {
                         <input type="time" id="currentTime" name="time" hidden/>
                         <div id="schedule" className="col-md-auto">
                             <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
-                            <Schedule/>
+                            <Schedule schedule={this.state.room.schedule}/>
                         </div>
                         <Book room={name} available={available} />
                     </div>
@@ -160,7 +146,7 @@ class room extends Component {
                 <div className="row justify-content-center pb-0">
                     <div id="schedule" className="col-md-auto">
                         <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
-                        <Schedule/>
+                        <Schedule schedule={this.state.room.schedule}/>
                     </div>
                     <div className="col-md-auto">
                         <Book room={name} available={available} />
@@ -189,10 +175,10 @@ class room extends Component {
     render() {
         if(Object.keys(this.state).length === 0) {
             return(
-            <div>
-                <img src={logo} alt="loading icon" className="App-logo"/>
-                <h1 className="mt-5">Loading</h1>
-            </div>)
+                <div>
+                    <img src={logo} alt="loading icon" className="App-logo"/>
+                    <h1 className="mt-5">Loading</h1>
+                </div>)
         } else {
             if(this.props.submit !== null && this.state.submit !== "") {
                 this.book();
@@ -224,8 +210,7 @@ function read(db) {
 function write(dispatch) {
     return bindActionCreators({
         busy: event,
-        cancel: cancel,
-        schedule: schedule
+        cancel: cancel
     }, dispatch);
 }
   

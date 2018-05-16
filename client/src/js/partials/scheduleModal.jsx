@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import {connect} from "react-redux"; //read
 import logo from '../../logo.svg';
 class Schedule extends Component {
     row() {
@@ -7,8 +6,8 @@ class Schedule extends Component {
     }
 
     content() {
-        if(this.props.onLoadSchedule !== null) {
-            let schedule = this.props.onLoadSchedule;
+        let schedule = this.props.schedule;
+        if(schedule != null) {
             console.log(schedule)
             let rows = [];
             if(schedule.length > 0) {
@@ -39,14 +38,8 @@ class Schedule extends Component {
             } else {
                 return <p>No bookings today</p>;
             }
-        
         } else {
-            return(
-                <div className="text-center text-dark">
-                    <img src={logo} alt="loading icon" className="App-logo"/>
-                    <h1>Loading..</h1>
-                </div>
-            );
+            return <p>Loading</p>
         }
     }
 
@@ -74,10 +67,5 @@ class Schedule extends Component {
     }
 }
 
-function read(db) {
-    return{
-        onLoadSchedule: db.loadedSchedule
-    };
-}
   
-export default connect(read)(Schedule);
+export default Schedule;

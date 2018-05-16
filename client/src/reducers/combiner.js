@@ -4,7 +4,6 @@ import setupRoom from "./room-select";
 import busy from "./room-state";
 import filter from "./filter-select";
 import booked from "./submit";
-import schedule from "./schedule-select";
 import cancel from "./cancel-booking";
 
 const test = combineReducers({
@@ -14,7 +13,6 @@ const test = combineReducers({
     filterSelect: filter,
     submit: booked,
     cancelBookinng: cancel,
-    loadedSchedule: schedule
 });
 
 export default test;
