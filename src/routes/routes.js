@@ -79,7 +79,10 @@ module.exports = function (RoomModel, BookingModel) {
                     room.willBeAvailable = roomSchedule[0].time.endTime; 
                 }
             }
-            res.json({ room: room });
+
+            //Sätter dagens schema för ett grupprum
+            room.schedule = await Room.getCompleteScheduleToday(room.name);
+            res.json({room});
         })
         .post(async function (req, res) {
             if(req.body.cancel) {

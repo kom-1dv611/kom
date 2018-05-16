@@ -12,7 +12,7 @@ module.exports = class RoomHandler {
     }
 
     async validateGroupRoom(bookings, room, currentTime) {
-        let grouproom = { room, bookings: [] }
+        let grouproom = {room};
 
         //Är grupprummet bokat i timeedit så sätt tillgänglighet baserat på statusen.
         let timeedit = await this.getSpecificScheduleTimeEdit(room.name);
@@ -27,8 +27,6 @@ module.exports = class RoomHandler {
                 this.hasBookingExpired(earliestBooking, currentTime) ? await this.removeBookingFromDB(earliestBooking.roomID) : grouproom.available = this.isRoomAvailable(earliestBooking, currentTime);
             }
         }
-        //Sätter dagens schema för ett grupprum
-        grouproom.bookings = await this.getCompleteScheduleToday(room.name);
         return grouproom;
     }
 
@@ -63,10 +61,6 @@ module.exports = class RoomHandler {
 
     isRoomBookedInTimeEdit(timeedit, currentTime) {
         return timeedit === null || currentTime < timeedit.startTime || currentTime > timeedit.endTime ? false : true;
-    }
-
-    isRoomBookedInDB(booking, room, currentTime) {
-        return booking.roomID === room.name ? true : false;
     }
 
     //Remove booking by room name
