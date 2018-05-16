@@ -43,7 +43,7 @@ module.exports = class RoomHandler {
                 if (roomSchedule) {
                     schedule.push({username: 'timeedit', startTime: roomSchedule[0].time.startTime, endTime: roomSchedule[0].time.endTime});
                 }
-                return schedule;
+                return schedule.sort((a, b) => a.startTime.localeCompare(b.startTime));
             }).catch((er) => {
                 console.log(er);
             });
