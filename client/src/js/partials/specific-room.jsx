@@ -53,7 +53,7 @@ class room extends Component {
     }
 
     componentWillUnmount() {
-        clearTimeout(this.timer);
+        clearInterval(this.timer);
     }
 
     async getRoomInfo(name) {

@@ -2,7 +2,53 @@ import React, { Component } from 'react';
 import {connect} from "react-redux"; //read
 import Room from "./room"
 
+import logo from '../../logo.svg';
+
 class roomCollection extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {rows: this.props.rows.rows}
+        this.startTimer = this.startTimer.bind(this);
+        this.countDown = this.countDown.bind(this);
+    }
+
+    componentDidMount() {
+        this.timer = 0;
+        this.startTimer();
+        this.getRooms().then((rooms) => {
+            console.log(rooms);
+            this.setState(() => {
+                return{rows: rooms};
+            });
+        });
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.timer);
+    }
+    
+    startTimer() {
+        if (this.timer === 0) {
+            this.timer = setInterval(this.countDown, 5000);
+        }
+    }
+
+
+    async getRooms() {
+        let rooms = await fetch("http://localhost:2000/");
+        rooms = await rooms.json();
+        return rooms["rows"];
+    }
+
+    async countDown() {
+        let rows = await this.getRooms();
+        this.setState(function() {
+            return {
+                rows: rows
+            };
+        });
+      }
+
     structure(target) {
         let rows = target.map(function (row, i) {
             let cols = [];
@@ -27,19 +73,18 @@ class roomCollection extends Component {
                 }
             }
         }
-        console.log(rows);
         return rows;
     }
 
     render() {
         let rows;
-
+        console.log(this.state);
         if(this.props.filter === null) {
-            rows = this.structure(this.props.rows.rows)
+            rows = this.structure(this.state.rows)
         } else {
             let total = [];
             let filter = this.props.filter;
-            this.props.rows.rows.map(function (row, i) {
+            this.state.rows.map(function (row, i) {
                 let temp = row.cols.filter(col => col.room.location === filter);
                 total = total.concat(temp);
                 return true;
@@ -54,6 +99,7 @@ class roomCollection extends Component {
             </div>
         );
     }
+    
 }
 
 function read(db) {
