@@ -41,26 +41,18 @@ module.exports = function (RoomModel, BookingModel) {
 
     router.route('/:id')
         .get(async function (req, res) {
-            let bookings = await Room.getCompleteScheduleToday(req.params.id);
+            let schedule = await Room.getCompleteScheduleToday(req.params.id);
             let currentTime = moment().format('LT');
-            let room = {};
-            room.available = true;
+            let room = {name: req.params.id, schedule};
 
-            if(bookings.length > 0) {
-                let currentBooking = bookings.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
-                if(currentBooking.startTime <= currentTime && currentBooking.endTime >= currentTime) {
-                    room.available = false;
-                } else {
-                    room.available = true;
-                }
+            if(schedule.length > 0) {
+                let bookingsToday = schedule.filter((x) => x.bookingDate === moment().format('YYYY-MM-DD'));
+                let currentBooking = bookingsToday.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
+                room.available = currentBooking.startTime <= currentTime && currentBooking.endTime >= currentTime ?  false : true;
             } else {
-                console.log('inga bokningar')
+                //Rummet har ingen bokning.
+                room.available = true;
             }
-                 
-            room.name = req.params.id;
-        
-            //Sätter dagens schema för ett grupprum
-            room.schedule = await Room.getCompleteScheduleToday(room.name);
             res.json({room});
         })
         .post(async function (req, res) {
