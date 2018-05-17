@@ -14,9 +14,13 @@ module.exports = class RoomHandler {
     async validateGroupRoom(bookings, room, currentTime) {
         let grouproom = {room};
 
-        if (this.hasBookingExpired(bookings.filter((x) => x.roomID === room.name), currentTime)) {
-            await this.removeBookingFromDB(room.name);
-        }
+        let roomBookings = bookings.filter((x) => x.roomID === room.name);
+        roomBookings.map(async (booking) => {
+            if (this.hasBookingExpired(booking, currentTime)) {
+                await this.removeBookingWithStartTime(booking);
+            }
+        })
+        
         let schedule = await this.getCompleteScheduleToday(room.name);
 
         if(schedule.length > 0) {
@@ -51,8 +55,10 @@ module.exports = class RoomHandler {
     }
 
     hasBookingExpired(booking, currentTime) {
-        if (booking.bookingDate < moment().format('YYYY-MM-DD')) return true;
-        if (booking.bookingDate === moment().format('YYYY-MM-DD')) return booking.endTime < currentTime ? true : false; //BUG: Om en bokning går över midnatt så går det ej att jämföra endTime < currentTime
+        if (booking.bookingDate < moment().format('YYYY-MM-DD') || booking.bookingDate === moment().format('YYYY-MM-DD') && booking.endTime < currentTime) return true;
+        else return false;
+        
+        //return booking.endTime < currentTime ? true : false; //BUG: Om en bokning går över midnatt så går det ej att jämföra endTime < currentTime
     }
 
     //Remove booking by room name

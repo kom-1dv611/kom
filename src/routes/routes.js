@@ -40,7 +40,6 @@ module.exports = function (RoomModel, BookingModel) {
         })
 
     router.route('/:id')
-        //TODO: Fixa efter datum & bugg på vissa rum ex B215.
         .get(async function (req, res) {
             let schedule = await Room.getCompleteScheduleToday(req.params.id);
             let currentTime = moment().format('LT');
@@ -62,7 +61,6 @@ module.exports = function (RoomModel, BookingModel) {
                 
                 for(let i = 0; i < allBookings.length; i++) {
                     if(allBookings[i].bookingDate === moment().format('YYYY-MM-DD')) {
-                        console.log('mm')
                         bookingsToday.push(allBookings[i]);
                     }
                 }
