@@ -37,15 +37,21 @@ class room extends Component {
 
     componentDidMount() {
         if(this.loaded === true) {
-            $( document ).ready(() => {
-                if(this.state.room.available === false) {
-                    $("#cancelButton").on("click", async() => {
-                        this.onCancelClick();
-                    });
-                }
-                this.startTimer();
-            });
+            this.addEvents();
         }
+        this.startTimer();
+    }
+
+    addEvents() {
+        $( document ).ready(() => {
+            if(this.state.room.available === false) {
+                $("#cancelButton").off();
+                $("#cancelButton").on("click", async() => {
+                    console.log("click");
+                    this.onCancelClick();
+                });
+            }
+        });
     }
 
     componentWillUnmount() {
@@ -91,6 +97,7 @@ class room extends Component {
             body: JSON.stringify(data)
         });
         console.log("send cancel request for " + name);
+        this.componentDidMount();
         this.props.cancel(name);
         this.setState((prev) => {
             return {room: {
@@ -158,6 +165,7 @@ class room extends Component {
 
     async book() {
         this.state.room.available = false;
+        this.componentDidMount()
         return true;
     }
 
