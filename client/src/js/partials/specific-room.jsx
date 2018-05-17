@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import {connect} from "react-redux"; //read
 import {bindActionCreators} from "redux"; //write
-import event from "../actions/busy-state";
+
 import cancel from "../actions/cancelBooking";
+import room from "../actions/room-state";
 
 import $ from "jquery"
 
@@ -11,101 +12,62 @@ import Book from "./book";
 
 import logo from '../../logo.svg';
 
-class room extends Component {
+class Room extends Component {
     constructor(props) {
         super(props)
 
-        this.state = {};
+        this.state = {
+            room: this.props.roomGetter[this.props.room],
+            schedule: []
+        };
 
-        this.getRoomInfo(this.props.room).then((room) => {
-            this.setState(() => {
-                this.loaded = true;
-                this.componentDidMount();
-                return {
-                    room: {
-                        name: room.name,
-                        available: room.available
-                    }
-                };
-            });
-        });
-        this.loaded = false;
+        console.log(this.state);
+
         this.timer = 0;
+        this.ticks = 0;
         this.startTimer = this.startTimer.bind(this);
         this.countDown = this.countDown.bind(this);
     }
 
     componentDidMount() {
-        if(this.loaded === true) {
-            this.addEvents();
-        }
         this.startTimer();
-    }
-
-    addEvents() {
-        $( document ).ready(() => {
-            if(this.state.room.available === false) {
-                $("#cancelButton").off();
-                $("#cancelButton").on("click", async() => {
-                    console.log("click");
-                    this.onCancelClick();
-                });
-            }
-        });
     }
 
     componentWillUnmount() {
         clearInterval(this.timer);
     }
 
-    async getRoomInfo(name) {
-        let room = await fetch("http://localhost:2000/" + name);
-        room = await room.json();
-        return room["room"];
-    }
-
     startTimer() {
         if (this.timer === 0) {
-            this.timer = setInterval(this.countDown, 5000);
+            this.timer = setInterval(this.countDown, 100);
         }
     }
 
     async countDown() {
-        let name = this.state.room.name;
-        let updated = await fetch("/" + name);
-        updated = await updated.json();
-        console.log(updated);
-        updated.bookings = [];
-        this.setState(function() {
-            return {
-                room: updated["room"]
-            };
-        });
+        this.ticks++;
+        if(this.ticks > 50) {
+            let name = this.state.room.name;
+            let updated = await fetch("/" + name);
+            updated = await updated.json();
+            console.log(updated);
+            updated.bookings = [];
+            this.setState(function() {
+                return {
+                    room: updated["room"]
+                };
+            });
+        } else {
+            let room = this.props.roomGetter[this.state.room.name];
+            if(room.available !== this.state.room.available) {
+                this.setState(function(prev) {
+                    return {
+                        room: {available: room.available, name: prev.room.name},
+                        schedule: prev.schedule
+                    };
+                });
+            }
+        }
       }
-
-    async onCancelClick() {
-        let name = this.state.room.name;
-        let data = {};
-        data.room = name;
-        data.cancel = true;
-        fetch(`/${name}`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-        console.log("send cancel request for " + name);
-        this.componentDidMount();
-        this.props.cancel(name);
-        this.setState((prev) => {
-            return {room: {
-                name: prev.room.name,
-                available: true
-            }};
-        });
-    }
 
     stateHeader() {
         let available = this.state.room.available;
@@ -113,8 +75,7 @@ class room extends Component {
         if(available === true) {
             toReturn = (<h1 id="state" className="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently available!">Available</h1>);
         } else if(available === false) {
-            if(this.state.room.ings && this.state.room.ings.length > 0) {
-                // Detta ska förmodligen funka om schemat returner våra bokningar?
+            if(this.state.room.bookings && this.state.room.bookings.length > 0) {
                 toReturn = (
                     <div className="text-center animated fadeIn">
                         <h1 id="state" data-toggle="tooltip" data-placement="top" title="This room is currently unavailable!">Unavailable</h1>
@@ -163,11 +124,12 @@ class room extends Component {
         }
     }
 
-    async book() {
-        this.state.room.available = false;
-        this.componentDidMount()
+
+    async cancel() {
+        this.state.room.available = true;
         return true;
     }
+
 
     updateBackground() {
         if(this.state.room.available === true) {
@@ -181,6 +143,7 @@ class room extends Component {
     }
 
     render() {
+
         if(Object.keys(this.state).length === 0) {
             return(
                 <div>
@@ -188,16 +151,12 @@ class room extends Component {
                     <h1 className="mt-5">Loading</h1>
                 </div>)
         } else {
-            if(this.props.submit !== null && this.state.submit !== "") {
-                this.book();
-            }
-            console.log(this.state);
             this.updateBackground();
             return (
                 <div>
                     <div className="ml-2 mt-5 pt-5 text-center">
                         <i className="fas fa-users fa-3x" title="Capacity"></i><span className="h3">5</span>
-                        <i className="fas fa-laptop fa-3x mr-2" title="Computer equipment"></i>
+                        <i className="fas fa-laptop fa-3x mr-2" title="Computer Equipment"></i>
                         <i className="fab fa-product-hunt fa-3x mr-2" title="Projector"></i>
                     </div>
                     {this.stateHeader()}
@@ -209,18 +168,19 @@ class room extends Component {
     }
 }
 
+function write(dispatch) {
+    return bindActionCreators({
+        roomManager: room
+    }, dispatch);
+}
+
+
 function read(db) {
     return{
-        submit: db.submit
+        cancel: db.cancelBooking,
+        roomGetter: db.roomState
     };
 }
   
-function write(dispatch) {
-    return bindActionCreators({
-        busy: event,
-        cancel: cancel
-    }, dispatch);
-}
-  
-export default connect(read, write)(room);
+export default connect(read, write)(Room);
   

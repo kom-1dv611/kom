@@ -16,7 +16,6 @@ class roomCollection extends Component {
         this.timer = 0;
         this.startTimer();
         this.getRooms().then((rooms) => {
-            console.log(rooms);
             this.setState(() => {
                 return{rows: rooms};
             });
@@ -78,7 +77,6 @@ class roomCollection extends Component {
 
     render() {
         let rows;
-        console.log(this.state);
         if(this.props.filter === null) {
             rows = this.structure(this.state.rows)
         } else {

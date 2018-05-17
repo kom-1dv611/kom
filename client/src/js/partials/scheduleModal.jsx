@@ -8,11 +8,9 @@ class Schedule extends Component {
     content() {
         let schedule = this.props.schedule;
         if(schedule != null) {
-            console.log(schedule)
             let rows = [];
             if(schedule.length > 0) {
                 schedule.forEach(function(booking) {
-                    console.log(booking);
                     rows.push((
                     <tr>
                         <th scope="row">{booking.username}</th>
