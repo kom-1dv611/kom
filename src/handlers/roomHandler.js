@@ -12,20 +12,15 @@ module.exports = class RoomHandler {
     }
 
     async validateGroupRoom(bookings, room, currentTime) {
-        let grouproom = {room};
+        let schedule = await this.getCompleteScheduleToday(room.name);
+        let grouproom = {room, schedule};
 
-        //Är grupprummet bokat i timeedit så sätt tillgänglighet baserat på statusen.
-        let timeedit = await this.getSpecificScheduleTimeEdit(room.name);
-        this.isRoomBookedInTimeEdit(timeedit, currentTime) ? grouproom.available = false : grouproom.available = true;
-        
-        //Filtrerar ut den tidigaste bokningen så att man ser om rummet är tillgängligt eller inte JUST NU. Tar även bort expirade bokningar.
-        if (bookings.length) {
-            let roomBookings = bookings.filter((x) => x.roomID === room.name && x.bookingDate === moment().format('YYYY-MM-DD'));
-            let earliestBooking = roomBookings.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
-
-            if (roomBookings.length > 0) {
-                this.hasBookingExpired(earliestBooking, currentTime) ? await this.removeBookingFromDB(earliestBooking.roomID) : grouproom.available = this.isRoomAvailable(earliestBooking, currentTime);
-            }
+        if(schedule.length > 0) {
+            let bookingsToday = schedule.filter((x) => x.bookingDate === moment().format('YYYY-MM-DD'));
+            let currentBooking = bookingsToday.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
+            grouproom.available = currentBooking.startTime <= currentTime && currentBooking.endTime >= currentTime ?  false : true;
+        } else {
+            grouproom.available = true;
         }
         return grouproom;
     }
@@ -34,12 +29,13 @@ module.exports = class RoomHandler {
         return timeEdit.getTodaysSchedule(room)
             .then(async (roomSchedule) => {
                 let schedule = [];
-                let booking = await this.getSpecificBooking(room);
-                if (booking.length > 0 && booking[0].bookingDate === moment().format('YYYY-MM-DD')) {
-                    booking.map((x) => {
+                let bookings = await this.getSpecificBooking(room);
+                bookings.map((x) => {
+                    if (x.bookingDate === moment().format('YYYY-MM-DD')) {
                         schedule.push({username: x.username, startTime: x.startTime, endTime: x.endTime, bookingDate: x.bookingDate});
-                    })
-                }
+                    }
+                })
+                
                 if (roomSchedule) {
                     schedule.push({username: 'timeedit', startTime: roomSchedule[0].time.startTime, endTime: roomSchedule[0].time.endTime, bookingDate: moment().format('YYYY-MM-DD')});
                 }
