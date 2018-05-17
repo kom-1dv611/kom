@@ -51,7 +51,6 @@ module.exports = function (RoomModel, BookingModel) {
                 let currentBooking = bookingsToday.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
                 room.available = currentBooking.startTime <= currentTime && currentBooking.endTime >= currentTime ?  false : true;
             } else {
-                //Rummet har ingen bokning.
                 room.available = true;
             }
             res.json({room});

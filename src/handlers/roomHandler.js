@@ -12,8 +12,12 @@ module.exports = class RoomHandler {
     }
 
     async validateGroupRoom(bookings, room, currentTime) {
+        let grouproom = {room};
+
+        if (this.hasBookingExpired(bookings.filter((x) => x.roomID === room.name), currentTime)) {
+            await this.removeBookingFromDB(room.name);
+        }
         let schedule = await this.getCompleteScheduleToday(room.name);
-        let grouproom = {room, schedule};
 
         if(schedule.length > 0) {
             let bookingsToday = schedule.filter((x) => x.bookingDate === moment().format('YYYY-MM-DD'));
@@ -22,6 +26,7 @@ module.exports = class RoomHandler {
         } else {
             grouproom.available = true;
         }
+        grouproom.schedule = schedule;
         return grouproom;
     }
 
@@ -29,7 +34,7 @@ module.exports = class RoomHandler {
         return timeEdit.getTodaysSchedule(room)
             .then(async (roomSchedule) => {
                 let schedule = [];
-                let bookings = await this.getSpecificBooking(room);
+                let bookings = await this.getBookingsForSpecificRoom(room);
                 bookings.map((x) => {
                     if (x.bookingDate === moment().format('YYYY-MM-DD')) {
                         schedule.push({username: x.username, startTime: x.startTime, endTime: x.endTime, bookingDate: x.bookingDate});
@@ -45,18 +50,9 @@ module.exports = class RoomHandler {
             });
     }
 
-    isRoomAvailable(booking, currentTime) {
-        if (booking.bookingDate > moment().format('YYYY-MM-DD')) return true;
-        if (booking.bookingDate === moment().format('YYYY-MM-DD')) return booking.startTime <= currentTime && booking.endTime >= currentTime ? false : true;
-    }
-
     hasBookingExpired(booking, currentTime) {
         if (booking.bookingDate < moment().format('YYYY-MM-DD')) return true;
         if (booking.bookingDate === moment().format('YYYY-MM-DD')) return booking.endTime < currentTime ? true : false; //BUG: Om en bokning går över midnatt så går det ej att jämföra endTime < currentTime
-    }
-
-    isRoomBookedInTimeEdit(timeedit, currentTime) {
-        return timeedit === null || currentTime < timeedit.startTime || currentTime > timeedit.endTime ? false : true;
     }
 
     //Remove booking by room name
@@ -81,8 +77,8 @@ module.exports = class RoomHandler {
         })
     }
 
-    //Get specific booking from DB
-    getSpecificBooking(roomID) {
+    //Get all bookings from DB
+    getBookingsForSpecificRoom(roomID) {
         return this.BookingModel.find({roomID}).exec()
         .then((booking) => {
             return booking;
