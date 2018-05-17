@@ -40,6 +40,7 @@ module.exports = function (RoomModel, BookingModel) {
         })
 
     router.route('/:id')
+        //TODO: Fixa efter datum & bugg på vissa rum ex B215.
         .get(async function (req, res) {
             let schedule = await Room.getCompleteScheduleToday(req.params.id);
             let currentTime = moment().format('LT');
@@ -58,7 +59,15 @@ module.exports = function (RoomModel, BookingModel) {
         .post(async function (req, res) {
             if(req.body.cancel) {
                 let allBookings = await Room.getSpecificBooking(req.body.room);
-                let currentBooking = allBookings.sort((a, b) => a.startTime.localeCompare(b.startTime))[0]; //todo: måste kolla vilket datum också, inte bara första bästa bokningen
+                let bookingsToday = [];
+                
+                for(let i = 0; i < allBookings.length; i++) {
+                    if(allBookings[i].bookingDate === moment().format('YYYY-MM-DD')) {
+                        console.log('mm')
+                        bookingsToday.push(allBookings[i]);
+                    }
+                }
+                let currentBooking = bookingsToday.sort((a, b) => a.startTime.localeCompare(b.startTime))[0]; 
                 await Room.removeBookingWithStartTime(currentBooking);
             } else {
                 let data = {
