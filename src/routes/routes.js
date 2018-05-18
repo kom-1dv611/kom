@@ -206,6 +206,7 @@ module.exports = function (RoomModel, BookingModel) {
         })
         .post(function(req, res) {
             //ta emot post från checka in
+            console.log(req.body);
         })
 
     router.route('/room/:roomID/schedule/')

@@ -45,10 +45,26 @@ async function cancel(name) {
     console.log("sent cancel request for " + name);
 }
 
+async function checkin(name) {
+    let data = {};
+    data.room = name;
+    fetch(`/checkIn/${name}`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
+    console.log("sent checkin request for " + name);
+}
 
 export default function(state = null, action) {
     console.log(action.type)
     switch(action.type) {
+        case "CHECK_IN":
+            checkin(action.value);
+            break;
         case "BOOKING_CANCELED":
             cancel(action.value);
             break;

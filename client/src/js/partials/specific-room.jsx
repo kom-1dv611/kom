@@ -103,7 +103,7 @@ class Room extends Component {
                         <input type="time" id="currentTime" name="time" hidden/>
                         <div id="schedule" className="col-md-auto">
                             <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
-                            <Schedule schedule={this.state.room.schedule}/>
+                            <Schedule name={this.state.room.name} schedule={this.state.room.schedule}/>
                         </div>
                         <Book room={name} available={available} />
                     </div>
@@ -114,7 +114,7 @@ class Room extends Component {
                 <div className="row justify-content-center pb-0">
                     <div id="schedule" className="col-md-auto">
                         <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
-                        <Schedule schedule={this.state.room.schedule}/>
+                        <Schedule name={this.state.room.name} schedule={this.state.room.schedule}/>
                     </div>
                     <div className="col-md-auto">
                         <Book room={name} available={available} />

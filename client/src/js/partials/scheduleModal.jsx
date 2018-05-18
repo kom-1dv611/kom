@@ -1,13 +1,30 @@
 import React, { Component } from 'react';
 import logo from '../../logo.svg';
-class Schedule extends Component {
-    row() {
+import {connect} from "react-redux"; //read
+import {bindActionCreators} from "redux"; //write
+import room from "../actions/room-state";
+import $ from "jquery";
 
+class Schedule extends Component {
+    componentDidMount() {
+
+    }
+
+    onClick() {
+        console.log(this.props)
+        this.props.roomManager("CHECK_IN", this.props.name)
     }
 
     content() {
         let schedule = this.props.schedule;
         if(schedule != null) {
+            $( document ).ready(() => {
+                $(".checkin").off();
+                $(".checkin").on("click", () => {
+                    console.log("PLZZZ")
+                    this.onClick();
+                });
+            });
             let rows = [];
             if(schedule.length > 0) {
                 schedule.forEach(function(booking) {
@@ -16,7 +33,7 @@ class Schedule extends Component {
                             <th scope="row">{booking.username}</th>
                             <td>{booking.startTime}</td>
                             <td>{booking.endTime}</td>
-                            <td className="pt-1"><button className="btn btn-sm btn-outline-dark"><i class="fas fa-check"></i>Checkin</button></td>
+                            <td className="pt-1"><button className="btn btn-sm btn-outline-dark checkin"><i class="fas fa-check"></i>Checkin</button></td>
                         </tr>
                     ));
                 });
@@ -68,4 +85,15 @@ class Schedule extends Component {
 }
 
   
-export default Schedule;
+function write(dispatch) {
+    return bindActionCreators({
+        roomManager: room
+    }, dispatch);
+}
+
+
+function read(db) {
+    return{};
+}
+  
+export default connect(read, write)(Schedule);
