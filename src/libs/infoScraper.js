@@ -2,6 +2,7 @@ let puppeteer = require('puppeteer')
 let Room = require('../models/Room.js')
 
 let scrape = async () => {
+    // TODO: sök efter alla lokalnamn i databasen
     let browser = await puppeteer.launch({ headless: false })
     let page = await browser.newPage()
     let url = 'https://se.timeedit.net/web/lnu/db1/schema1'
@@ -49,16 +50,25 @@ let scrape = async () => {
         let iframe = document.getElementById('fancybox-frame')
         let iframeDoc = iframe.contentDocument || iframe.contentWindow.document
         let iframeP = iframeDoc.querySelector('.infoboxtd')
-        // TODO: plockar ut första url:en, se till att plocka ut just Lokal url:en
-        let iframeA = iframeP.querySelector('a').href
 
-        return iframeA
+        let elements = Array.from(iframeP.querySelectorAll('a'))
+        let links = elements.map(element => {
+            // TODO: kolla mot lokalnamn i databasen
+            if (element.textContent == 'Ny256K') {
+                return element.href
+            }
+        })
+        return links
     })
 
-    await page.waitFor(1000)
+    for (let i = 0; i < newUrl.length; i++) {
+        if (newUrl[i] !== null) {
+            // gå till info sidan
+            await page.goto(newUrl[i])
+        }
+    }
 
-    // gå till info sidan
-    await page.goto(newUrl)
+    await page.waitFor(1000)
 
     let table = await page.evaluate(() => {
         let lists = document.querySelector('.objectfieldsextra')
@@ -82,18 +92,20 @@ let scrape = async () => {
 
         context.name = list[4]
         context.size = list[15]
-        // TODO: om det finns 3 saker listade i utrustning?
+        // spara endast ner om det finns dator eller inte.
         if (list[18] === 'Utrustning') {
-            console.log('utrustning')
-            context.equipment = {first: list[19], second: list[20] }
+            // det finns utrustning
+            if (list[19] === 'Dator') {
+                // dator finns
+                context.equipment = list[19]
+            }
         } else {
-            console.log('ingen utrustning')
+            // det finns ingen utrustning listad
             context.equipment = {}
         }
         roomInfo.push(context)
     }
 
-    // TODO: gå igenom alla rum som finns i databasen och spara info till de rummen.
     // TODO: spara information om rummen.
 
     await page.waitFor(2000)
