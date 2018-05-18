@@ -30,13 +30,6 @@ app.use(function(req, res, next) {
     next();
 });
 
-let scrape = require('./src/libs/infoScraper')
-app.get('/scrape', function (req, res) {
-    scrape().then((value) => {
-        res.send(value)
-    })
-})
-
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(bodyParser.json());
