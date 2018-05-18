@@ -12,12 +12,13 @@ class Schedule extends Component {
             if(schedule.length > 0) {
                 schedule.forEach(function(booking) {
                     rows.push((
-                    <tr>
-                        <th scope="row">{booking.username}</th>
-                        <td>{booking.startTime}</td>
-                        <td>{booking.endTime}</td>
-                    </tr>
-                ));
+                        <tr>
+                            <th scope="row">{booking.username}</th>
+                            <td>{booking.startTime}</td>
+                            <td>{booking.endTime}</td>
+                            <td className="pt-1"><button className="btn btn-sm btn-outline-dark"><i class="fas fa-check"></i>Checkin</button></td>
+                        </tr>
+                    ));
                 });
                 return(
                     <table className="table">
@@ -26,6 +27,7 @@ class Schedule extends Component {
                                 <th scope="col">Booker</th>
                                 <th scope="col">Start</th>
                                 <th scope="col">End</th>
+                                <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody>
