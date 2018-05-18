@@ -41,12 +41,12 @@ module.exports = class RoomHandler {
                 let bookings = await this.getBookingsForSpecificRoom(room);
                 bookings.map((x) => {
                     if (x.bookingDate === moment().format('YYYY-MM-DD')) {
-                        schedule.push({username: x.username, startTime: x.startTime, endTime: x.endTime, bookingDate: x.bookingDate});
+                        schedule.push({username: x.username, startTime: x.startTime, endTime: x.endTime, bookingDate: x.bookingDate, isBookLater: x.isBookLater});
                     }
                 })
                 
                 if (roomSchedule) {
-                    schedule.push({username: 'timeedit', startTime: roomSchedule[0].time.startTime, endTime: roomSchedule[0].time.endTime, bookingDate: moment().format('YYYY-MM-DD')});
+                    schedule.push({username: 'timeedit', startTime: roomSchedule[0].time.startTime, endTime: roomSchedule[0].time.endTime, bookingDate: moment().format('YYYY-MM-DD'), isBookLater: false});
                 }
                 return schedule.sort((a, b) => a.startTime.localeCompare(b.startTime));
             }).catch((er) => {
