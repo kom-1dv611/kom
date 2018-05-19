@@ -52,7 +52,7 @@ module.exports = function (RoomModel, BookingModel) {
             } else {
                 room.available = true;
             }
-            res.json({room});
+            res.status(200).json({room});
         })
         .post(async function (req, res) {
             if(req.body.cancel) {
@@ -206,6 +206,7 @@ module.exports = function (RoomModel, BookingModel) {
         })
         .post(function(req, res) {
             //ta emot post från checka in
+            res.status(200).json({message: 'Check-in'});
         })
 
     router.route('/room/:roomID/schedule/')

@@ -34,31 +34,9 @@ module.exports = class RoomHandler {
         return grouproom;
     }
 
-    getCompleteScheduleToday(room) {
-        return timeEdit.getTodaysSchedule(room)
-            .then(async (roomSchedule) => {
-                let schedule = [];
-                let bookings = await this.getBookingsForSpecificRoom(room);
-                bookings.map((x) => {
-                    if (x.bookingDate === moment().format('YYYY-MM-DD')) {
-                        schedule.push({username: x.username, startTime: x.startTime, endTime: x.endTime, bookingDate: x.bookingDate, isBookLater: x.isBookLater});
-                    }
-                })
-                
-                if (roomSchedule) {
-                    schedule.push({username: 'timeedit', startTime: roomSchedule[0].time.startTime, endTime: roomSchedule[0].time.endTime, bookingDate: moment().format('YYYY-MM-DD'), isBookLater: false});
-                }
-                return schedule.sort((a, b) => a.startTime.localeCompare(b.startTime));
-            }).catch((er) => {
-                console.log(er);
-            });
-    }
-
     hasBookingExpired(booking, currentTime) {
-        if (booking.bookingDate < moment().format('YYYY-MM-DD') || booking.bookingDate === moment().format('YYYY-MM-DD') && booking.endTime < currentTime) return true;
-        else return false;
-        
-        //return booking.endTime < currentTime ? true : false; //BUG: Om en bokning går över midnatt så går det ej att jämföra endTime < currentTime
+        //BUG: Om en bokning går över midnatt så går det ej att jämföra endTime < currentTime
+        return booking.bookingDate < moment().format('YYYY-MM-DD') || booking.bookingDate === moment().format('YYYY-MM-DD') && booking.endTime < currentTime ? true : false;
     }
 
     //Remove booking by room name
@@ -83,7 +61,27 @@ module.exports = class RoomHandler {
         })
     }
 
-    //Get all bookings from DB
+    getCompleteScheduleToday(room) {
+        return timeEdit.getTodaysSchedule(room)
+            .then(async (roomSchedule) => {
+                let schedule = [];
+                let bookings = await this.getBookingsForSpecificRoom(room);
+                bookings.map((x) => {
+                    if (x.bookingDate === moment().format('YYYY-MM-DD')) {
+                        schedule.push({username: x.username, startTime: x.startTime, endTime: x.endTime, bookingDate: x.bookingDate, isBookLater: x.isBookLater});
+                    }
+                })
+                
+                if (roomSchedule) {
+                    schedule.push({username: 'timeedit', startTime: roomSchedule[0].time.startTime, endTime: roomSchedule[0].time.endTime, bookingDate: moment().format('YYYY-MM-DD'), isBookLater: false});
+                }
+                return schedule.sort((a, b) => a.startTime.localeCompare(b.startTime));
+            }).catch((er) => {
+                console.log(er);
+            });
+    }
+
+    //Get all bookings for a specific room from DB
     getBookingsForSpecificRoom(roomID) {
         return this.BookingModel.find({roomID}).exec()
         .then((booking) => {
