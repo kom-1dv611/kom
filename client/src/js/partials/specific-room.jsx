@@ -47,7 +47,7 @@ class Room extends Component {
         this.ticks++;
         if(this.ticks > 50) {
             let name = this.state.room.name;
-            let updated = await fetch("/" + name);
+            let updated = await fetch("/room/" + name);
             updated = await updated.json();
             console.log(updated);
             updated.bookings = [];

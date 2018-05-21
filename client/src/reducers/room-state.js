@@ -25,7 +25,7 @@ async function populate(obj, rooms) {
 }
 
 async function getAllRooms() {
-    let rooms = await fetch("http://localhost:2000/");
+    let rooms = await fetch("/rooms");
     rooms = await rooms.json();
     return rooms["rows"];
 }
@@ -34,7 +34,7 @@ async function cancel(name) {
     let data = {};
     data.room = name;
     data.cancel = true;
-    fetch(`/${name}`, {
+    fetch(`/room/${name}`, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',

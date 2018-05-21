@@ -32,7 +32,7 @@ class enterDateTime extends Component {
         data.room = name;
         console.log(data);
 
-        let resp = await fetch("/" + name, {
+        let resp = await fetch("/room/" + name, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -68,7 +68,7 @@ class enterDateTime extends Component {
         data.room = name;
         console.log(data);
 
-        fetch("/" + name, {
+        fetch("/room/" + name, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

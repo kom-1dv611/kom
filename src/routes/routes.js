@@ -17,7 +17,7 @@ moment.locale('sv');
 module.exports = function (RoomModel, BookingModel) {
     let Room = new RoomHandler(RoomModel, BookingModel);
 
-    router.route('/')
+    router.route('/rooms')
         .get(async function (req, res) {
             let rooms = await Room.getRoomsFromDB();
             let bookings = await Room.getBookingsFromDB();
@@ -39,7 +39,7 @@ module.exports = function (RoomModel, BookingModel) {
                 })
         })
 
-    router.route('/:id')
+    router.route('/room/:id')
         .get(async function (req, res) {
             let schedule = await Room.getCompleteScheduleToday(req.params.id);
             let currentTime = moment().format('LT');

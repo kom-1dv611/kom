@@ -34,7 +34,7 @@ class roomCollection extends Component {
 
 
     async getRooms() {
-        let rooms = await fetch("http://localhost:2000/");
+        let rooms = await fetch("/rooms");
         rooms = await rooms.json();
         return rooms["rows"];
     }

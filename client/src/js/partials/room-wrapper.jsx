@@ -19,7 +19,7 @@ class roomWrapper extends Component {
   }
 
   async getRows() {
-    let rows = await fetch("http://localhost:2000");
+    let rows = await fetch("/rooms");
     rows = await rows.json();
     return rows;
   }
