@@ -1,7 +1,13 @@
 let puppeteer = require('puppeteer')
-let Room = require('../models/Room.js')
+let RoomHandler = require('../routes/handlers/RoomHandler');
 
-let scrape = async () => {
+let scrape = async (RoomModel) => {
+    let Room = new RoomHandler(RoomModel);
+    let rooms = await Room.getRoomsFromDB();
+
+    for (let i = 0; i < rooms.length; i++) {
+        console.log(rooms[i].name)
+    }
     // TODO: sök efter alla lokalnamn i databasen
     let browser = await puppeteer.launch({ headless: false })
     let page = await browser.newPage()

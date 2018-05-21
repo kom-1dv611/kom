@@ -32,7 +32,7 @@ app.use(function(req, res, next) {
 
 let scrape = require('./src/libs/infoScraper')
 app.get('/scrape', function (req, res) {
-    scrape().then((value) => {
+    scrape(RoomModel).then((value) => {
         res.send(value)
     })
 })
