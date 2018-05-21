@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import {connect} from "react-redux"; //read
 import {bindActionCreators} from "redux"; //write
-import event from "../actions/busy-state";
-import schedule from "../actions/loadSchedule";
+
 import cancel from "../actions/cancelBooking";
+import room from "../actions/room-state";
 
 import $ from "jquery"
 
@@ -12,181 +12,62 @@ import Book from "./book";
 
 import logo from '../../logo.svg';
 
-class room extends Component {
+class Room extends Component {
     constructor(props) {
         super(props)
 
-        this.state = {};
+        this.state = {
+            room: this.props.roomGetter[this.props.room],
+            schedule: []
+        };
 
-        this.getRoomInfo(this.props.room).then((room) => {
-            //this.props.busy(room.available);
-            this.setState(() => {
-                $( document ).ready(() => {
-                    $("#schedule").on("click", async() => {
-                        this.onScheduleClick(); 
-                    });
-                    if(this.state.room.available === false) {
-                        $("#cancelButton").on("click", async() => {
-                            this.onCancelClick();
-                        });
-                        //this.setupTimer();
-                    }
-                });
-                return {
-                    room: {
-                        name: room.name,
-                        available: room.available
-                    },
-                    time: {},
-                    seconds: 0,
-                };
-            });
-        });
+        console.log(this.state);
 
-        this.cancel = false;
-        
         this.timer = 0;
+        this.ticks = 0;
         this.startTimer = this.startTimer.bind(this);
         this.countDown = this.countDown.bind(this);
-        this.ticks = 0;
     }
 
-    async getRoomInfo(name) {
-        let room = await fetch("http://localhost:2000/" + name);
-        room = await room.json();
-        return room["room"];
+    componentDidMount() {
+        this.startTimer();
     }
 
-    getDuration(localing) {
-        let ing, hours, minutes, active, buttons;
-        if(localing === false) {
-            ing = this.state.room.ings[0];
-            hours = parseInt(ing.endTime.substring(0, ing.endTime.indexOf(":"))) * 3600;
-            minutes = parseInt(ing.endTime.substring(ing.endTime.indexOf(":") + 1, ing.endTime.length)) * 60;
-            return hours + minutes;
-        } else {
-            buttons = $(".btn-group").children();
-            $.each(buttons, function(key, value) {
-                buttons = $(".btn-group").children();
-                if($(value).hasClass("active") === true) {
-                    active = value;
-                }
-            });
-            let duration = $(active).children().val()
-            return duration * 3600;
-        }
-    }
-
-    setupTimer(localing = false, update = true) {
-        if(this.timer === 0) {
-                let duration = this.getDuration(localing);
-                if(duration > 0) {
-                    let now = new Date();
-                    let currentMinutes = now.getMinutes() * 60;
-                    let currentHours = now.getHours() * 3600;
-                    let currentSeconds = now.getSeconds();
-        
-                    this.startTimer();
-                    let timeLeftVar = this.secondsToTime(this.state.seconds);
-                    if(update === true) {
-                        this.setState({ time: timeLeftVar, seconds: duration - (currentHours + currentMinutes + currentSeconds)});
-                    } else {
-                        this.state.time = timeLeftVar;
-                        this.state.seconds =  duration - (currentHours + currentMinutes + currentSeconds) >= 0 ? duration - (currentHours + currentMinutes + currentSeconds) : (currentHours + currentMinutes + currentSeconds) - duration;
-                    }
-                } else {
-                    console.log("Timer could not be started");
-                }
-        }
-        return true;
+    componentWillUnmount() {
+        clearInterval(this.timer);
     }
 
     startTimer() {
         if (this.timer === 0) {
-            this.timer = setInterval(this.countDown, 1000);
+            this.timer = setInterval(this.countDown, 100);
         }
     }
 
     async countDown() {
-        let seconds = this.state.seconds - 1;
         this.ticks++;
-    
-        if (seconds === 0) { 
-            clearInterval(this.timer);
-        }
-
-        if(this.ticks >= 5) {
-            let name = this.state.room.room.name;
-            this.ticks = 0;
+        if(this.ticks > 50) {
+            let name = this.state.room.name;
             let updated = await fetch("/" + name);
             updated = await updated.json();
             console.log(updated);
-            updated.ings = [];
+            updated.bookings = [];
             this.setState(function() {
                 return {
-                    room: updated,
-                    time: this.secondsToTime(seconds),
-                    seconds: seconds
+                    room: updated["room"]
                 };
             });
         } else {
-            this.setState({
-                time: this.secondsToTime(seconds),
-                seconds: seconds
-            });
+            let room = this.props.roomGetter[this.state.room.name];
+            if(room.available !== this.state.room.available) {
+                this.setState(function(prev) {
+                    return {
+                        room: {available: room.available, name: prev.room.name},
+                        schedule: prev.schedule
+                    };
+                });
+            }
         }
       }
-
-    secondsToTime(secs){
-        let hours = Math.floor(secs / (60 * 60));
-    
-        let divisor_for_minutes = secs % (60 * 60);
-        let minutes = Math.floor(divisor_for_minutes / 60);
-    
-        let divisor_for_seconds = divisor_for_minutes % 60;
-        let seconds = Math.ceil(divisor_for_seconds);
-    
-        let obj = {
-            "h": hours,
-            "m": minutes,
-            "s": seconds
-        };
-        return obj;
-      };
-
-    async onScheduleClick() {
-        let name = this.state.room.name;
-        let rows = await fetch(`/${name}/schedule/today`);
-        rows = await rows.json();
-        if(rows === null) {
-            rows = [];
-        }
-        this.props.schedule(rows);
-    }
-
-    async onCancelClick() {
-        let name = this.state.room.name;
-        let data = {};
-        data.room = name;
-        data.cancel = true;
-        fetch(`/${name}`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-        console.log("send cancel request for " + name);
-        this.props.cancel(name);
-        this.cancel = true;
-        this.setState((prev) => {
-            return {room: {
-                name: prev.room.name,
-                available: true
-            }};
-        });
-    }
 
     stateHeader() {
         let available = this.state.room.available;
@@ -194,8 +75,7 @@ class room extends Component {
         if(available === true) {
             toReturn = (<h1 id="state" className="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently available!">Available</h1>);
         } else if(available === false) {
-            if(this.state.room.ings && this.state.room.ings.length > 0) {
-                // Detta ska förmodligen funka om schemat returner våra bokningar?
+            if(this.state.room.bookings && this.state.room.bookings.length > 0) {
                 toReturn = (
                     <div className="text-center animated fadeIn">
                         <h1 id="state" data-toggle="tooltip" data-placement="top" title="This room is currently unavailable!">Unavailable</h1>
@@ -223,7 +103,7 @@ class room extends Component {
                         <input type="time" id="currentTime" name="time" hidden/>
                         <div id="schedule" className="col-md-auto">
                             <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
-                            <Schedule/>
+                            <Schedule name={this.state.room.name} schedule={this.state.room.schedule}/>
                         </div>
                         <Book room={name} available={available} />
                     </div>
@@ -234,7 +114,7 @@ class room extends Component {
                 <div className="row justify-content-center pb-0">
                     <div id="schedule" className="col-md-auto">
                         <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
-                        <Schedule/>
+                        <Schedule name={this.state.room.name} schedule={this.state.room.schedule}/>
                     </div>
                     <div className="col-md-auto">
                         <Book room={name} available={available} />
@@ -244,34 +124,12 @@ class room extends Component {
         }
     }
 
-    async book() {
-        //this.setupTimer(true, false);
-        this.state.room.available = false;
-        $( document ).ready(() => {
-            $("#schedule").off();
-            $("#cancelButton").off();
-            $("#schedule").on("click", async() => {
-                this.onScheduleClick();
-            });
-            $("#cancelButton").on("click", async() => {
-                this.onCancelClick();
-            });
-        });
+
+    async cancel() {
+        this.state.room.available = true;
         return true;
     }
 
-    async canceling() {
-        //try
-        console.log("cancel!!!")
-        $( document ).ready(() => {
-            $("#schedule").off("click");
-            $("#schedule").on("click", async() => {
-                this.onScheduleClick();
-            });
-        });
-        //clearInterval(this.timer);
-        return true;
-    }
 
     updateBackground() {
         if(this.state.room.available === true) {
@@ -285,27 +143,21 @@ class room extends Component {
     }
 
     render() {
+
         if(Object.keys(this.state).length === 0) {
             return(
-            <div>
-                <img src={logo} alt="loading icon" className="App-logo"/>
-                <h1 className="mt-5">Loading</h1>
-            </div>)
-        }else {
-            if(this.cancel === true) {
-                this.cancel = false;
-                this.canceling();
-            } else if(this.props.submit !== null && this.state.submit !== "") {
-                this.book();
-            }
-            console.log(this.state);
+                <div>
+                    <img src={logo} alt="loading icon" className="App-logo"/>
+                    <h1 className="mt-5">Loading</h1>
+                </div>)
+        } else {
             this.updateBackground();
             return (
                 <div>
-                    <div className="ml-2 mt-5 pt-5">
-                        <i className="fas fa-users fa-2x" title="Capacity"></i><span className="h3">5</span>
-                        <i className="fas fa-laptop fa-2x mr-2" title="Computer equipment"></i>
-                        <i className="fab fa-product-hunt fa-2x mr-2" title="Projector"></i>
+                    <div className="ml-2 mt-5 pt-5 text-center">
+                        <i className="fas fa-users fa-3x" title="Capacity"></i><span className="h3">5</span>
+                        <i className="fas fa-laptop fa-3x mr-2" title="Computer Equipment"></i>
+                        <i className="fab fa-product-hunt fa-3x mr-2" title="Projector"></i>
                     </div>
                     {this.stateHeader()}
                     {this.booking()}
@@ -316,19 +168,19 @@ class room extends Component {
     }
 }
 
+function write(dispatch) {
+    return bindActionCreators({
+        roomManager: room
+    }, dispatch);
+}
+
+
 function read(db) {
     return{
-        submit: db.submit
+        cancel: db.cancelBooking,
+        roomGetter: db.roomState
     };
 }
   
-function write(dispatch) {
-    return bindActionCreators({
-        busy: event,
-        cancel: cancel,
-        schedule: schedule
-    }, dispatch);
-}
-  
-export default connect(read, write)(room);
+export default connect(read, write)(Room);
   

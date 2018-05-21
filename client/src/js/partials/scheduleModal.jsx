@@ -1,33 +1,50 @@
 import React, { Component } from 'react';
-import {connect} from "react-redux"; //read
 import logo from '../../logo.svg';
+import {connect} from "react-redux"; //read
+import {bindActionCreators} from "redux"; //write
+import room from "../actions/room-state";
+import $ from "jquery";
+
 class Schedule extends Component {
-    row() {
+    componentDidMount() {
 
     }
 
+    onClick() {
+        console.log(this.props)
+        this.props.roomManager("CHECK_IN", this.props.name)
+    }
+
     content() {
-        if(this.props.onLoadSchedule !== null) {
-            let schedule = this.props.onLoadSchedule;
-            console.log(schedule)
+        let schedule = this.props.schedule;
+        if(schedule != null) {
+            $( document ).ready(() => {
+                $(".checkin").off();
+                $(".checkin").on("click", () => {
+                    console.log("PLZZZ")
+                    this.onClick();
+                });
+            });
             let rows = [];
             if(schedule.length > 0) {
                 schedule.forEach(function(booking) {
                     rows.push((
-                    <tr>
-                        <th scope="row">{booking.columns[4] !== "" ? booking.columns[4] : booking.columns[5]}</th>
-                        <td>{booking.time.startTime}</td>
-                        <td>{booking.time.endTime}</td>
-                    </tr>
-                ));
+                        <tr>
+                            <th scope="row">{booking.username}</th>
+                            <td>{booking.startTime}</td>
+                            <td>{booking.endTime}</td>
+                            <td className="pt-1"><button className="btn btn-sm btn-outline-dark checkin"><i class="fas fa-check"></i>Checkin</button></td>
+                        </tr>
+                    ));
                 });
                 return(
-                    <table class="table">
+                    <table className="table">
                         <thead>
                             <tr>
                                 <th scope="col">Booker</th>
                                 <th scope="col">Start</th>
                                 <th scope="col">End</th>
+                                <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -38,14 +55,8 @@ class Schedule extends Component {
             } else {
                 return <p>No bookings today</p>;
             }
-        
         } else {
-            return(
-                <div className="text-center text-dark">
-                    <img src={logo} alt="loading icon" className="App-logo"/>
-                    <h1>Loading..</h1>
-                </div>
-            );
+            return <p>Loading</p>
         }
     }
 
@@ -73,10 +84,16 @@ class Schedule extends Component {
     }
 }
 
+  
+function write(dispatch) {
+    return bindActionCreators({
+        roomManager: room
+    }, dispatch);
+}
+
+
 function read(db) {
-    return{
-        onLoadSchedule: db.loadedSchedule
-    };
+    return{};
 }
   
-export default connect(read)(Schedule);
+export default connect(read, write)(Schedule);

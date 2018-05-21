@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Modal from "./bookModal";
+import CancelModal from "./cancelModal";
 
 class book extends Component {
   bookLater() {
@@ -21,7 +22,8 @@ class book extends Component {
   cancel() {
     return (
     <div className="col-md">
-      <button id="cancelButton" title="Cancel current booking" type="button" className="btn btn-dark">Cancel Booking</button>
+      <button id="cancelButton" title="Cancel current booking" type="button" className="btn btn-dark" data-toggle="modal" data-target="#cancelModal">Cancel Booking</button>
+      <CancelModal name={this.props.room}/>
     </div>);
   }
 

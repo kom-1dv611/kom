@@ -2,14 +2,59 @@ import React, { Component } from 'react';
 import {connect} from "react-redux"; //read
 import Room from "./room"
 
+import logo from '../../logo.svg';
+
 class roomCollection extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {rows: this.props.rows.rows}
+        this.startTimer = this.startTimer.bind(this);
+        this.countDown = this.countDown.bind(this);
+    }
+
+    componentDidMount() {
+        this.timer = 0;
+        this.startTimer();
+        this.getRooms().then((rooms) => {
+            this.setState(() => {
+                return{rows: rooms};
+            });
+        });
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.timer);
+    }
+    
+    startTimer() {
+        if (this.timer === 0) {
+            this.timer = setInterval(this.countDown, 5000);
+        }
+    }
+
+
+    async getRooms() {
+        let rooms = await fetch("http://localhost:2000/");
+        rooms = await rooms.json();
+        return rooms["rows"];
+    }
+
+    async countDown() {
+        let rows = await this.getRooms();
+        this.setState(function() {
+            return {
+                rows: rows
+            };
+        });
+      }
+
     structure(target) {
         let rows = target.map(function (row, i) {
             let cols = [];
             row.cols.map(function(col, j) {
-                return cols.push(<div key={"r" + i + "c" + j} className="col-sm-3"><Room key={"r" + i + "c" + j + "r"} room={row.cols[j]}/></div>);
+                return cols.push(<div key={"r" + i + "c" + j} className="col"><Room key={"r" + i + "c" + j + "r"} room={row.cols[j]}/></div>);
             });
-            return <div key={"r" + i} className="row top-buffer mb-4">{cols}</div>
+            return <div key={"r" + i} className="row mb-4">{cols}</div>
         });
         return rows;
     }
@@ -27,19 +72,17 @@ class roomCollection extends Component {
                 }
             }
         }
-        console.log(rows);
         return rows;
     }
 
     render() {
         let rows;
-
         if(this.props.filter === null) {
-            rows = this.structure(this.props.rows.rows)
+            rows = this.structure(this.state.rows)
         } else {
             let total = [];
             let filter = this.props.filter;
-            this.props.rows.rows.map(function (row, i) {
+            this.state.rows.map(function (row, i) {
                 let temp = row.cols.filter(col => col.room.location === filter);
                 total = total.concat(temp);
                 return true;
@@ -54,6 +97,7 @@ class roomCollection extends Component {
             </div>
         );
     }
+    
 }
 
 function read(db) {
