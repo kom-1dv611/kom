@@ -30,10 +30,15 @@ async function getAllRooms() {
     return rooms["rows"];
 }
 
-async function cancel(name) {
+async function cancel(name, user) {
     let data = {};
     data.room = name;
     data.cancel = true;
+    data.username = user;
+
+    console.log("Sending:")
+    console.log(data);
+
     fetch(`/room/${name}`, {
         method: 'POST',
         headers: {
@@ -66,7 +71,7 @@ export default function(state = null, action) {
             checkin(action.value);
             break;
         case "BOOKING_CANCELED":
-            cancel(action.value);
+            cancel(action.value.name, action.value.user);
             break;
         case GET_ROOM:
             return rooms;

@@ -56,6 +56,7 @@ module.exports = function (RoomModel, BookingModel) {
         })
         .post(async function (req, res) {
             if(req.body.cancel) {
+                console.log(req.body);
                 let allBookings = await Room.getBookingsForSpecificRoom(req.body.room);
                 let bookingsToday = [];
                 

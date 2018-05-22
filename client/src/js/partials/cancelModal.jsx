@@ -25,7 +25,8 @@ class cancelModal extends Component {
 
     async onCancelClick() {
         let name = this.props.name;
-        this.props.cancel(name);
+        let user = $("#cancelName").val();
+        this.props.cancel({name: name, user: user});
     }
 
     render() {
