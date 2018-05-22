@@ -68,9 +68,8 @@ module.exports = function (RoomModel, BookingModel) {
                 if(currentBooking.username === req.body.username) {
                     await Room.removeBookingWithStartTime(currentBooking);
                 } else {
-                    console.log('felmeddelande fel användarnamn')
-                }
-                
+                    return res.status(401).json({message: 'Wrong username.'});
+                }          
             } else {
                 let data = {
                     username: req.body.username,
@@ -143,7 +142,6 @@ module.exports = function (RoomModel, BookingModel) {
                     if(value === 'Success') {
                         let timeEditBookings = await Room.getSpecificScheduleTimeEditByDate(req.body.room, data.bookingDate);
                         if(timeEditBookings === null) {
-                            console.log('inget i timeEdit, boka här')
                             let bookRoom = new BookingModel(data)
                             bookRoom.save((err) => {
                                 if (!err) {
@@ -160,9 +158,8 @@ module.exports = function (RoomModel, BookingModel) {
                                 }
                             }
                             if(statusWrong === true && statusRight === true || statusWrong === true) {
-                                console.log('felmeddelande här = ej bokas.')
+                                return res.status(401).json({message: 'There is already bookings at this time. See schedule.'});
                             } else if(statusRight === true) {
-                                console.log('bokas asa')
                                 let bookRoom = new BookingModel(data)
                                 bookRoom.save((err) => {
                                     if (!err) {
@@ -175,6 +172,7 @@ module.exports = function (RoomModel, BookingModel) {
                     } 
                 }).catch(function(error) {
                     console.log(error);
+                    return res.status(401).json({message: 'There is already bookings at this time. See schedule.'});
                 })
             }   
         });
