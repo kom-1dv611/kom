@@ -187,11 +187,14 @@ module.exports = function (RoomModel, BookingModel) {
                 if(err) {
                     console.log(err)
                 } else {
+                    //KOLLA DATUM OCKSÅ
                     let booking = rooms.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
                     if(booking.isBookLater === true) {
                         if(booking.hasUserCheckedIn === true) {
+                            //SKICKA 200
                             console.log('Nu ska bakgrunden bli röd')
                         } else if(currentTime > add15MinutesToTime(booking.startTime)) {
+                            //KOLLA DATUM OCKSÅ
                             BookingModel.findOneAndRemove({roomID: req.body.room, startTime: booking.startTime}, function(err, result) {
                                 if(err) {
                                     console.log(err);
