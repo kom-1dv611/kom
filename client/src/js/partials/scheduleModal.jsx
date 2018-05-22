@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import logo from '../../logo.svg';
 import {connect} from "react-redux"; //read
 import {bindActionCreators} from "redux"; //write
 import room from "../actions/room-state";

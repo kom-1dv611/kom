@@ -26,23 +26,13 @@ class book extends Component {
       <CancelModal name={this.props.room}/>
     </div>);
   }
-
+  
   render() {
-    if(this.props.available === true) {
       return(
-      <div className="row">
-        <input id="currentTime" type="text" hidden/>
+      <div className="row pb-0">
         {this.bookLater()}
-        {this.bookNow()}
+        {this.props.available ? this.bookNow() : this.cancel()}
       </div>);
-    } else {
-      return(
-      <div className="row">
-      <input id="currentTime" type="text" hidden/>
-      {this.bookLater()}
-      {this.cancel()}
-      </div>);
-    }
   }
 }
 

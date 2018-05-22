@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import {connect} from "react-redux"; //read
 import Room from "./room"
 
-import logo from '../../logo.svg';
-
 class roomCollection extends Component {
     constructor(props) {
         super(props);
@@ -77,7 +75,7 @@ class roomCollection extends Component {
 
     render() {
         let rows;
-        if(this.props.filter === null || this.props.filter == "All") {
+        if(this.props.filter === null || this.props.filter === "All") {
             rows = this.structure(this.state.rows)
         } else {
             let total = [];

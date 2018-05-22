@@ -78,6 +78,7 @@ export default function(state = null, action) {
         case UPDATE_ROOM:
             rooms[action.value.name] = action.value;
             return true;
+        default:
+            return rooms;
     }
-    return rooms;
 }
