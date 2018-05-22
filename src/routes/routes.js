@@ -211,11 +211,28 @@ module.exports = function (RoomModel, BookingModel) {
                     }
                 }
             })
-        })
+        })   
         .post(function(req, res) {
-            //ta emot post från checka in
-            res.status(200).json({message: 'Check-in'});
             console.log(req.body);
+            let currentTime = moment().format('LT');
+            BookingModel.findOne({username: req.body.user, roomID: req.body.room}, function(err, booking) {
+                if(err) {
+                    res.status(500).json(err);
+                } else {
+                    if(currentTime >= booking.startTime && currentTime <= add15MinutesToTime(booking.startTime)) {
+                        booking.hasUserCheckedIn = true;
+                        booking.save(function(err, result) {
+                            if(err) {
+                                res.status(500).json(err);
+                            } else {
+                                console.log('updated to DB');
+                                res.status(200).json({message: 'Check-in'});
+                            }
+                        })
+                        
+                    }
+                }
+            })
         })
 
     router.route('/room/:roomID/schedule/')
