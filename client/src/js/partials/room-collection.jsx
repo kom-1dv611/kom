@@ -59,6 +59,14 @@ class roomCollection extends Component {
 
     sort(rooms) {
         let rowSize = 4;
+
+        // Ta bort om Ted inte gillar större knappar
+        if(rooms.length <= 10) {
+            rowSize = 1;
+        } else if(rooms.length <= 20) {
+            rowSize = 3;
+        }
+
         let size = Math.ceil(rooms.length / rowSize);
         let rows = [];
         for(let i = 0; i < size; i++) {
@@ -80,7 +88,6 @@ class roomCollection extends Component {
         } else {
             let total = [];
             let filter = this.props.filter;
-            console.log(filter);
             this.state.rows.map(function (row, i) {
                 let temp = row.cols.filter(col => col.room.location === filter);
                 total = total.concat(temp);

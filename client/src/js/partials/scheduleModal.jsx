@@ -8,7 +8,7 @@ class Schedule extends Component {
     checkinModalBody() {
         return(
             <div>
-                <label><i class="fas fa-user"></i>Username</label>
+                <label><i className="fas fa-user"></i>Username</label>
                 <input id="checkinName" type="text" className="form-control" placeholder="Username"/>
             </div>
         );
@@ -38,21 +38,32 @@ class Schedule extends Component {
     }
 
     onClick() {
-        console.log(this.props)
         this.props.roomManager("CHECK_IN", {name: this.props.name, user: $("#checkinName").val()})
+    }
+
+    checkinButton(booking) {
+        if(booking.isBookLater) {
+            return(
+                <button className="btn btn-sm btn-outline-dark checkin" data-toggle="modal" data-target="#checkinModal">
+                    <i className="fas fa-check"></i>Checkin
+                </button>
+            );
+        }
     }
 
     tableContent() {
         let schedule = this.props.schedule;
         let rows = [];
         
-        schedule.forEach(function(booking) {
+        schedule.forEach((booking) => {
             rows.push((
                 <tr>
                     <th scope="row">{booking.username}</th>
                     <td>{booking.startTime}</td>
                     <td>{booking.endTime}</td>
-                    <td className="pt-1"><button className="btn btn-sm btn-outline-dark checkin" data-toggle="modal" data-target="#checkinModal"><i class="fas fa-check"></i>Checkin</button></td>
+                    <td className="pt-1">
+                        {this.checkinButton(booking)}
+                    </td>
                 </tr>
             ));
         });
@@ -87,7 +98,7 @@ class Schedule extends Component {
                 this.onClick();
             });
         });
-        let rows = [];
+
         if(schedule.length > 0) {
             return(
                 <table className="table">

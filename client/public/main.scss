@@ -115,14 +115,6 @@ h4 {
     color: $navColor;
 }
 
-.dropdown-menu {
-    min-width: 75px !important;
-}
-
-.dropdown-item:hover {
-    background-color: $mainOnHoverColor;
-}
-
 .row {
     margin: 0 !important;
     padding-bottom: 15px;
@@ -197,14 +189,21 @@ input[type=date]::-webkit-inner-spin-button {
     
 }
 
-#search {
+#search, #searchButton {
     position: absolute;
-    right: 125px;
     top: 50%;
     transform: translateY(-50%);
     z-index: 3000 !important;
-    width: 200px;
+}
+
+#search {
+    right: 125px;
+    width: 100px;
     height: 25px;
+}
+
+#searchButton {
+    right: 225px;
 }
 
 @keyframes App-logo-spin {

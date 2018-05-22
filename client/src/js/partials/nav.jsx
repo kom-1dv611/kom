@@ -14,7 +14,12 @@ class nav extends Component {
   search() {
     let filter = this.props.filter;
     if(filter === "true") {
-      return(<input type="text" className="form-control" id="search" placeholder="Search"/>);
+      return(
+          <div>
+            <button id="searchButton" class="btn btn-sm btn-outline-light mt-0" type="button">Search</button>
+            <input type="text" id="search" class="form-control text-center" placeholder="Room" maxLength="8"/>
+          </div>
+        );
     } else{
       return "";
     }
