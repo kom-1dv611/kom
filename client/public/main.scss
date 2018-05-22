@@ -55,8 +55,6 @@ h1 {
     font-size: 6em;
     color: $mainTextColor;
     font-family: "Helvetica";
-    -webkit-text-stroke-width: 2px;
-    -webkit-text-stroke-color: black;
 }
 
 
@@ -148,6 +146,7 @@ h4 {
     right: 0;
     top: 70%;
     color: $mainTextColor;
+    z-index: -1 !important;
 }
 
 #book, #cancel {
@@ -161,6 +160,10 @@ h4 {
 
 #available, #unavailable {
     margin-top: 50px;
+}
+
+#footerLogo {
+    z-index: -1;
 }
 
 .available, .unavailable {

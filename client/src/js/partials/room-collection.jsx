@@ -62,7 +62,7 @@ class roomCollection extends Component {
 
         // Ta bort om Ted inte gillar större knappar
         if(rooms.length <= 10) {
-            rowSize = 1;
+            rowSize = 2;
         } else if(rooms.length <= 20) {
             rowSize = 3;
         }

@@ -32,9 +32,7 @@ nav {
 h1 {
   font-size: 6em;
   color: white;
-  font-family: "Helvetica";
-  -webkit-text-stroke-width: 2px;
-  -webkit-text-stroke-color: black; }
+  font-family: "Helvetica"; }
 
 h3 {
   color: white;
@@ -102,7 +100,8 @@ h4 a {
   left: 0;
   right: 0;
   top: 70%;
-  color: white; }
+  color: white;
+  z-index: -1 !important; }
 
 #book, #cancel {
   position: absolute;
@@ -114,6 +113,9 @@ h4 a {
 
 #available, #unavailable {
   margin-top: 50px; }
+
+#footerLogo {
+  z-index: -1; }
 
 .available, .unavailable {
   background-image: none; }
