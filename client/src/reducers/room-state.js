@@ -36,9 +36,6 @@ async function cancel(name, user) {
     data.cancel = true;
     data.username = user;
 
-    console.log("Sending:")
-    console.log(data);
-
     fetch(`/room/${name}`, {
         method: 'POST',
         headers: {
