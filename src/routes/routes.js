@@ -56,7 +56,6 @@ module.exports = function (RoomModel, BookingModel) {
         })
         .post(async function (req, res) {
             if(req.body.cancel) {
-                console.log(req.body);
                 let allBookings = await Room.getBookingsForSpecificRoom(req.body.room);
                 let bookingsToday = [];
                 
@@ -66,7 +65,12 @@ module.exports = function (RoomModel, BookingModel) {
                     }
                 }
                 let currentBooking = bookingsToday.sort((a, b) => a.startTime.localeCompare(b.startTime))[0]; 
-                await Room.removeBookingWithStartTime(currentBooking);
+                if(currentBooking.username === req.body.username) {
+                    await Room.removeBookingWithStartTime(currentBooking);
+                } else {
+                    console.log('felmeddelande fel användarnamn')
+                }
+                
             } else {
                 let data = {
                     username: req.body.username,
