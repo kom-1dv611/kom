@@ -1,124 +1,119 @@
 let puppeteer = require('puppeteer')
-let RoomHandler = require('../routes/handlers/RoomHandler');
 
-let scrape = async (RoomModel) => {
-    let Room = new RoomHandler(RoomModel);
-    let rooms = await Room.getRoomsFromDB();
-
-    for (let i = 0; i < rooms.length; i++) {
-        console.log(rooms[i].name)
-    }
+let scrape = async (roomName) => {
     // TODO: sök efter alla lokalnamn i databasen
-    let browser = await puppeteer.launch({ headless: false })
+    let browser = await puppeteer.launch()
     let page = await browser.newPage()
     let url = 'https://se.timeedit.net/web/lnu/db1/schema1'
-    await page.goto(url)
+    try {
 
-    // Gå till: Schema och visning av bokningar...
-    await page.click('#contents > div.linklist > div > div:nth-child(1) > a:nth-child(1)')
+        await page.goto(url)
 
-    await page.waitFor(2000)
+        // Gå till: Schema och visning av bokningar...
+        await page.click('#contents > div.linklist > div > div:nth-child(1) > a:nth-child(1)')
 
-    // Ändra till Lokal sökning
-    await page.select('#fancytypeselector', '4')
+        await page.waitFor(2000)
 
-    await page.waitFor(2000)
+        // Ändra till Lokal sökning
+        await page.select('#fancytypeselector', '4')
 
-    await page.evaluate(() => {
-        // Sätter värdet ny212k
-        document.querySelector('#ffsearchname').value = 'ny256k'
+        await page.waitFor(2000)
 
-        // Klicka på SÖK knappen
-        document.querySelector('.ffsearchbutton.objectsearchbutton').click()
-    })
+        await page.evaluate((roomName) => {
+            // Sätter värdet ny212k
+            document.querySelector('#ffsearchname').value = roomName
 
-    await page.waitFor(1000)
+            // Klicka på SÖK knappen
+            document.querySelector('.ffsearchbutton.objectsearchbutton').click()
+        }, roomName)
 
-    await page.evaluate(() => {
-        // Välj sökresultat
-        document.querySelector('#objectbasketitemX0').click()
+        await page.waitFor(1000)
 
-        // Klicka på Visa Schema
-        document.querySelector('#objectbasketgo').click()
-    })
+        await page.evaluate(() => {
+            // Välj sökresultat
+            document.querySelector('#objectbasketitemX0').click()
 
-    await page.waitFor(1000)
-
-    await page.evaluate(() => {
-        // klicka upp info fönster
-        document.querySelector('.column0.columnLine.nw.c0.la1').click()
-    })
-
-    await page.waitFor(1000)
-
-    let newUrl = await page.evaluate(() => {
-        // skriver ut info som finns i första pop-up ruta
-        let iframe = document.getElementById('fancybox-frame')
-        let iframeDoc = iframe.contentDocument || iframe.contentWindow.document
-        let iframeP = iframeDoc.querySelector('.infoboxtd')
-
-        let elements = Array.from(iframeP.querySelectorAll('a'))
-        let links = elements.map(element => {
-            // TODO: kolla mot lokalnamn i databasen
-            if (element.textContent == 'Ny256K') {
-                return element.href
-            }
+            // Klicka på Visa Schema
+            document.querySelector('#objectbasketgo').click()
         })
-        return links
-    })
 
-    for (let i = 0; i < newUrl.length; i++) {
-        if (newUrl[i] !== null) {
-            // gå till info sidan
-            await page.goto(newUrl[i])
-        }
-    }
+        await page.waitFor(1000)
 
-    await page.waitFor(1000)
+        await page.evaluate(() => {
+            // klicka upp info fönster
+            document.querySelector('.column0.columnLine.nw.c0.la1').click()
+        })
 
-    let table = await page.evaluate(() => {
-        let lists = document.querySelector('.objectfieldsextra')
-        let roomList = []
+        await page.waitFor(1000)
 
-        for (let i = 0; i < lists.childElementCount; i++) {
-            roomList.push(lists.children[i].textContent)
-        }
+        let newUrl = await page.evaluate((roomName) => {
+            // skriver ut info som finns i första pop-up ruta
+            let iframe = document.getElementById('fancybox-frame')
+            let iframeDoc = iframe.contentDocument || iframe.contentWindow.document
+            let iframeP = iframeDoc.querySelector('.infoboxtd')
 
-        return roomList
-    })
+            let elements = Array.from(iframeP.querySelectorAll('a'))
+            let links = elements.map(element => {
+                if (element.textContent == roomName) {
+                    return element.href
+                }
+            })
+            return links
+        }, roomName)
 
-    let roomInfo = []
-    let list
-
-    for (let i = 0; i < table.length; i++) {
-        list = table[i].replace(/\s+/g, ' ')
-        list = list.split(' ');
-
-        let context = {}
-
-        context.name = list[4]
-        context.size = list[15]
-        // spara endast ner om det finns dator eller inte.
-        if (list[18] === 'Utrustning') {
-            // det finns utrustning
-            if (list[19] === 'Dator') {
-                // dator finns
-                context.equipment = list[19]
+        for (let i = 0; i < newUrl.length; i++) {
+            if (newUrl[i] !== null) {
+                // gå till info sidan
+                await page.goto(newUrl[i])
             }
-        } else {
-            // det finns ingen utrustning listad
-            context.equipment = {}
         }
-        roomInfo.push(context)
+
+        await page.waitFor(1000)
+
+        let table = await page.evaluate(() => {
+            let lists = document.querySelector('.objectfieldsextra')
+            let roomList = []
+
+            for (let i = 0; i < lists.childElementCount; i++) {
+                roomList.push(lists.children[i].textContent)
+            }
+
+            return roomList
+        })
+
+        let roomInfo = []
+        let list
+
+        for (let i = 0; i < table.length; i++) {
+            list = table[i].replace(/\s+/g, ' ')
+            list = list.split(' ');
+
+            let context = {}
+
+            context.name = list[4]
+            context.size = list[15]
+            // spara endast ner om det finns dator eller inte.
+            if (list[18] === 'Utrustning') {
+                // det finns utrustning
+                if (list[19] === 'Dator') {
+                    // dator finns
+                    context.equipment = list[19]
+                }
+            } else {
+                // det finns ingen utrustning listad
+                context.equipment = {}
+            }
+            roomInfo.push(context)
+        }
+
+        await page.waitFor(2000)
+
+        browser.close()
+
+        return roomInfo
+    } catch (err) {
+        console.log('err')
     }
-
-    // TODO: spara information om rummen.
-
-    await page.waitFor(2000)
-
-    browser.close()
-    // använd list för att se vilket index
-    return roomInfo
 }
 
 module.exports = scrape

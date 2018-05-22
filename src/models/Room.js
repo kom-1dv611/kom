@@ -6,7 +6,9 @@ let roomSchema = mongoose.Schema({
     type: {type: String, required: true},
     floor_type: {type: String, required: true},
     floor_level: {type: String, required: true},
-    location: {type: String, required: true}
+    location: {type: String, required: true},
+    size: { type: String },
+    equipment: { type: String }
 });
 
 let Room = mongoose.model('Room', roomSchema);
