@@ -6,21 +6,49 @@ import room from "../actions/room-state";
 import $ from "jquery";
 
 class Schedule extends Component {
-    componentDidMount() {
+    checkinModalBody() {
+        return(
+            <div>
+                <label><i class="fas fa-user"></i>Username</label>
+                <input id="checkinName" type="text" className="form-control" placeholder="Username"/>
+            </div>
+        );
+    }
 
+    checkinModal() {
+        return(
+            <div className="modal fade" id="checkinModal" tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div className="modal-dialog" role="document">
+                    <div className="modal-content text-center">
+                        <div className="modal-header">
+                            <h5 className="modal-title">Checkin</h5>
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                        {this.checkinModalBody()}
+                        </div>
+                        <div className="modal-footer">
+                            <button id="checkin" type="button" className="btn btn-dark" data-dismiss="modal">Done</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     onClick() {
         console.log(this.props)
-        this.props.roomManager("CHECK_IN", this.props.name)
+        this.props.roomManager("CHECK_IN", {name: this.props.name, user: $("#checkinName").val()})
     }
 
     content() {
         let schedule = this.props.schedule;
         if(schedule != null) {
             $( document ).ready(() => {
-                $(".checkin").off();
-                $(".checkin").on("click", () => {
+                $("#checkin").off();
+                $("#checkin").on("click", () => {
                     console.log("PLZZZ")
                     this.onClick();
                 });
@@ -33,7 +61,7 @@ class Schedule extends Component {
                             <th scope="row">{booking.username}</th>
                             <td>{booking.startTime}</td>
                             <td>{booking.endTime}</td>
-                            <td className="pt-1"><button className="btn btn-sm btn-outline-dark checkin"><i class="fas fa-check"></i>Checkin</button></td>
+                            <td className="pt-1"><button className="btn btn-sm btn-outline-dark checkin" data-toggle="modal" data-target="#checkinModal"><i class="fas fa-check"></i>Checkin</button></td>
                         </tr>
                     ));
                 });
@@ -73,6 +101,7 @@ class Schedule extends Component {
                         </div>
                         <div className="modal-body">
                         {this.content()}
+                        {this.checkinModal()}
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-dark" data-dismiss="modal">Done</button>

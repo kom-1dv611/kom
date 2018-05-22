@@ -41,6 +41,7 @@ class cancelModal extends Component {
                         </button>
                     </div>
                         <div className="modal-body">
+                            <label><i className="fas fa-user-times"></i>Cancel As:</label>
                             <input id="cancelName" type="text" name="user" className="form-control" placeholder="Username" minLength="3" maxLength="12"/>
                         </div>
                         <div className="modal-footer">

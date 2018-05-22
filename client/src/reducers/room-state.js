@@ -47,9 +47,10 @@ async function cancel(name, user) {
     console.log("sent cancel request for " + name);
 }
 
-async function checkin(name) {
+async function checkin(name, user) {
     let data = {};
     data.room = name;
+    data.user = user;
     fetch(`/checkIn/${name}`, {
         method: 'POST',
         headers: {
@@ -62,10 +63,9 @@ async function checkin(name) {
 }
 
 export default function(state = null, action) {
-    console.log(action.type)
     switch(action.type) {
         case "CHECK_IN":
-            checkin(action.value);
+            checkin(action.value.name, action.value.user);
             break;
         case "BOOKING_CANCELED":
             cancel(action.value.name, action.value.user);
@@ -77,8 +77,6 @@ export default function(state = null, action) {
             break;
         case UPDATE_ROOM:
             rooms[action.value.name] = action.value;
-            console.log(action.value.name + " to:")
-            console.log(action.value);
             return true;
     }
     return rooms;
