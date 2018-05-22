@@ -77,11 +77,12 @@ class roomCollection extends Component {
 
     render() {
         let rows;
-        if(this.props.filter === null) {
+        if(this.props.filter === null || this.props.filter == "All") {
             rows = this.structure(this.state.rows)
         } else {
             let total = [];
             let filter = this.props.filter;
+            console.log(filter);
             this.state.rows.map(function (row, i) {
                 let temp = row.cols.filter(col => col.room.location === filter);
                 total = total.concat(temp);

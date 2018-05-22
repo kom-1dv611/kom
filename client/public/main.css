@@ -44,6 +44,9 @@ h3 {
 h4 a {
   color: #212529 !important; }
 
+.modal-dialog {
+  padding-top: 75px; }
+
 .dropdown, .dropdown-menu {
   z-index: 2; }
 
@@ -64,7 +67,7 @@ h4 a {
   color: black; }
 
 .breadcrumb {
-  background-color: transparent; }
+  background-color: rgba(0, 0, 0, 0); }
 
 .breadcrumb-item a {
   color: white; }
