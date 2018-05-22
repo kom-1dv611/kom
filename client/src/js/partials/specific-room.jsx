@@ -45,14 +45,18 @@ class Room extends Component {
     async countDown() {
         this.ticks++;
         if(this.ticks > 50) {
+            this.ticks = 0;
             let name = this.state.room.name;
             let updated = await fetch("/room/" + name);
             updated = await updated.json();
             console.log(updated);
-            updated.bookings = [];
             this.setState(function() {
                 return {
-                    room: updated["room"]
+                    room: {
+                        name: updated["room"].name,
+                        available: updated["room"].available,
+                        schedule: updated["room"].schedule
+                    }
                 };
             });
         } else {
@@ -61,7 +65,7 @@ class Room extends Component {
                 this.setState(function(prev) {
                     return {
                         room: {available: room.available, name: prev.room.name},
-                        schedule: prev.schedule
+                        schedule: room.schedule
                     };
                 });
             }
@@ -85,6 +89,16 @@ class Room extends Component {
             }
         }
         return toReturn;
+    }
+
+    icons() {
+        return(
+            <div className="mt-3 text-center animated fadeIn">
+                <i className="fas fa-users fa-3x" title="Capacity"></i><span className="h3">5</span>
+                <i className="fas fa-laptop fa-3x mr-2" title="Computer Equipment"></i>
+                <i className="fab fa-product-hunt fa-3x mr-2" title="Projector"></i>
+            </div>
+        );
     }
 
     clock() {
@@ -122,7 +136,6 @@ class Room extends Component {
         }
     }
 
-
     async cancel() {
         this.state.room.available = true;
         return true;
@@ -141,7 +154,6 @@ class Room extends Component {
     }
 
     render() {
-
         if(Object.keys(this.state).length === 0) {
             return(
                 <div>
@@ -153,11 +165,7 @@ class Room extends Component {
             return (
                 <div>
                     {this.stateHeader()}
-                    <div className="mt-3 text-center animated fadeIn">
-                        <i className="fas fa-users fa-3x" title="Capacity"></i><span className="h3">5</span>
-                        <i className="fas fa-laptop fa-3x mr-2" title="Computer Equipment"></i>
-                        <i className="fab fa-product-hunt fa-3x mr-2" title="Projector"></i>
-                    </div>
+                    {this.icons()}
                     {this.booking()}
                     {this.clock()}
                 </div>

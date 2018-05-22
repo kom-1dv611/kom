@@ -42,48 +42,61 @@ class Schedule extends Component {
         this.props.roomManager("CHECK_IN", {name: this.props.name, user: $("#checkinName").val()})
     }
 
+    tableContent() {
+        let schedule = this.props.schedule;
+        let rows = [];
+        
+        schedule.forEach(function(booking) {
+            rows.push((
+                <tr>
+                    <th scope="row">{booking.username}</th>
+                    <td>{booking.startTime}</td>
+                    <td>{booking.endTime}</td>
+                    <td className="pt-1"><button className="btn btn-sm btn-outline-dark checkin" data-toggle="modal" data-target="#checkinModal"><i class="fas fa-check"></i>Checkin</button></td>
+                </tr>
+            ));
+        });
+
+        return(
+            <tbody>
+                {rows}
+            </tbody>
+        );
+    }
+
+    tableHeaders() {
+        return(
+            <thead>
+                <tr>
+                    <th scope="col">Booker</th>
+                    <th scope="col">Start</th>
+                    <th scope="col">End</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+        );
+    }
+
     content() {
         let schedule = this.props.schedule;
-        if(schedule != null) {
-            $( document ).ready(() => {
-                $("#checkin").off();
-                $("#checkin").on("click", () => {
-                    console.log("PLZZZ")
-                    this.onClick();
-                });
+
+        $( document ).ready(() => {
+            $("#checkin").off();
+            $("#checkin").on("click", () => {
+                console.log("PLZZZ")
+                this.onClick();
             });
-            let rows = [];
-            if(schedule.length > 0) {
-                schedule.forEach(function(booking) {
-                    rows.push((
-                        <tr>
-                            <th scope="row">{booking.username}</th>
-                            <td>{booking.startTime}</td>
-                            <td>{booking.endTime}</td>
-                            <td className="pt-1"><button className="btn btn-sm btn-outline-dark checkin" data-toggle="modal" data-target="#checkinModal"><i class="fas fa-check"></i>Checkin</button></td>
-                        </tr>
-                    ));
-                });
-                return(
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Booker</th>
-                                <th scope="col">Start</th>
-                                <th scope="col">End</th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {rows}
-                        </tbody>
-                    </table>
-                );
-            } else {
-                return <p>No bookings today</p>;
-            }
+        });
+        let rows = [];
+        if(schedule.length > 0) {
+            return(
+                <table className="table">
+                    {this.tableHeaders()}
+                    {this.tableContent()}
+                </table>
+            );
         } else {
-            return <p>Loading</p>
+            return <p>No bookings today</p>;
         }
     }
 

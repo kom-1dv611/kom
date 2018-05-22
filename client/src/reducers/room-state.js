@@ -19,7 +19,7 @@ async function populate(obj, rooms) {
     rooms.forEach((row) => {
         row = row["cols"];
         row.forEach((col) => {
-            obj[col.room.name] = {available: col.available, name: col.room.name};
+            obj[col.room.name] = {available: col.available, name: col.room.name, schedule: col.schedule};
         });
     });
 }
