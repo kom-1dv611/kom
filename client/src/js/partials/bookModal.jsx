@@ -41,14 +41,14 @@ class enterDateTime extends Component {
             body: JSON.stringify(data)
         });
 
-        if(resp.status >= 200 && resp.status < 400) {
+        if(resp.status !== 200) {
             props.submit(name)
         } else {
             console.log("Booking failed");
         }
     }
 
-    bookLater(name) {
+    async bookLater(name) {
         let data = {};
         let buttons = $(".btn-group").children();
         let active
@@ -68,7 +68,7 @@ class enterDateTime extends Component {
         data.room = name;
         console.log(data);
 
-        fetch("/room/" + name, {
+        let resp = await fetch("/room/" + name, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -76,6 +76,13 @@ class enterDateTime extends Component {
             },
             body: JSON.stringify(data)
         });
+
+        if(resp.status !== 200) {
+            console.log("Allt gick bra")
+        } else {
+            console.log(resp);
+            console.log("Booking failed");
+        }
     }
 
     dateAndTime() {

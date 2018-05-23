@@ -64,7 +64,7 @@ h4 a {
   color: black; }
 
 .breadcrumb {
-  background-color: transparent; }
+  background-color: rgba(0, 0, 0, 0); }
 
 .breadcrumb-item a {
   color: white; }
