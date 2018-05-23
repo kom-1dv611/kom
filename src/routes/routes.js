@@ -56,7 +56,6 @@ module.exports = function (RoomModel, BookingModel) {
         })
         .post(async function (req, res) {
             if(req.body.cancel) {
-                console.log(req.body);
                 let allBookings = await Room.getBookingsForSpecificRoom(req.body.room);
                 let bookingsToday = [];
                 
@@ -66,7 +65,11 @@ module.exports = function (RoomModel, BookingModel) {
                     }
                 }
                 let currentBooking = bookingsToday.sort((a, b) => a.startTime.localeCompare(b.startTime))[0]; 
-                await Room.removeBookingWithStartTime(currentBooking);
+                if(currentBooking.username === req.body.username) {
+                    await Room.removeBookingWithStartTime(currentBooking);
+                } else {
+                    return res.status(401).json({message: 'Wrong username.'});
+                }          
             } else {
                 let data = {
                     username: req.body.username,
@@ -139,7 +142,6 @@ module.exports = function (RoomModel, BookingModel) {
                     if(value === 'Success') {
                         let timeEditBookings = await Room.getSpecificScheduleTimeEditByDate(req.body.room, data.bookingDate);
                         if(timeEditBookings === null) {
-                            console.log('inget i timeEdit, boka här')
                             let bookRoom = new BookingModel(data)
                             bookRoom.save((err) => {
                                 if (!err) {
@@ -156,9 +158,8 @@ module.exports = function (RoomModel, BookingModel) {
                                 }
                             }
                             if(statusWrong === true && statusRight === true || statusWrong === true) {
-                                console.log('felmeddelande här = ej bokas.')
+                                return res.status(401).json({message: 'There is already bookings at this time. See schedule.'});
                             } else if(statusRight === true) {
-                                console.log('bokas asa')
                                 let bookRoom = new BookingModel(data)
                                 bookRoom.save((err) => {
                                     if (!err) {
@@ -171,6 +172,7 @@ module.exports = function (RoomModel, BookingModel) {
                     } 
                 }).catch(function(error) {
                     console.log(error);
+                    return res.status(401).json({message: 'There is already bookings at this time. See schedule.'});
                 })
             }   
         });
@@ -188,11 +190,14 @@ module.exports = function (RoomModel, BookingModel) {
                 if(err) {
                     console.log(err)
                 } else {
+                    //KOLLA DATUM OCKSÅ
                     let booking = rooms.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
                     if(booking.isBookLater === true) {
                         if(booking.hasUserCheckedIn === true) {
+                            //SKICKA 200
                             console.log('Nu ska bakgrunden bli röd')
                         } else if(currentTime > add15MinutesToTime(booking.startTime)) {
+                            //KOLLA DATUM OCKSÅ
                             BookingModel.findOneAndRemove({roomID: req.body.room, startTime: booking.startTime}, function(err, result) {
                                 if(err) {
                                     console.log(err);
@@ -204,11 +209,28 @@ module.exports = function (RoomModel, BookingModel) {
                     }
                 }
             })
-        })
+        })   
         .post(function(req, res) {
-            //ta emot post från checka in
-            res.status(200).json({message: 'Check-in'});
             console.log(req.body);
+            let currentTime = moment().format('LT');
+            BookingModel.findOne({username: req.body.user, roomID: req.body.room}, function(err, booking) {
+                if(err) {
+                    res.status(500).json(err);
+                } else {
+                    if(currentTime >= booking.startTime && currentTime <= add15MinutesToTime(booking.startTime)) {
+                        booking.hasUserCheckedIn = true;
+                        booking.save(function(err, result) {
+                            if(err) {
+                                res.status(500).json(err);
+                            } else {
+                                console.log('updated to DB');
+                                res.status(200).json({message: 'Check-in'});
+                            }
+                        })
+                        
+                    }
+                }
+            })
         })
 
     router.route('/room/:roomID/schedule/')
