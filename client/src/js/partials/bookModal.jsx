@@ -41,7 +41,7 @@ class enterDateTime extends Component {
             body: JSON.stringify(data)
         });
 
-        if(resp.status !== 200) {
+        if(resp.status === 200) {
             props.submit(name)
         } else {
             console.log("Booking failed");

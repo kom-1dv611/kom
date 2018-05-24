@@ -68,6 +68,7 @@ export default function(state = null, action) {
             checkin(action.value.name, action.value.user);
             break;
         case "BOOKING_CANCELED":
+            rooms[action.value.name].available = true; //only change if request = accepted
             cancel(action.value.name, action.value.user);
             break;
         case GET_ROOM:
@@ -77,8 +78,9 @@ export default function(state = null, action) {
             break;
         case UPDATE_ROOM:
             rooms[action.value.name] = action.value;
-            return true;
+            break;
         default:
             return rooms;
     }
+    return rooms;
 }

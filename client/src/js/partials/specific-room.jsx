@@ -54,13 +54,14 @@ class Room extends Component {
                 return {
                     room: {
                         name: updated["room"].name,
-                        available: updated["room"].available,
-                        schedule: updated["room"].schedule
-                    }
+                        available: updated["room"].available
+                    },
+                    schedule: updated["room"].schedule
                 };
             });
         } else {
             let room = this.props.roomGetter[this.state.room.name];
+            console.log(room);
             if(room.available !== this.state.room.available) {
                 this.setState(function(prev) {
                     return {
@@ -113,6 +114,7 @@ class Room extends Component {
             return (
                 <div id="book" className="animated fadeInLeft">
                     <div className="row justify-content-center pb-0">
+                        <input id="currentTime" hidden/>
                         <div id="schedule" className="col-md-auto">
                             <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
                             <Schedule name={this.state.room.name} schedule={this.state.room.schedule}/>
@@ -124,6 +126,7 @@ class Room extends Component {
             return (
             <div id="cancel" className="animated fadeInLeft">
                 <div className="row justify-content-center pb-0">
+                    <input id="currentTime" hidden/>
                     <div id="schedule" className="col-md-auto">
                         <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
                         <Schedule name={this.state.room.name} schedule={this.state.room.schedule}/>

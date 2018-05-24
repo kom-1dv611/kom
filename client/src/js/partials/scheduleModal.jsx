@@ -99,7 +99,7 @@ class Schedule extends Component {
             });
         });
 
-        if(schedule.length > 0) {
+        if(schedule && schedule.length > 0) {
             return(
                 <table className="table">
                     {this.tableHeaders()}
