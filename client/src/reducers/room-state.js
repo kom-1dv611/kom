@@ -3,6 +3,8 @@ import {
     UPDATE_ROOM,
   } from '../js/actions/room-state'
 
+import error from "./error";
+
 
 let rooms = {};
 
@@ -36,7 +38,9 @@ async function cancel(name, user) {
     data.cancel = true;
     data.username = user;
 
-    fetch(`/room/${name}`, {
+    console.log(data);
+
+    let resp = await fetch(`/room/${name}`, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -44,14 +48,23 @@ async function cancel(name, user) {
         },
         body: JSON.stringify(data)
     });
-    console.log("sent cancel request for " + name);
+    console.log("sent cancel request for " + name + "(" + resp.status + ")");
+
+    if(resp.status !== 200) {
+        resp = await resp.json();
+        console.log("Error: " + resp.message)
+        error(null, {type: "NEW_ERROR", value: resp.message});
+    } else {
+        console.log("Success!")
+        rooms[name].available = true; //only change if request = accepted
+    }
 }
 
 async function checkin(name, user) {
     let data = {};
     data.room = name;
     data.user = user;
-    fetch(`/checkIn/${name}`, {
+    let resp = await fetch(`/checkIn/${name}`, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -59,7 +72,14 @@ async function checkin(name, user) {
         },
         body: JSON.stringify(data)
     });
-    console.log("sent checkin request for " + name);
+    console.log("sent checkin request for " + name + "(" + resp.status + ")");
+    if(resp.status !== 200) {
+        resp = await resp.json();
+        console.log("Error: " + resp.message)
+    } else {
+        console.log("Success!")
+        
+    }
 }
 
 export default function(state = null, action) {
@@ -68,7 +88,6 @@ export default function(state = null, action) {
             checkin(action.value.name, action.value.user);
             break;
         case "BOOKING_CANCELED":
-            rooms[action.value.name].available = true; //only change if request = accepted
             cancel(action.value.name, action.value.user);
             break;
         case GET_ROOM:

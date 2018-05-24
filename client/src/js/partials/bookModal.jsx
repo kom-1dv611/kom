@@ -3,6 +3,7 @@ import {connect} from "react-redux"; //read
 import {bindActionCreators} from "redux"; //write
 
 import event from "../actions/submit";
+import error from "../actions/new-error";
 
 import Duration from "./durationSelector";
 import $ from "jquery";
@@ -42,8 +43,12 @@ class enterDateTime extends Component {
         });
 
         if(resp.status === 200) {
+            resp = await resp.json();
+            console.log(resp.message);
             props.submit(name)
         } else {
+            resp = await resp.json();
+            props.error(resp.message);
             console.log("Booking failed");
         }
     }
@@ -153,7 +158,8 @@ function read(db) {
 
 function write(dispatch) {
     return bindActionCreators({
-        submit: event
+        submit: event,
+        error: error
     }, dispatch);
 }
   

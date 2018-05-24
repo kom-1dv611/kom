@@ -1,17 +1,20 @@
-let error = "";
+let error = {msg: "No error yet (init)"}; //Returning the object allows updating it.
 let duration = 0;
 
+function getError() {
+    return error.msg;
+}
+
 export default function(state = null, action) {
+    console.log(action);
     switch(action.type) {
         case "NEW_ERROR":
             duration = 5;
-            error = action.value;
-            console.log("current msg is: " + error);
+            error.msg = action.value;
+            console.log("current msg is: " + getError());
             break;
-        case "GET_ERROR":
-            return error;
         default:
-            break;
+            return error;
     }
     return error;
 }

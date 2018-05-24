@@ -1,6 +1,5 @@
 export default function(mode) {
     return {
-        type: "GET_ERROR",
-        value: mode
+        type: "GET_ERROR"
     };
 }

@@ -3,6 +3,7 @@ import {connect} from "react-redux"; //read
 import {bindActionCreators} from "redux"; //write
 
 import room from "../actions/room-state";
+import error from "../actions/get-error";
 
 import $ from "jquery"
 
@@ -17,7 +18,8 @@ class Room extends Component {
 
         this.state = {
             room: this.props.roomGetter[this.props.room],
-            schedule: []
+            schedule: [],
+            error: this.props.readError
         };
 
         console.log(this.state);
@@ -56,20 +58,20 @@ class Room extends Component {
                         name: updated["room"].name,
                         available: updated["room"].available
                     },
-                    schedule: updated["room"].schedule
+                    schedule: updated["room"].schedule,
+                    error: this.props.readError
                 };
             });
         } else {
             let room = this.props.roomGetter[this.state.room.name];
-            console.log(room);
-            if(room.available !== this.state.room.available) {
-                this.setState(function(prev) {
-                    return {
-                        room: {available: room.available, name: prev.room.name},
-                        schedule: room.schedule
-                    };
-                });
-            }
+            this.setState(function(prev) {
+                return {
+                    room: {available: room.available, name: prev.room.name},
+                    schedule: room.schedule,
+                    error: this.props.readError
+                };
+            });
+            
         }
       }
 
@@ -170,6 +172,7 @@ class Room extends Component {
                     {this.stateHeader()}
                     {this.icons()}
                     {this.booking()}
+                    <h3 className="text-center">{this.props.error.msg}</h3>
                     {this.clock()}
                 </div>
                 );
@@ -179,7 +182,7 @@ class Room extends Component {
 
 function write(dispatch) {
     return bindActionCreators({
-        roomManager: room
+        roomManager: room,
     }, dispatch);
 }
 
@@ -187,7 +190,8 @@ function write(dispatch) {
 function read(db) {
     return{
         cancel: db.cancelBooking,
-        roomGetter: db.roomState
+        roomGetter: db.roomState,
+        error: db.error
     };
 }
   
