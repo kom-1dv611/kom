@@ -13,7 +13,7 @@ let io = require('socket.io')(http);
 const mongoose = require('mongoose')
 let BookingModel = require('./src/models/Booking').model('Booking')
 let RoomModel = require('./src/models/Room').model('Room');
-let RoomHandler = require('./src/routes/handlers/roomHandler');
+let RoomHandler = require('./src/handlers/roomHandler');
 let Room = new RoomHandler(RoomModel, BookingModel);
 
 let ngrok = require('ngrok');
