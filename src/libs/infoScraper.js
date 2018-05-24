@@ -82,14 +82,13 @@ let scrape = async (roomName) => {
             return roomList
         })
 
-        let roomInfo = []
-        let list
+        let context
 
         for (let i = 0; i < table.length; i++) {
-            list = table[i].replace(/\s+/g, ' ')
+            let list = table[i].replace(/\s+/g, ' ')
             list = list.split(' ');
 
-            let context = {}
+           context = {}
 
             // lite ful lösning för att spara information om rummet
             context.name = list[4]
@@ -99,11 +98,7 @@ let scrape = async (roomName) => {
                 if (list[19] === 'Dator') {
                     context.equipment = list[19]
                 }
-            } else {
-                // det finns ingen utrustning listad
-                context.equipment = {}
             }
-            roomInfo.push(context)
         }
 
         await page.waitFor(2000)
@@ -111,7 +106,7 @@ let scrape = async (roomName) => {
         browser.close()
 
         // skickar ut info om rummet
-        return roomInfo
+        return context
     } catch (err) {
         console.log('err')
     }

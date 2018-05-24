@@ -41,6 +41,12 @@ async function getRooms() {
     return roomName
 }
 
+app.get('/test', function (req, res) {
+    RoomModel.find({}, function (err, result) {
+        res.send(result)
+    })
+})
+
 let scrape = require('./src/libs/infoScraper')
 app.get('/scrape', async function (req, res) {
     let rooms = await Room.getRoomsFromDB()
@@ -53,7 +59,6 @@ app.get('/scrape', async function (req, res) {
 
     Promise.all(promises)
         .then((groupRooms) => {
-            console.log(groupRooms)
             for (let i = 0; i < groupRooms.length; i++) {
                 if (groupRooms[i] !== undefined) {
                     RoomModel.findOne({ name: groupRooms[i].name }, function (err, result) {
@@ -62,6 +67,9 @@ app.get('/scrape', async function (req, res) {
                         result.size = groupRooms[i].size
 
                         result.save(function (err, data) {
+                            if (err) {
+                                console.log(err)
+                            }
                             console.log(data)
                         })
                     })
