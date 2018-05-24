@@ -41,12 +41,6 @@ async function getRooms() {
     return roomName
 }
 
-app.get('/test', function (req, res) {
-    RoomModel.find({}, function (err, result) {
-        res.send(result)
-    })
-})
-
 let scrape = require('./src/libs/infoScraper')
 app.get('/scrape', async function (req, res) {
     let rooms = await Room.getRoomsFromDB()
