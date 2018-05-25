@@ -37,7 +37,7 @@ class master extends Component {
           console.log(this.props.selectedRoom);
           return(<div><Nav filter="false" location={this.props.selectedRoom.room.name}/>{this.selectedRoom()}{this.footerLogo()}</div>);
         } else {
-          return (<div><Nav filter="true" location="Selection"/>{this.allRooms()}{this.footerLogo()}}</div>);
+          return (<div><Nav filter="true" location="Selection"/>{this.allRooms()}{this.footerLogo()}</div>);
         }
       default:
         return (
@@ -46,7 +46,7 @@ class master extends Component {
             <Setup/>
             <img src="/imgs/url.png" alt="url"/>
           </div>
-      )
+      );
     }
   }
 }

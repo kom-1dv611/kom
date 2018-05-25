@@ -5,7 +5,10 @@ import Room from "./room"
 class roomCollection extends Component {
     constructor(props) {
         super(props);
-        this.state = {rows: this.props.rows.rows}
+
+        let rooms = this.sort(this.props.rooms);
+
+        this.state = {rows: rooms}
         this.startTimer = this.startTimer.bind(this);
         this.countDown = this.countDown.bind(this);
     }
@@ -60,7 +63,6 @@ class roomCollection extends Component {
     sort(rooms) {
         let rowSize = 4;
 
-        // Ta bort om Ted inte gillar större knappar
         if(rooms.length <= 10) {
             rowSize = 2;
         } else if(rooms.length <= 20) {

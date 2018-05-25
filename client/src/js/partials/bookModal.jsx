@@ -85,7 +85,8 @@ class enterDateTime extends Component {
         if(resp.status !== 200) {
             console.log("Allt gick bra")
         } else {
-            console.log(resp);
+            resp = await resp.json();
+            this.props.error(resp.message);
             console.log("Booking failed");
         }
     }
