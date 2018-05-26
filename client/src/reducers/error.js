@@ -6,7 +6,6 @@ function getError() {
 }
 
 export default function(state = null, action) {
-    console.log(action);
     switch(action.type) {
         case "NEW_ERROR":
             duration = 5;

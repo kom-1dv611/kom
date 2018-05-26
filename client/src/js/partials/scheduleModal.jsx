@@ -98,7 +98,7 @@ class Schedule extends Component {
                 this.onClick();
             });
         });
-
+        console.log(this.props)
         if(schedule && schedule.length > 0) {
             return(
                 <table className="table">

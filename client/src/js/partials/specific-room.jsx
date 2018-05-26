@@ -111,7 +111,7 @@ class Room extends Component {
     booking() {
         let available = this.state.room.available;
         let name = this.state.room.name;
-
+        console.log(this.state)
         if(available === true) {
             return (
                 <div id="book" className="animated fadeInLeft">
