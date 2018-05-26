@@ -44,8 +44,6 @@ class nav extends Component {
             {this.generateButton("Norrgård")}
           </div>
         </div>);
-    } else {
-      return "";
     }
   }
   render() {

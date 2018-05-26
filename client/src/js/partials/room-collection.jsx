@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import {connect} from "react-redux"; //read
 import Room from "./room"
 
+import $ from "jquery";
+
 class roomCollection extends Component {
     constructor(props) {
         super(props);
@@ -85,18 +87,30 @@ class roomCollection extends Component {
 
     render() {
         let rows;
-        if(this.props.filter === null || this.props.filter === "All") {
+        let search = $("#search").val()
+        if((this.props.filter === null || this.props.filter === "All") && search === "") {
             rows = this.structure(this.state.rows)
         } else {
             let total = [];
             let filter = this.props.filter;
-            this.state.rows.map(function (row, i) {
-                let temp = row.cols.filter(col => col.room.location === filter);
-                total = total.concat(temp);
-                return true;
-            });
+            if(search !== "") {
+                this.state.rows.map(function (row, i) {
+                    let temp = row.cols.filter(col => col.room.location.toLowerCase().includes(search.toLowerCase()) || col.room.name.toLowerCase().includes(search.toLowerCase()));
+                    total = total.concat(temp);
+                    return true;
+                });
+            } else {
+                this.state.rows.map(function (row, i) {
+                    let temp = row.cols.filter(col => col.room.location === filter);
+                    total = total.concat(temp);
+                    return true;
+                });
+            }
+
             rows = this.sort(total);
             rows = this.structure(rows)
+
+            console.log(rows);
         }
 
         return (
