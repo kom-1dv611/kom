@@ -81,11 +81,12 @@ class Room extends Component {
         if(available === true) {
             toReturn = (<h1 className="text-center mt-5 pt-5 animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently available!">Available</h1>);
         } else if(available === false) {
-            if(this.state.room.bookings && this.state.room.bookings.length > 0) {
+            let schedule = this.state.schedule;
+            if(schedule && schedule.length > 0) {
                 toReturn = (
                     <div className="text-center mt-2 pt-5 animated fadeIn">
                         <h1 data-toggle="tooltip" data-placement="top" title="This room is currently unavailable!">Unavailable</h1>
-                        <h3>Available: {this.state.room.ings[0].endTime}({this.state.time.h}:{this.state.time.m}:{this.state.time.s})</h3>
+                        <h3>Available: {schedule[0].endTime}</h3>
                     </div>);
             } else {
                 toReturn = (<h1 className="text-center mt-2 pt-5 animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently unavailable!">Unavailable</h1>);
@@ -111,7 +112,6 @@ class Room extends Component {
     booking() {
         let available = this.state.room.available;
         let name = this.state.room.name;
-        console.log(this.state)
         if(available === true) {
             return (
                 <div id="book" className="animated fadeInLeft">
@@ -119,7 +119,7 @@ class Room extends Component {
                         <input id="currentTime" hidden/>
                         <div id="schedule" className="col-md-auto">
                             <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
-                            <Schedule name={this.state.room.name} schedule={this.state.room.schedule}/>
+                            <Schedule name={this.state.room.name} schedule={this.state.schedule}/>
                         </div>
                         <Book room={name} available={available} />
                     </div>
@@ -131,7 +131,7 @@ class Room extends Component {
                     <input id="currentTime" hidden/>
                     <div id="schedule" className="col-md-auto">
                         <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
-                        <Schedule name={this.state.room.name} schedule={this.state.room.schedule}/>
+                        <Schedule name={this.state.room.name} schedule={this.state.schedule}/>
                     </div>
                     <div className="col-md-auto">
                         <Book room={name} available={available} />

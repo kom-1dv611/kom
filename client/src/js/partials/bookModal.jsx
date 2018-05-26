@@ -42,15 +42,8 @@ class enterDateTime extends Component {
             body: JSON.stringify(data)
         });
 
-        if(resp.status === 200) {
-            resp = await resp.json();
-            console.log(resp.message);
-            props.submit(name)
-        } else {
-            resp = await resp.json();
-            props.error(resp.message);
-            console.log("Booking failed");
-        }
+        resp = await resp.json();
+        props.error(resp.message);
     }
 
     async bookLater(name) {
@@ -82,13 +75,8 @@ class enterDateTime extends Component {
             body: JSON.stringify(data)
         });
 
-        if(resp.status !== 200) {
-            console.log("Allt gick bra")
-        } else {
-            resp = await resp.json();
-            this.props.error(resp.message);
-            console.log("Booking failed");
-        }
+        resp = await resp.json();
+        this.props.error(resp.message);
     }
 
     dateAndTime() {
