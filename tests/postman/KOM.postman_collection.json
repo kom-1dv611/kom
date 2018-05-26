@@ -1,0 +1,141 @@
+{
+	"variables": [],
+	"info": {
+		"name": "KOM",
+		"_postman_id": "8db7cc7b-3013-9fa3-cb6a-da7d5521b0af",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Overview rooms",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var data = JSON.parse(responseBody);",
+							"",
+							"tests[\"Response is 200\"] = responseCode.code === 200;",
+							"tests['Get all grouprooms'] = data.rows.length === 12;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost:2000/rooms",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Specific room",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var data = JSON.parse(responseBody);",
+							"",
+							"tests[\"Response is 200\"] = responseCode.code === 200;",
+							"tests['Get name for specific room'] = data.room.name.length > 0;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost:2000/room/A140K",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Book now",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var data = JSON.parse(responseBody);",
+							"",
+							"tests[\"Response is 200\"] = responseCode.code === 200;",
+							"tests['Successful booking'] = data.message === \"Booking successfully saved in DB.\";",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost:2000/room/A140K",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"test\",\n\t\"duration\": \"1\",\n\t\"date\": { \"month\": 5, \"day\": 26, \"year\": 2018 },\n\t\"room\": \"A140K\",\n\t\"time\": \"21:00\",\n\t\"duration\": \"1\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Cancel booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var data = JSON.parse(responseBody);",
+							"",
+							"tests[\"Response is 200\"] = responseCode.code === 200;",
+							"tests['Successful booking'] = data.message === \"Removed booking.\";",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "http://localhost:2000/room/A140K",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"cancel\": true,\n\t\"username\": \"test\",\n\t\"duration\": \"1\",\n\t\"date\": { \"month\": 5, \"day\": 26, \"year\": 2018 },\n\t\"room\": \"A140K\",\n\t\"time\": \"21:00\",\n\t\"duration\": \"1\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
