@@ -16,8 +16,7 @@ class nav extends Component {
     if(filter === "true") {
       return(
           <div>
-            <button id="searchButton" class="btn btn-sm btn-outline-light mt-0" type="button">Search</button>
-            <input type="text" id="search" class="form-control text-center" placeholder="Room" maxLength="8"/>
+            <input type="text" id="search" class="form-control text-center" placeholder="Search" maxLength="8"/>
           </div>
         );
     } else{

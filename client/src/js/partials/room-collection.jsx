@@ -10,6 +10,8 @@ class roomCollection extends Component {
 
         let rooms = this.sort(this.props.rooms);
 
+        this.ticks = 0;
+
         this.state = {rows: rooms}
         this.startTimer = this.startTimer.bind(this);
         this.countDown = this.countDown.bind(this);
@@ -31,7 +33,7 @@ class roomCollection extends Component {
     
     startTimer() {
         if (this.timer === 0) {
-            this.timer = setInterval(this.countDown, 5000);
+            this.timer = setInterval(this.countDown, 100);
         }
     }
 
@@ -43,12 +45,33 @@ class roomCollection extends Component {
     }
 
     async countDown() {
-        let rows = await this.getRooms();
-        this.setState(function() {
-            return {
-                rows: rows
-            };
-        });
+        this.ticks++;
+
+        if(this.ticks >= 50) {
+            this.ticks = 0;
+            let rows = await this.getRooms();
+            this.setState(function() {
+                return {
+                    rows: rows
+                };
+            });
+        } else {
+            let rooms = Object.values(this.props.allRooms);
+
+            rooms.forEach((room, i) => {
+                room = rooms[i]
+                room.room = {
+                    name : room.name,
+                    location: room.location
+                };
+            });
+            let sorted = this.sort(rooms);
+            this.setState(function() {
+                return {
+                    rows: sorted
+                };
+            });
+        }
       }
 
     structure(target) {
@@ -109,8 +132,6 @@ class roomCollection extends Component {
 
             rows = this.sort(total);
             rows = this.structure(rows)
-
-            console.log(rows);
         }
 
         return (
@@ -125,6 +146,7 @@ class roomCollection extends Component {
 function read(db) {
     return{
       filter: db.filterSelect,
+      allRooms: db.roomState
     };
   }
   
