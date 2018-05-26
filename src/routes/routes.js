@@ -72,6 +72,8 @@ module.exports = function (RoomModel, BookingModel) {
                     return res.status(401).json({message: 'Wrong username.'});
                 }          
             } else {
+                let currentTime = moment().format('LT');
+
                 let data = {
                     username: req.body.username,
                     roomID: req.body.room,
@@ -95,6 +97,11 @@ module.exports = function (RoomModel, BookingModel) {
                 } else {
                     data.isBookLater = false;
                     data.bookingDate = date;
+                }
+
+                //Kolla så att man inte kan boka bakåt i tiden
+                if (data.bookingDate === moment().format('YYYY-MM-DD') && data.startTime < currentTime || data.bookingDate < moment().format('YYYY-MM-DD')) {
+                    return res.status(401).json({message: 'Trying to book a past time.'});
                 }
 
                 let status = false;
