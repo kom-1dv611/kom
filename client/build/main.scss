@@ -1,0 +1,215 @@
+$mainTextColor: white;
+$mainOverlayColor: rgba(0, 0, 0, 0.5);
+$mainOnHoverColor: rgba(0, 0, 0, 0.1);
+$navColor: white;
+$buttonColor: white;
+
+$background: url("/imgs/background.png");
+
+@mixin background($image) {
+    background: $image no-repeat center center fixed;
+    background-blend-mode: overlay;
+    background-color: rgba(0, 0, 0, 0); //required
+    opacity: 0.9;
+} 
+
+html, body {
+    margin: 0;
+    z-index: 1 !important;
+}
+
+body {
+    background-color: white;
+    margin: 0 0;
+    img {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        width: 200px;
+    }
+}
+
+nav {
+    position: absolute;
+    background-color: $mainOverlayColor;
+    width: 100%;
+    top: 0;
+    left: 0;
+    color: $mainTextColor;
+    z-index: 1 !important;
+    h4 {
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        transform: translateY(-50%);
+    }
+    ol {
+        display: inline !important;
+    }
+    li {
+        float: none !important;
+    }
+}
+
+h1 {
+    font-size: 6em;
+    color: $mainTextColor;
+    font-family: "Helvetica";
+}
+
+
+h3 {
+    color: $mainTextColor;
+    font-family: "Helvetica";
+}
+
+
+h4 {
+    a {
+        color: rgb(33, 37, 41) !important;
+
+    }
+}
+ 
+.modal-dialog{
+    padding-top: 75px;
+}
+
+.dropdown, .dropdown-menu {
+    z-index:2;
+  }
+
+.container {
+    width: 100%;
+}
+
+.modal-backdrop { 
+    display: none;    
+}
+
+.btn-outline-dark {
+    color: $buttonColor !important;
+    border-color: $buttonColor !important;
+}
+
+.card:hover {
+    background-color: $mainOnHoverColor !important;
+}
+
+.card {
+    color: black;
+}
+
+.breadcrumb {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.breadcrumb-item {
+    a{
+        color: $navColor;
+    }
+}
+.breadcrumb-item.active {
+    color: $navColor;
+}
+
+.row {
+    margin: 0 !important;
+    padding-bottom: 15px;
+}
+
+.roomContainer, .loading {
+    margin-top: 75px;
+}
+.alert-danger {
+    background-color: rgba(255, 0, 0, 0.6);
+    color: white;
+    width: 50%;
+    position: absolute;
+    top: 35%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+}
+
+.App-logo {
+    animation: App-logo-spin infinite 20s linear !important;
+    height: 80px;
+    position: static;
+}
+
+#clock {
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    top: 70%;
+    color: $mainTextColor;
+    z-index: -1 !important;
+}
+
+#book, #cancel {
+    position: absolute;
+    width: 100%;
+    top: 45%;
+    left: 0;
+    background-color: $mainOverlayColor;
+    vertical-align: middle;
+}
+
+#available, #unavailable {
+    margin-top: 50px;
+}
+
+#footerLogo {
+    z-index: -1;
+}
+
+.available, .unavailable {
+    background-image: none;
+}
+
+.available {
+    background-color: rgba(0, 255, 0, 0.65);
+}
+
+.unavailable {
+    background-color: rgba(255, 0, 0, 0.75);
+}
+
+input[type=date]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    display: none;
+}
+
+#filter {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3000 !important;
+    
+}
+
+#search, #searchButton {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3000 !important;
+}
+
+#search {
+    right: 125px;
+    width: 100px;
+    height: 25px;
+}
+
+#searchButton {
+    right: 225px;
+}
+
+@keyframes App-logo-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }

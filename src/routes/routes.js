@@ -7,7 +7,7 @@ const getEndTimeForBooking = require('../utils/endTimebooking');
 const buildTable = require('../utils/buildTable');
 const add15MinutesToTime = require('../utils/addMinutesToTime');
 
-const timeEditApi = require('timeeditApi');
+const timeEditApi = require('timeeditapi');
 const timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
 
 let router = require("express").Router();

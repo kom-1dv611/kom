@@ -1,11 +1,13 @@
 'use strict';
 
+require('dotenv').config()
+
 let express = require('express');
 let bodyParser = require('body-parser');
 let path = require('path');
 let socket = require('socket.io');
 
-let port = 2000;
+let port = process.env.PORT || 2000;
 let app = express();
 let http = require('http').Server(app);
 let io = require('socket.io')(http);
