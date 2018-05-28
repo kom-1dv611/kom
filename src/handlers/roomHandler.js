@@ -1,7 +1,7 @@
 'use strict';
 
 const getEndTimeForBooking = require('../utils/endTimebooking');
-const timeEditApi = require('timeeditApi');
+const timeEditApi = require('timeeditapi');
 const timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
 let moment = require('moment');
 
