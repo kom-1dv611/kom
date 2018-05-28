@@ -47,7 +47,6 @@ app.get('/scrape', async function (req, res) {
             for (let i = 0; i < groupRooms.length; i++) {
                 if (groupRooms[i] !== undefined) {
                     RoomModel.findOne({ name: groupRooms[i].name }, function (err, result) {
-                        // TODO: fixa, detta fungerar inte.
                         result.equipment = groupRooms[i].equipment
                         result.size = groupRooms[i].size
 
@@ -62,6 +61,9 @@ app.get('/scrape', async function (req, res) {
             }
         }).catch((error) => {
             console.log(error)
+        }).then(() => {
+            console.log('infoScraper done')
+            res.redirect('/')
         })
 })
 
