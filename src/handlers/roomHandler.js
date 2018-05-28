@@ -5,8 +5,6 @@ const timeEditApi = require('timeeditapi');
 const timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
 let moment = require('moment');
 
-console.log("bla");
-
 module.exports = class RoomHandler {
     constructor(RoomModel, BookingModel) {
         this.RoomModel = RoomModel;

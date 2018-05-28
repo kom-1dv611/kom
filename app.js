@@ -69,9 +69,6 @@ app.get('/scrape', async function (req, res) {
             }
         }).catch((error) => {
             console.log(error)
-        }).then(() => {
-            console.log('infoScraper done')
-            res.redirect('/')
         })
 })
 
