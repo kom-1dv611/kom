@@ -1,42 +1,52 @@
 import React, { Component } from 'react';
+import {connect} from "react-redux"; //read
 
 import Rooms from "./room-collection"
 
 import logo from '../../logo.svg';
 
 class roomWrapper extends Component {
-  state = {loaded: false}
   constructor() {
     super();
-    this.setRows();
+    this.timer = 0;
+    this.startTimer = this.startTimer.bind(this);
+    this.countDown = this.onLoop.bind(this);
   }
 
-  async setRows() {
-    let rows = await this.getRows();
-    this.setState(function() {
-      return {loaded: true, rows: rows}
-    })
-  }
+  startTimer() {
+    if (this.timer === 0) {
+        this.timer = setInterval(this.countDown, 100);
+    }
+}
 
-  async getRows() {
-    let rows = await fetch("/rooms");
-    rows = await rows.json();
-    return rows;
+  onLoop() {
+    if(Object.keys(this.props.allRooms).length > 0) {
+      this.forceUpdate();
+      clearInterval(this.timer);
+    }
   }
 
   render() {
-    if(this.state.loaded) {
-      return (<Rooms rows={this.state.rows} clickable={this.props.clickable}/>);
+    if(Object.keys(this.props.allRooms).length > 0) {
+      return (<Rooms rooms={this.props.allRooms} clickable={this.props.clickable}/>);
     } else {
+      this.startTimer();
       return (
         <div className="loading text-center">
           <img src={logo} alt="loading icon" className="App-logo"/>
-          <h1>Loading..</h1>
+          <h1 className="text-dark">Loading..</h1>
         </div>
       );
     }
   }
 }
 
-export default roomWrapper;
+function read(db) {
+  return{
+    allRooms: db.roomState
+  };
+}
+
+
+export default connect(read)(roomWrapper);
 

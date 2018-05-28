@@ -16,6 +16,10 @@ class master extends Component {
     return (<div className="text-center"><Rooms clickable={true}/></div>);
   }
 
+  footerLogo() {
+    return(<img id="footerLogo" src="/imgs/url.png" alt="url"/>);
+  }
+
   render() {
     if(this.props.selected != null) {
       this.state.mode = this.props.selected;
@@ -31,9 +35,9 @@ class master extends Component {
         }
         if(this.props.selectedRoom != null) {
           console.log(this.props.selectedRoom);
-          return(<div><Nav filter="false" location={this.props.selectedRoom.room.name}/>{this.selectedRoom()}<img src="/imgs/url.png" alt="url"/></div>);
+          return(<div><Nav filter="false" location={this.props.selectedRoom.room.name}/>{this.selectedRoom()}{this.footerLogo()}</div>);
         } else {
-          return (<div><Nav filter="true" location="Selection"/>{this.allRooms()}<img src="/imgs/url.png" alt="url"/></div>);
+          return (<div><Nav filter="true" location="Selection"/>{this.allRooms()}{this.footerLogo()}</div>);
         }
       default:
         return (
@@ -42,7 +46,7 @@ class master extends Component {
             <Setup/>
             <img src="/imgs/url.png" alt="url"/>
           </div>
-      )
+      );
     }
   }
 }

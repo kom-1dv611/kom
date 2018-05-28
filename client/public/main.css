@@ -1,11 +1,8 @@
 html, body {
   margin: 0;
-  height: 100%;
   z-index: 1 !important; }
 
 body {
-  width: 100%;
-  height: 100%;
   background-color: white;
   margin: 0 0; }
   body img {
@@ -75,12 +72,6 @@ h4 a {
 .breadcrumb-item.active {
   color: white; }
 
-.dropdown-menu {
-  min-width: 75px !important; }
-
-.dropdown-item:hover {
-  background-color: rgba(0, 0, 0, 0.1); }
-
 .row {
   margin: 0 !important;
   padding-bottom: 15px; }
@@ -109,7 +100,8 @@ h4 a {
   left: 0;
   right: 0;
   top: 70%;
-  color: white; }
+  color: white;
+  z-index: -1 !important; }
 
 #book, #cancel {
   position: absolute;
@@ -121,6 +113,9 @@ h4 a {
 
 #available, #unavailable {
   margin-top: 50px; }
+
+#footerLogo {
+  z-index: -1; }
 
 .available, .unavailable {
   background-image: none; }
@@ -142,14 +137,19 @@ input[type=date]::-webkit-inner-spin-button {
   transform: translateY(-50%);
   z-index: 3000 !important; }
 
-#search {
+#search, #searchButton {
   position: absolute;
-  right: 125px;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 3000 !important;
-  width: 200px;
+  z-index: 3000 !important; }
+
+#search {
+  right: 125px;
+  width: 100px;
   height: 25px; }
+
+#searchButton {
+  right: 225px; }
 
 @keyframes App-logo-spin {
   from {

@@ -110,7 +110,7 @@ module.exports = function (RoomModel, BookingModel) {
                 let currentBooking = bookingsToday.sort((a, b) => a.startTime.localeCompare(b.startTime))[0]; 
                 if(currentBooking.username === req.body.username) {
                     await Room.removeBookingWithStartTime(currentBooking);
-                    return res.status(200).json({message: 'Removed booking.'});
+                    return res.status(200).json({message: 'Success!'});
                 } else {
                     return res.status(401).json({message: 'Wrong username.'});
                 }          

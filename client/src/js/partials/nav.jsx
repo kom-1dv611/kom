@@ -14,7 +14,11 @@ class nav extends Component {
   search() {
     let filter = this.props.filter;
     if(filter === "true") {
-      return(<input type="text" className="form-control" id="search" placeholder="Search"/>);
+      return(
+          <div>
+            <input type="text" id="search" class="form-control text-center" placeholder="Search" maxLength="8"/>
+          </div>
+        );
     } else{
       return "";
     }
@@ -39,8 +43,6 @@ class nav extends Component {
             {this.generateButton("Norrgård")}
           </div>
         </div>);
-    } else {
-      return "";
     }
   }
   render() {

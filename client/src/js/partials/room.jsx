@@ -22,7 +22,6 @@ class room extends Component {
             <div className="card-body pt-4 pb-4 pl-2 pr-2">
                 <h5 className="card-title">{room.name}</h5>
                 <p className="location" hidden>{room.location}</p> 
-
                 {this.getState(this.props.room.available)}
             </div>
         </div>);

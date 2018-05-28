@@ -2,12 +2,17 @@ import React, { Component } from 'react';
 import {connect} from "react-redux"; //read
 import Room from "./room"
 
-import logo from '../../logo.svg';
+import $ from "jquery";
 
 class roomCollection extends Component {
     constructor(props) {
         super(props);
-        this.state = {rows: this.props.rows.rows}
+
+        let rooms = this.sort(this.props.rooms);
+
+        this.ticks = 0;
+
+        this.state = {rows: rooms}
         this.startTimer = this.startTimer.bind(this);
         this.countDown = this.countDown.bind(this);
     }
@@ -28,7 +33,7 @@ class roomCollection extends Component {
     
     startTimer() {
         if (this.timer === 0) {
-            this.timer = setInterval(this.countDown, 5000);
+            this.timer = setInterval(this.countDown, 100);
         }
     }
 
@@ -40,12 +45,33 @@ class roomCollection extends Component {
     }
 
     async countDown() {
-        let rows = await this.getRooms();
-        this.setState(function() {
-            return {
-                rows: rows
-            };
-        });
+        this.ticks++;
+
+        if(this.ticks >= 50) {
+            this.ticks = 0;
+            let rows = await this.getRooms();
+            this.setState(function() {
+                return {
+                    rows: rows
+                };
+            });
+        } else {
+            let rooms = Object.values(this.props.allRooms);
+
+            rooms.forEach((room, i) => {
+                room = rooms[i]
+                room.room = {
+                    name : room.name,
+                    location: room.location
+                };
+            });
+            let sorted = this.sort(rooms);
+            this.setState(function() {
+                return {
+                    rows: sorted
+                };
+            });
+        }
       }
 
     structure(target) {
@@ -61,6 +87,13 @@ class roomCollection extends Component {
 
     sort(rooms) {
         let rowSize = 4;
+
+        if(rooms.length <= 10) {
+            rowSize = 2;
+        } else if(rooms.length <= 20) {
+            rowSize = 3;
+        }
+
         let size = Math.ceil(rooms.length / rowSize);
         let rows = [];
         for(let i = 0; i < size; i++) {
@@ -77,17 +110,26 @@ class roomCollection extends Component {
 
     render() {
         let rows;
-        if(this.props.filter === null || this.props.filter == "All") {
+        let search = $("#search").val()
+        if((this.props.filter === null || this.props.filter === "All") && search === "") {
             rows = this.structure(this.state.rows)
         } else {
             let total = [];
             let filter = this.props.filter;
-            console.log(filter);
-            this.state.rows.map(function (row, i) {
-                let temp = row.cols.filter(col => col.room.location === filter);
-                total = total.concat(temp);
-                return true;
-            });
+            if(search !== "") {
+                this.state.rows.map(function (row, i) {
+                    let temp = row.cols.filter(col => col.room.location.toLowerCase().includes(search.toLowerCase()) || col.room.name.toLowerCase().includes(search.toLowerCase()));
+                    total = total.concat(temp);
+                    return true;
+                });
+            } else {
+                this.state.rows.map(function (row, i) {
+                    let temp = row.cols.filter(col => col.room.location === filter);
+                    total = total.concat(temp);
+                    return true;
+                });
+            }
+
             rows = this.sort(total);
             rows = this.structure(rows)
         }
@@ -104,6 +146,7 @@ class roomCollection extends Component {
 function read(db) {
     return{
       filter: db.filterSelect,
+      allRooms: db.roomState
     };
   }
   

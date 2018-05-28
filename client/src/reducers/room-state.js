@@ -3,6 +3,8 @@ import {
     UPDATE_ROOM,
   } from '../js/actions/room-state'
 
+import error from "./error";
+
 
 let rooms = {};
 
@@ -19,7 +21,7 @@ async function populate(obj, rooms) {
     rooms.forEach((row) => {
         row = row["cols"];
         row.forEach((col) => {
-            obj[col.room.name] = {available: col.available, name: col.room.name};
+            obj[col.room.name] = {available: col.available, location: col.room.location, name: col.room.name, schedule: col.schedule};
         });
     });
 }
@@ -36,7 +38,9 @@ async function cancel(name, user) {
     data.cancel = true;
     data.username = user;
 
-    fetch(`/room/${name}`, {
+    console.log(data);
+
+    let resp = await fetch(`/room/${name}`, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -44,14 +48,23 @@ async function cancel(name, user) {
         },
         body: JSON.stringify(data)
     });
-    console.log("sent cancel request for " + name);
+    console.log("sent cancel request for " + name + "(" + resp.status + ")");
+
+    if(resp.status !== 200) {
+        resp = await resp.json();
+        console.log("Error: " + resp.message)
+        error(null, {type: "NEW_ERROR", value: resp.message});
+    } else {
+        console.log("Success!")
+        rooms[name].available = true; //only change if request = accepted
+    }
 }
 
 async function checkin(name, user) {
     let data = {};
     data.room = name;
     data.user = user;
-    fetch(`/checkIn/${name}`, {
+    let resp = await fetch(`/checkIn/${name}`, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -59,7 +72,14 @@ async function checkin(name, user) {
         },
         body: JSON.stringify(data)
     });
-    console.log("sent checkin request for " + name);
+    console.log("sent checkin request for " + name + "(" + resp.status + ")");
+    if(resp.status !== 200) {
+        resp = await resp.json();
+        console.log("Error: " + resp.message)
+    } else {
+        console.log("Success!")
+        
+    }
 }
 
 export default function(state = null, action) {
@@ -77,7 +97,9 @@ export default function(state = null, action) {
             break;
         case UPDATE_ROOM:
             rooms[action.value.name] = action.value;
-            return true;
+            break;
+        default:
+            return rooms;
     }
     return rooms;
 }

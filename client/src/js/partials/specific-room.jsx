@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import {connect} from "react-redux"; //read
 import {bindActionCreators} from "redux"; //write
 
-import cancel from "../actions/cancelBooking";
 import room from "../actions/room-state";
+import error from "../actions/get-error";
 
 import $ from "jquery"
 
@@ -18,7 +18,8 @@ class Room extends Component {
 
         this.state = {
             room: this.props.roomGetter[this.props.room],
-            schedule: []
+            schedule: [],
+            error: this.props.readError
         };
 
         console.log(this.state);
@@ -46,26 +47,31 @@ class Room extends Component {
     async countDown() {
         this.ticks++;
         if(this.ticks > 50) {
+            this.ticks = 0;
             let name = this.state.room.name;
             let updated = await fetch("/room/" + name);
             updated = await updated.json();
             console.log(updated);
-            updated.bookings = [];
             this.setState(function() {
                 return {
-                    room: updated["room"]
+                    room: {
+                        name: updated["room"].name,
+                        available: updated["room"].available
+                    },
+                    schedule: updated["room"].schedule,
+                    error: this.props.readError
                 };
             });
         } else {
             let room = this.props.roomGetter[this.state.room.name];
-            if(room.available !== this.state.room.available) {
-                this.setState(function(prev) {
-                    return {
-                        room: {available: room.available, name: prev.room.name},
-                        schedule: prev.schedule
-                    };
-                });
-            }
+            this.setState(function(prev) {
+                return {
+                    room: {available: room.available, name: prev.room.name},
+                    schedule: room.schedule,
+                    error: this.props.readError
+                };
+            });
+            
         }
       }
 
@@ -73,19 +79,30 @@ class Room extends Component {
         let available = this.state.room.available;
         let toReturn;
         if(available === true) {
-            toReturn = (<h1 id="state" className="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently available!">Available</h1>);
+            toReturn = (<h1 className="text-center mt-5 pt-5 animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently available!">Available</h1>);
         } else if(available === false) {
-            if(this.state.room.bookings && this.state.room.bookings.length > 0) {
+            let schedule = this.state.schedule;
+            if(schedule && schedule.length > 0) {
                 toReturn = (
-                    <div className="text-center animated fadeIn">
-                        <h1 id="state" data-toggle="tooltip" data-placement="top" title="This room is currently unavailable!">Unavailable</h1>
-                        <h3>Available: {this.state.room.ings[0].endTime}({this.state.time.h}:{this.state.time.m}:{this.state.time.s})</h3>
+                    <div className="text-center mt-2 pt-5 animated fadeIn">
+                        <h1 data-toggle="tooltip" data-placement="top" title="This room is currently unavailable!">Unavailable</h1>
+                        <h3>Available: {schedule[0].endTime}</h3>
                     </div>);
             } else {
-                toReturn = (<h1 id="state" className="text-center animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently unavailable!">Unavailable</h1>);
+                toReturn = (<h1 className="text-center mt-2 pt-5 animated fadeIn" data-toggle="tooltip" data-placement="top" title="This room is currently unavailable!">Unavailable</h1>);
             }
         }
         return toReturn;
+    }
+
+    icons() {
+        return(
+            <div className="mt-3 text-center animated fadeIn">
+                <i className="fas fa-users fa-3x" title="Capacity"></i><span className="h3">5</span>
+                <i className="fas fa-laptop fa-3x mr-2" title="Computer Equipment"></i>
+                <i className="fab fa-product-hunt fa-3x mr-2" title="Projector"></i>
+            </div>
+        );
     }
 
     clock() {
@@ -95,15 +112,14 @@ class Room extends Component {
     booking() {
         let available = this.state.room.available;
         let name = this.state.room.name;
-
         if(available === true) {
             return (
                 <div id="book" className="animated fadeInLeft">
                     <div className="row justify-content-center pb-0">
-                        <input type="time" id="currentTime" name="time" hidden/>
+                        <input id="currentTime" hidden/>
                         <div id="schedule" className="col-md-auto">
                             <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
-                            <Schedule name={this.state.room.name} schedule={this.state.room.schedule}/>
+                            <Schedule name={this.state.room.name} schedule={this.state.schedule}/>
                         </div>
                         <Book room={name} available={available} />
                     </div>
@@ -112,9 +128,10 @@ class Room extends Component {
             return (
             <div id="cancel" className="animated fadeInLeft">
                 <div className="row justify-content-center pb-0">
+                    <input id="currentTime" hidden/>
                     <div id="schedule" className="col-md-auto">
                         <button className="btn btn-dark" data-toggle="modal" data-target="#test"><i className="fas fa-calendar-alt"></i>Schedule</button>
-                        <Schedule name={this.state.room.name} schedule={this.state.room.schedule}/>
+                        <Schedule name={this.state.room.name} schedule={this.state.schedule}/>
                     </div>
                     <div className="col-md-auto">
                         <Book room={name} available={available} />
@@ -123,7 +140,6 @@ class Room extends Component {
             </div>);
         }
     }
-
 
     async cancel() {
         this.state.room.available = true;
@@ -143,7 +159,6 @@ class Room extends Component {
     }
 
     render() {
-
         if(Object.keys(this.state).length === 0) {
             return(
                 <div>
@@ -154,13 +169,10 @@ class Room extends Component {
             this.updateBackground();
             return (
                 <div>
-                    <div className="ml-2 mt-5 pt-5 text-center">
-                        <i className="fas fa-users fa-3x" title="Capacity"></i><span className="h3">5</span>
-                        <i className="fas fa-laptop fa-3x mr-2" title="Computer Equipment"></i>
-                        <i className="fab fa-product-hunt fa-3x mr-2" title="Projector"></i>
-                    </div>
                     {this.stateHeader()}
+                    {this.icons()}
                     {this.booking()}
+                    <h3 className="text-center">{this.props.error.msg}</h3>
                     {this.clock()}
                 </div>
                 );
@@ -170,7 +182,7 @@ class Room extends Component {
 
 function write(dispatch) {
     return bindActionCreators({
-        roomManager: room
+        roomManager: room,
     }, dispatch);
 }
 
@@ -178,7 +190,8 @@ function write(dispatch) {
 function read(db) {
     return{
         cancel: db.cancelBooking,
-        roomGetter: db.roomState
+        roomGetter: db.roomState,
+        error: db.error
     };
 }
   
