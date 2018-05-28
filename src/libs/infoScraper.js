@@ -88,15 +88,24 @@ let scrape = async (roomName) => {
             let list = table[i].replace(/\s+/g, ' ')
             list = list.split(' ');
 
-           context = {}
+            context = {}
 
-            // lite ful lösning för att spara information om rummet
-            context.name = list[4]
-            context.size = list[15]
-            // spara endast ner om det finns dator eller inte eftersom index alltid blir olika är detta lättast att kolla
-            if (list[18] === 'Utrustning') {
-                if (list[19] === 'Dator') {
-                    context.equipment = list[19]
+            for (let i = 0; i < table.length; i++) {
+                let list = table[i].replace(/\s+/g, ' ')
+                list = list.split(' ');
+
+                context = {}
+
+                for (let j = 0; j < list.length; j++) {
+                    if (list[j] === 'Namn') {
+                        context.name = list[j + 1]
+                    }
+                    if (list[j] === 'Storlek') {
+                        context.size = list[j + 1]
+                    }
+                    if (list[j] === 'Dator') {
+                        context.equipment = list[j]
+                    }
                 }
             }
         }
