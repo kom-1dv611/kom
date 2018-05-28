@@ -31,6 +31,7 @@ module.exports = class RoomHandler {
             grouproom.available = true;
         }
         grouproom.schedule = schedule;
+        
         return grouproom;
     }
 
