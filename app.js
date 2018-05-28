@@ -35,13 +35,13 @@ app.use(function (req, res, next) {
 });
 
 //Setup grouprooms with LNUscraper
-app.get('/setup', (req, res) => {
+app.get('/setup-rooms', (req, res) => {
     const LNUscraper = require('./src/libs/setupLNUscraper');
     LNUscraper(RoomModel);
 })
 
 let scrape = require('./src/libs/infoScraper')
-app.get('/scrape', async function (req, res) {
+app.get('/setup-room-info', async function (req, res) {
     let rooms = await Room.getRoomsFromDB()
     let promises = rooms.map((room, index) => {
         return new Promise(async (resolve, reject) => {
