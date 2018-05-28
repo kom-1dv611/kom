@@ -16,7 +16,6 @@ moment.locale('sv');
 
 module.exports = function (RoomModel, BookingModel) {
     let Room = new RoomHandler(RoomModel, BookingModel);
-
     router.route('/rooms')
         .get(async function (req, res) {
             let rooms = await Room.getRoomsFromDB();
@@ -44,49 +43,6 @@ module.exports = function (RoomModel, BookingModel) {
             let schedule = await Room.getCompleteScheduleToday(req.params.id);
             let currentTime = moment().format('LT');
             let room = {name: req.params.id, schedule};
-
-            /*
-            if(schedule.length > 0) {
-                let bookingsToday = schedule.filter((x) => x.bookingDate === moment().format('YYYY-MM-DD'));
-                let currentBooking = bookingsToday.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
-
-                if (currentBooking.isBookLater) {
-                    console.log('isBookLater')
-                    BookingModel.findOne({roomID: req.params.id}, function(err, booking) {
-                        if (!err) {
-                            if(booking.hasUserCheckedIn === true) {
-                                //SKICKA 200
-                                room.available = false;
-                                console.log('Nu ska bakgrunden bli röd: false')
-                                return res.status(200).json({room});
-                            } else if(currentTime > add15MinutesToTime(booking.startTime)) {
-                                //KOLLA DATUM OCKSÅ
-                                console.log('gick den in här elr: true')
-                                BookingModel.findOneAndRemove({roomID: room.name, startTime: booking.startTime}, function(err, result) {
-                                    if(!err) {
-                                        console.log('deleted from DB')
-                                        room.available = true;
-                                        return res.status(200).json({room});
-                                    }
-                                })
-                            } else {
-                                console.log('här går den in: true')
-                                room.available = true;
-                                console.log(room);
-                                return res.status(200).json({room});
-                            }
-                        }
-                        
-                    })
-                } else {
-                    room.available = currentBooking.startTime <= currentTime && currentBooking.endTime >= currentTime ?  false : true;
-                    return res.status(200).json({room});
-                }
-            } else {
-                room.available = true;
-                return res.status(200).json({room});
-            }
-            */
 
             if(schedule.length > 0) {
                 let bookingsToday = schedule.filter((x) => x.bookingDate === moment().format('YYYY-MM-DD'));

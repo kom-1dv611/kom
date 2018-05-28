@@ -20,7 +20,6 @@ module.exports =  {
         });
  
         // Connect to the database.
-        'mongodb://kom-projekt:kom-projekt@ds119110.mlab.com:19110/kom'
-        mongoose.connect('mongodb://viatrophy:viatrophy@ds135089.mlab.com:35089/viatrophy');
+        mongoose.connect('mongodb://admin:12345@ds137600.mlab.com:37600/kom');
  }
 };
