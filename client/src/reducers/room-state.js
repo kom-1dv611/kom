@@ -21,7 +21,14 @@ async function populate(obj, rooms) {
     rooms.forEach((row) => {
         row = row["cols"];
         row.forEach((col) => {
-            obj[col.room.name] = {available: col.available, location: col.room.location, name: col.room.name, schedule: col.schedule};
+            obj[col.room.name] = {
+                available: col.available,
+                location: col.room.location,
+                name: col.room.name,
+                schedule: col.schedule,
+                size: col.room.size ? col.room.size : 0,
+                computer: col.room.computer ? true : false
+                };
         });
     });
 }
@@ -85,7 +92,7 @@ async function checkin(name, user) {
 export default function(state = null, action) {
     switch(action.type) {
         case "CHECK_IN":
-            checkin(action.value.name, action.value.user);
+            //checkin(action.value.name, action.value.user); NOT IMPLEMENTED ON SERVER :<
             break;
         case "BOOKING_CANCELED":
             cancel(action.value.name, action.value.user);

@@ -8,7 +8,7 @@ class setup extends Component {
     render() {
         return(
             <div id="book" className="animated fadeInLeft">
-                <div className="row justify-content-center">
+                <div className="row justify-content-center pb-0">
                 <div className="col-md-auto">
                     <button className="btn btn-dark" onClick={ () => this.props.setup("overall") }>Overview</button>
                 </div>

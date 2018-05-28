@@ -15,12 +15,21 @@ class room extends Component {
         return toReturn;
     }
 
+    title() {
+        let room = this.props.room.room;
+        if(this.props.allRooms[room.name].size > 0) {
+            return(<h5 className="card-title">{room.name} <i className="fas fa-users" title="Capacity"></i>{this.props.allRooms[room.name].size}</h5>);
+        } else {
+            return(<h5 className="card-title">{room.name}</h5>);
+        }
+    }
+
     render() {
         let room = this.props.room.room;
         let state = (
         <div className={"card mt-1 md-1text-center animated fadeIn " + (this.props.room.available === true ? "available" : "unavailable")} onClick={ () => this.props.roomSelect(this.props.room)}>
             <div className="card-body pt-4 pb-4 pl-2 pr-2">
-                <h5 className="card-title">{room.name}</h5>
+                {this.title()}
                 <p className="location" hidden>{room.location}</p> 
                 {this.getState(this.props.room.available)}
             </div>
@@ -30,7 +39,7 @@ class room extends Component {
 }
 
 function read(db) {
-    return{};
+    return{allRooms: db.roomState};
   }
   
   function write(dispatch) {
