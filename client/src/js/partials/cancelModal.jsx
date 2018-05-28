@@ -52,7 +52,7 @@ class cancelModal extends Component {
     footer() {
         return(
             <div className="modal-footer">
-                <button id="cancelConfirm" type="button" className="btn btn-dark confirm" data-dismiss="modal">Cancel</button>
+                <button id="cancelConfirm" type="button" className="btn btn-dark confirm" data-dismiss="modal">Confirm</button>
             </div>
         );
     }

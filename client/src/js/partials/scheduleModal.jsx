@@ -94,7 +94,6 @@ class Schedule extends Component {
         $( document ).ready(() => {
             $("#checkin").off();
             $("#checkin").on("click", () => {
-                console.log("PLZZZ")
                 this.onClick();
             });
         });
