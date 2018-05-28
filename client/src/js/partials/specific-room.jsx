@@ -64,6 +64,7 @@ class Room extends Component {
             });
         } else {
             let room = this.props.roomGetter[this.state.room.name];
+            console.log(room);
             this.setState(function(prev) {
                 return {
                     room: {available: room.available, name: prev.room.name},

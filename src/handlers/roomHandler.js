@@ -1,9 +1,11 @@
 'use strict';
 
 const getEndTimeForBooking = require('../utils/endTimebooking');
-const timeEditApi = require('timeeditApi');
+const timeEditApi = require('timeeditapi');
 const timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
 let moment = require('moment');
+
+console.log("bla");
 
 module.exports = class RoomHandler {
     constructor(RoomModel, BookingModel) {
@@ -31,6 +33,7 @@ module.exports = class RoomHandler {
             grouproom.available = true;
         }
         grouproom.schedule = schedule;
+
         return grouproom;
     }
 

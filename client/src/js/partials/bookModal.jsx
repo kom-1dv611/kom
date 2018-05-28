@@ -43,6 +43,7 @@ class enterDateTime extends Component {
         });
 
         resp = await resp.json();
+        props.submit(name);
         props.error(resp.message);
     }
 
