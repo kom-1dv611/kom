@@ -40,8 +40,9 @@ app.get('/setup-rooms', (req, res) => {
     LNUscraper(RoomModel);
 })
 
-let scrape = require('./src/libs/infoScraper')
+//Setup grouproom information
 app.get('/setup-room-info', async function (req, res) {
+    let scrape = require('./src/libs/infoScraper')
     let rooms = await Room.getRoomsFromDB()
     let promises = rooms.map((room, index) => {
         return new Promise(async (resolve, reject) => {

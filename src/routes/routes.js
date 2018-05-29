@@ -190,56 +190,6 @@ module.exports = function (RoomModel, BookingModel) {
             res.send(JSON.stringify(schedule, null, 2));
         });
 
-    router.route('/checkIn/:room')
-        .get(function(req, res) {
-            let currentTime = moment().format('LT');
-            BookingModel.find({roomID: req.body.room}, function(err, rooms) {
-                if(err) {
-                    console.log(err)
-                } else {
-                    //KOLLA DATUM OCKSÅ
-                    let booking = rooms.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
-                    if(booking.isBookLater === true) {
-                        if(booking.hasUserCheckedIn === true) {
-                            //SKICKA 200
-                            console.log('Nu ska bakgrunden bli röd')
-                        } else if(currentTime > add15MinutesToTime(booking.startTime)) {
-                            //KOLLA DATUM OCKSÅ
-                            BookingModel.findOneAndRemove({roomID: req.body.room, startTime: booking.startTime}, function(err, result) {
-                                if(err) {
-                                    console.log(err);
-                                } else {
-                                    console.log('deleted from DB')
-                                }
-                            })
-                        }
-                    }
-                }
-            })
-        })   
-        .post(function(req, res) {
-            console.log(req.body);
-            let currentTime = moment().format('LT');
-            BookingModel.findOne({username: req.body.user, roomID: req.body.room}, function(err, booking) {
-                if(err) {
-                    res.status(500).json(err);
-                } else {
-                    if(currentTime >= booking.startTime && currentTime <= add15MinutesToTime(booking.startTime)) {
-                        booking.hasUserCheckedIn = true;
-                        booking.save(function(err, result) {
-                            if(err) {
-                                res.status(500).json(err);
-                            } else {
-                                console.log('updated to DB');
-                                res.status(200).json({message: 'Check-in'});
-                            }
-                        })
-                        
-                    }
-                }
-            })
-        })
-
     router.route('/room/:roomID/schedule/')
         .get(function (req, res) {
             // full schedule     

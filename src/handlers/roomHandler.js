@@ -31,7 +31,6 @@ module.exports = class RoomHandler {
             grouproom.available = true;
         }
         grouproom.schedule = schedule;
-
         return grouproom;
     }
 
@@ -76,10 +75,6 @@ module.exports = class RoomHandler {
                 if (roomSchedule) {
                     schedule.push({username: 'timeedit', startTime: roomSchedule[0].time.startTime, endTime: roomSchedule[0].time.endTime, bookingDate: moment().format('YYYY-MM-DD'), isBookLater: false});
                 }
-                
-                // if (schedule.length > 0) {
-                //     schedule.sort((a, b) => a.startTime.localeCompare(b.startTime));
-                // }
 
                 return schedule.sort((a, b) => a.startTime.localeCompare(b.startTime));;
             }).catch((er) => {
