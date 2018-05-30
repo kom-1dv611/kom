@@ -63,7 +63,6 @@ app.get('/setup-room-info', async function (req, res) {
                             if (err) {
                                 console.log(err)
                             }
-                            console.log(data)
                         })
                     })
                 }
