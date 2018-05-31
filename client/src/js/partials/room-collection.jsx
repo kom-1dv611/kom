@@ -50,6 +50,7 @@ class roomCollection extends Component {
         if(this.ticks >= 50) {
             this.ticks = 0;
             let rows = await this.getRooms();
+
             this.setState(function() {
                 return {
                     rows: rows

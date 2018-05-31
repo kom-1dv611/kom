@@ -52,11 +52,13 @@ class Room extends Component {
             let updated = await fetch("/room/" + name);
             updated = await updated.json();
             console.log(updated);
-            this.setState(function() {
+            this.setState(function(prev) {
                 return {
                     room: {
                         name: updated["room"].name,
-                        available: updated["room"].available
+                        available: updated["room"].available,
+                        size: prev.room.size,
+                        computer: prev.room.computer
                     },
                     schedule: updated["room"].schedule,
                     error: this.props.readError
@@ -66,7 +68,7 @@ class Room extends Component {
             let room = this.props.roomGetter[this.state.room.name];
             this.setState(function(prev) {
                 return {
-                    room: {available: room.available, name: prev.room.name},
+                    room: {available: room.available, name: prev.room.name, computer: room.computer, size: room.size},
                     schedule: prev.schedule,
                     error: this.props.readError
                 };
@@ -95,12 +97,28 @@ class Room extends Component {
         return toReturn;
     }
 
+
+    size() {
+        if(this.state.room.size > 0) {
+            return(
+                <div className="d-inline">
+                    <i className="fas fa-users fa-3x" title="Capacity"></i><span className="h3">{this.state.room.size}</span>
+                </div>
+            ); 
+        }
+    }
+
+    hasComputer() {
+        if(this.state.room.computer === true) {
+            return(<i className="fas fa-laptop fa-3x mr-2" title="Computer Equipment"></i>);
+        }
+    }
+
     icons() {
         return(
             <div className="mt-3 text-center animated fadeIn">
-                <i className="fas fa-users fa-3x" title="Capacity"></i><span className="h3">5</span>
-                <i className="fas fa-laptop fa-3x mr-2" title="Computer Equipment"></i>
-                <i className="fab fa-product-hunt fa-3x mr-2" title="Projector"></i>
+                {this.size()}
+                {this.hasComputer()}
             </div>
         );
     }

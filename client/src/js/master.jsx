@@ -28,11 +28,6 @@ class master extends Component {
       case "overall":
         return (<div className="container"><Nav filter="true" location="Overview"/><Rooms clickable={false}/></div>);
       case "specific":
-        if(this.props.available) {
-          document.getElementsByTagName("body")[0].setAttribute("class", "available")
-        } else if(this.props.available === false){
-          document.getElementsByTagName("body")[0].setAttribute("class", "unavailable")
-        }
         if(this.props.selectedRoom != null) {
           console.log(this.props.selectedRoom);
           return(<div><Nav filter="false" location={this.props.selectedRoom.room.name}/>{this.selectedRoom()}{this.footerLogo()}</div>);
