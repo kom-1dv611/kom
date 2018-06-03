@@ -1,4 +1,4 @@
-let error = {msg: "No error yet (init)"}; //Returning the object allows updating it.
+let error = {msg: ""}; //Returning the object allows updating it.
 let duration = 0;
 
 function getError() {
