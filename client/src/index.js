@@ -6,6 +6,6 @@ import reducers from "./reducers/combiner"
 
 import Master from './js/master';
 
-const store = createStore(reducers);
+let store = createStore(reducers);
 
 ReactDOM.render(<Provider store={store}><Master /></Provider>, document.getElementById('root'));

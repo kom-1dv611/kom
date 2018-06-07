@@ -1,6 +1,6 @@
-var clock;
-var animation = "animated fadeInDown";
-var animationTime = "0.7s";
+let clock;
+let animation = "animated fadeInDown";
+let animationTime = "0.7s";
 
 function getLength(number) {
     return number.toString().length

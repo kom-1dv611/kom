@@ -2,13 +2,13 @@
 
 let RoomHandler = require('../handlers/roomHandler');
 
-const Scraper = require('../libs/scraper');
-const getEndTimeForBooking = require('../utils/endTimebooking');
-const buildTable = require('../utils/buildTable');
-const add15MinutesToTime = require('../utils/addMinutesToTime');
+let Scraper = require('../libs/scraper');
+let getEndTimeForBooking = require('../utils/endTimebooking');
+let buildTable = require('../utils/buildTable');
+let add15MinutesToTime = require('../utils/addMinutesToTime');
 
-const timeEditApi = require('timeeditapi');
-const timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
+let timeEditApi = require('timeeditapi');
+let timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
 
 let router = require("express").Router();
 let moment = require('moment');
@@ -33,8 +33,8 @@ module.exports = function (RoomModel, BookingModel) {
                 .then((groupRooms) => {
                     let table = buildTable(groupRooms);
                     return res.status(200).json({ rows: table });
-                }).catch((error) => {
-                    console.log(error)
+                }).catch((err) => {
+                    console.log(err);
                 })
         })
 
@@ -82,7 +82,7 @@ module.exports = function (RoomModel, BookingModel) {
                     bookingDate: moment().format('YYYY-MM-DD')
                 }
 
-                let month = JSON.stringify(req.body.date.month)
+                let month = JSON.stringify(req.body.date.month);
                 if(month.length === 1) {
                     month = '0' + month;
                 }
@@ -122,7 +122,7 @@ module.exports = function (RoomModel, BookingModel) {
                     
 
                     if(status === true && matchBookings.length === 0) {
-                        resolve('Success')
+                        resolve('Success');
                     }
 
                     let statusWrong = false;
@@ -137,9 +137,9 @@ module.exports = function (RoomModel, BookingModel) {
                     }
 
                     if(statusRight === true && statusWrong === true || statusWrong === true) {
-                        reject('Fail')
+                        reject('Fail');
                     } else if(statusRight === true) {
-                        resolve('Success')
+                        resolve('Success');
                     }
                 });
 
@@ -149,10 +149,10 @@ module.exports = function (RoomModel, BookingModel) {
                     if(value === 'Success') {
                         let timeEditBookings = await Room.getSpecificScheduleTimeEditByDate(req.body.room, data.bookingDate);
                         if(timeEditBookings === null) {
-                            let bookRoom = new BookingModel(data)
+                            let bookRoom = new BookingModel(data);
                             bookRoom.save((err) => {
                                 if (!err) {
-                                    console.log('Booking saved in DB.')
+                                    console.log('Booking saved in DB.');
                                     return res.status(200).json({message: 'Booking successfully saved in DB.'});
                                 }
                             }) 
@@ -167,18 +167,18 @@ module.exports = function (RoomModel, BookingModel) {
                             if(statusWrong === true && statusRight === true || statusWrong === true) {
                                 return res.status(401).json({message: 'There is already bookings at this time. See schedule.'});
                             } else if(statusRight === true) {
-                                let bookRoom = new BookingModel(data)
+                                let bookRoom = new BookingModel(data);
                                 bookRoom.save((err) => {
                                     if (!err) {
-                                        console.log('Booking saved in DB.')
+                                        console.log('Booking saved in DB.');
                                         return res.status(200).json({message: 'Booking successfully saved in DB.'});
                                     }
                                 }) 
                             }
                         }
                     } 
-                }).catch(function(error) {
-                    console.log(error);
+                }).catch(function(err) {
+                    console.log(err);
                     return res.status(401).json({message: 'There is already bookings at this time. See schedule.'});
                 })
             }   
@@ -206,8 +206,8 @@ module.exports = function (RoomModel, BookingModel) {
                         array.push(data);
                     }
                     res.send(JSON.stringify(array, null, 2));
-                }).catch((er) => {
-                    console.log(er);
+                }).catch((err) => {
+                    console.log(err);
                 });
         });
 

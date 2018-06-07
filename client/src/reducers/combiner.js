@@ -5,7 +5,7 @@ import busy from "./room-state";
 import filter from "./filter-select";
 import error from "./error";
 
-const test = combineReducers({
+let test = combineReducers({
     setupSelect: setup,
     setupRoom: setupRoom,
     roomState: busy,

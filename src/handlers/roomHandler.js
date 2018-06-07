@@ -1,8 +1,8 @@
 'use strict';
 
-const getEndTimeForBooking = require('../utils/endTimebooking');
-const timeEditApi = require('timeeditapi');
-const timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
+let getEndTimeForBooking = require('../utils/endTimebooking');
+let timeEditApi = require('timeeditapi');
+let timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
 let moment = require('moment');
 
 module.exports = class RoomHandler {
@@ -46,7 +46,7 @@ module.exports = class RoomHandler {
             console.log('Successfully removed ' + roomID + ' booking from DB!');
             return result;
         }).catch((err) => {
-            console.log(err)
+            console.log(err);
         })
     }
 
@@ -77,8 +77,8 @@ module.exports = class RoomHandler {
                 }
 
                 return schedule.sort((a, b) => a.startTime.localeCompare(b.startTime));;
-            }).catch((er) => {
-                console.log(er);
+            }).catch((err) => {
+                console.log(err);
             });
     }
 
@@ -88,7 +88,7 @@ module.exports = class RoomHandler {
         .then((booking) => {
             return booking;
         }).catch((err) => {
-            console.log(err)
+            console.log(err);
         })
     }
 
@@ -98,7 +98,7 @@ module.exports = class RoomHandler {
         .then((rooms) => {
             return rooms.sort((a, b) => a.name.localeCompare(b.name));
         }).catch((err) => {
-            console.log(err)
+            console.log(err);
         })
     }
 
@@ -108,7 +108,7 @@ module.exports = class RoomHandler {
         .then((bookings) => {
             return bookings;
         }).catch((err) => {
-            console.log(err)
+            console.log(err);
         })
     }
 
@@ -116,8 +116,8 @@ module.exports = class RoomHandler {
         return timeEdit.getTodaysSchedule(room)
         .then((roomSchedule) => {
             return roomSchedule;
-        }).catch((er) => {
-            console.log(er);
+        }).catch((err) => {
+            console.log(err);
         });
     }
 
@@ -125,8 +125,8 @@ module.exports = class RoomHandler {
         return timeEdit.getScheduleByDate(room, new Date(date))
         .then((roomSchedule) => {
             return roomSchedule;
-        }).catch((er) => {
-            console.log(er);
+        }).catch((err) => {
+            console.log(err);
         });
     }
 };

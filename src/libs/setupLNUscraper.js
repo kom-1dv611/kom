@@ -1,7 +1,9 @@
 'use strict';
-const timeEditApi = require('timeeditApi');
-const timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
-const Scraper = require('./scraper');
+
+let timeEditApi = require('timeeditApi');
+let timeEdit = timeEditApi('https://se.timeedit.net/web/lnu/db1/schema1/', 4);
+let Scraper = require('./scraper');
+
 module.exports = async (RoomModel) => {
     // Save room if it isn't stored in DB already
     let rooms = await Scraper();
@@ -29,5 +31,4 @@ module.exports = async (RoomModel) => {
 
         })
     })
-    
 }

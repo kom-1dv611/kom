@@ -1,5 +1,5 @@
 function saveUser () {
-  var person = prompt('Please enter your username:')
+  let person = prompt('Please enter your username:')
 
   if (person == null || person == '') {
     console.log('spara ej')

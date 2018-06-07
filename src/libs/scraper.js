@@ -1,8 +1,8 @@
 'use strict';
 
-const puppeteer = require('puppeteer');
+let puppeteer = require('puppeteer');
 
-const LNU_KALMAR_ROOMS = [
+let LNU_KALMAR_ROOMS = [
     'https://lnu.se/sok/?q=grupprum&main=Karta&locationcity=Kalmar&s=alphabeticallyasc',
     'https://lnu.se/sok/?q=grupprum&main=Karta&locationcity=Kalmar&p=1&s=alphabeticallyasc',
     'https://lnu.se/sok/?q=grupprum&main=Karta&locationcity=Kalmar&p=2&s=alphabeticallyasc',
@@ -10,8 +10,8 @@ const LNU_KALMAR_ROOMS = [
 ];
 
 module.exports = async () => {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
+    let browser = await puppeteer.launch();
+    let page = await browser.newPage();
 
     let rooms = [];
     
@@ -20,12 +20,12 @@ module.exports = async () => {
         await page.goto(LNU_KALMAR_ROOMS[i]);
 
         try {
-            const finder = await page.evaluate(() => {
+            let finder = await page.evaluate(() => {
                 let lists = document.querySelector('.content-list > ul');
                 let roomList = [];
     
                 for (let i = 0; i < lists.childElementCount; i++) {
-                    roomList.push(lists.children[i].textContent)
+                    roomList.push(lists.children[i].textContent);
                 }
     
                 return roomList;
@@ -62,8 +62,8 @@ module.exports = async () => {
                 
                 rooms.push(roomObject);
             }
-        } catch (error) {
-            console.log(error)
+        } catch (err) {
+            console.log(err);
         }
     }
 

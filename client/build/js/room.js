@@ -1,4 +1,4 @@
-const socket = io();
+let socket = io();
 
 $("body").attr('id', $("#state").text() == "Available" ? 'available' : 'unavailable');
 

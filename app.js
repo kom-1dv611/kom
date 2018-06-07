@@ -1,6 +1,6 @@
 'use strict';
 
-require('dotenv').config()
+require('dotenv').config();
 
 let express = require('express');
 let bodyParser = require('body-parser');
@@ -12,8 +12,8 @@ let app = express();
 let http = require('http').Server(app);
 let io = require('socket.io')(http);
 
-const mongoose = require('mongoose')
-let BookingModel = require('./src/models/Booking').model('Booking')
+let mongoose = require('mongoose');
+let BookingModel = require('./src/models/Booking').model('Booking');
 let RoomModel = require('./src/models/Room').model('Room');
 let RoomHandler = require('./src/handlers/roomHandler');
 let Room = new RoomHandler(RoomModel, BookingModel);
@@ -36,18 +36,18 @@ app.use(function (req, res, next) {
 
 //Setup grouprooms with LNUscraper
 app.get('/setup-rooms', (req, res) => {
-    const LNUscraper = require('./src/libs/setupLNUscraper');
+    let LNUscraper = require('./src/libs/setupLNUscraper');
     LNUscraper(RoomModel);
 })
 
 //Setup grouproom information
 app.get('/setup-room-info', async function (req, res) {
-    let scrape = require('./src/libs/infoScraper')
-    let rooms = await Room.getRoomsFromDB()
+    let scrape = require('./src/libs/infoScraper');
+    let rooms = await Room.getRoomsFromDB();
     let promises = rooms.map((room, index) => {
         return new Promise(async (resolve, reject) => {
-            let e = await scrape(room.name)
-            resolve(e)
+            let roomName = await scrape(room.name);
+            resolve(roomName);
         })
     })
 
@@ -56,19 +56,19 @@ app.get('/setup-room-info', async function (req, res) {
             for (let i = 0; i < groupRooms.length; i++) {
                 if (groupRooms[i] !== undefined) {
                     RoomModel.findOne({ name: groupRooms[i].name }, function (err, result) {
-                        result.equipment = groupRooms[i].equipment
-                        result.size = groupRooms[i].size
+                        result.equipment = groupRooms[i].equipment;
+                        result.size = groupRooms[i].size;
 
                         result.save(function (err, data) {
                             if (err) {
-                                console.log(err)
+                                console.log(err);
                             }
                         })
                     })
                 }
             }
-        }).catch((error) => {
-            console.log(error)
+        }).catch((err) => {
+            console.log(err);
         })
 })
 

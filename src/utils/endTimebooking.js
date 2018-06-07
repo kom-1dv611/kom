@@ -9,7 +9,7 @@ module.exports = function(booking) {
     let minutes = startTime.substring(3, 6);
    
     if(endTimeHour >= 1 && endTimeHour <= 9) {
-        endTimeHour = '0' + endTimeHour
+        endTimeHour = '0' + endTimeHour;
     }
 
     if(endTimeHour === 24) {
